@@ -8,7 +8,7 @@ function App() {
   const [data, setData] = useState("");
 
   useEffect(() => {
-    fetch("/api")
+    fetch(import.meta.env.VITE_BASE_API_URL)
       .then((res) => res.text())
       .then((data) => setData(data));
   }, []);

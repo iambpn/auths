@@ -1,22 +1,18 @@
-import express from "express";
+import express, { type Express } from "express";
 import * as path from "path";
 
 const FRONTEND_PATH = path.join(__dirname, "..", "public", "frontend", "build");
 
-const app = express();
+export function authsInit(app: Express) {
+  app.get("/auths/api", (req, res) => {
+    res.send("Hello world api");
+  });
 
-app.get("/api", (req, res) => {
-  res.send("Hello world api");
-});
+  // server prod frontend build
+  app.use("/auths", express.static(FRONTEND_PATH));
 
-// server prod frontend build
-app.use(express.static(FRONTEND_PATH));
-
-// serve prod index.html in * path
-app.get("*", (req, res) => {
-  return res.sendFile(path.join(FRONTEND_PATH, "index.html"));
-});
-
-app.listen(8080, () => {
-  console.log("listening on port 8080");
-});
+  // serve prod index.html in * path
+  app.get("/auths/*", (req, res) => {
+    return res.sendFile(path.join(FRONTEND_PATH, "index.html"));
+  });
+}
