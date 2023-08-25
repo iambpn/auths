@@ -1,0 +1,28 @@
+{
+  "name": "auths",
+  "version": "0.0.0",
+  "description": "Authentication System similar to Auth0",
+  "scripts": {
+    "dev": "npm run dev -w frontend & npm run dev -w backend",
+    "build": "npm run build --workspaces",
+    "test": "echo \"Error: no test specified ofr auths\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iambpn/auths.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/iambpn/auths/issues"
+  },
+  "homepage": "https://github.com/iambpn/auths#readme",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "devDependencies": {
+    "shx": "^0.3.4"
+  }
+}
