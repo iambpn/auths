@@ -7,6 +7,7 @@
     "dev": "tsnd --rs src/main.ts",
     "prebuild": "shx rm -r ./dist || true",
     "build": "tsc",
+    "serve": "node .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
