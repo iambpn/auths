@@ -1,9 +1,13 @@
 import express, { type Express } from "express";
 import * as path from "path";
+import { migrateDB } from "./schema/drizzle-migrate";
 
 const FRONTEND_PATH = path.join(__dirname, "..", "public", "frontend", "build");
 
 export function authsInit(app: Express) {
+  // initialize db
+  migrateDB(process.env.AUTHS_DB_PATH)
+
   app.get("/auths/api", (req, res) => {
     res.send("Hello world api");
   });
