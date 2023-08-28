@@ -5,7 +5,7 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
   ...(process.env.NODE_ENV === "production" && {
-    base: "/auths", // appending /auths for api calls including fetching resources
+    base: "/auths", // prepending /auths for api calls including fetching resources
   }),
   build: {
     outDir: "../backend/public/frontend/build",
