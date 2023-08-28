@@ -1,6 +1,6 @@
 # Auths
 
-## Setting up DB
+## Adding New Schema to DB
 
 - Create new schema in `drizzle-schema.ts`
 - Update `kysley` schema in `kysley-schema.ts`
