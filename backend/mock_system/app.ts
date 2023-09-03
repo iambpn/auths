@@ -3,7 +3,7 @@ import { authsInit } from "../src/main";
 import * as path from "path";
 
 // adding env variable
-process.env["AUTHS_DB_PATH"] = path.join(__dirname, "./dev.sqlite");
+process.env["AUTHS_DB_URI"] = path.join(__dirname, "./dev.sqlite");
 
 const app = express();
 
