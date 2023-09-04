@@ -8,7 +8,13 @@ function App() {
   const [data, setData] = useState("");
 
   useEffect(() => {
-    fetch(import.meta.env.VITE_BASE_API_URL)
+    fetch(import.meta.env.VITE_BASE_API_URL, {
+      method: "post",
+      body: JSON.stringify({
+        email: "test@test.com",
+        password: "123456",
+      }),
+    })
       .then((res) => res.text())
       .then((data) => setData(data));
   }, []);
