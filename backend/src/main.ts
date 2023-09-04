@@ -4,12 +4,16 @@ import { z } from "zod";
 import { router } from "./routes/auth.router";
 import { migrateDB } from "./schema/drizzle-migrate";
 import { instantiateDB } from "./schema/kysley-instance";
-import { formatZodError } from "./utils/helper/formatZodError";
 import { HttpError } from "./utils/helper/httpError";
+import { ErrorResponse } from "./utils/types/errorResponse";
 
 const FRONTEND_PATH = path.join(__dirname, "..", "public", "frontend", "build");
 
 export function authsInit(app: Express) {
+  // Body parser
+  app.use(express.urlencoded({ extended: true, limit: 5 * 1024 }));
+  app.use(express.json());
+
   // Migrate db
   migrateDB(process.env.AUTHS_DB_URI);
 
@@ -28,19 +32,26 @@ export function authsInit(app: Express) {
   });
 
   // Custom Error Handler for /auths route
-  app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
+  app.use((error: unknown, req: Request, res: Response<ErrorResponse>, next: NextFunction) => {
+    const errorObj: ErrorResponse = {
+      errors: {} as any,
+      path: req.path,
+      time: new Date(),
+    };
+    let statusCode = 500;
+
+    console.error(error);
     if (error instanceof z.ZodError) {
-      return res.status(400).json({
-        error: formatZodError(error),
-      });
+      statusCode = 400;
+      errorObj.errors = error.format();
     } else if (error instanceof HttpError) {
-      return res.status(error.statusCode).json({
-        error: [error.message],
-      });
+      statusCode = error.statusCode;
+      errorObj.errors = { _errors: [error.message] };
     } else {
-      return res.status(500).json({
-        error: [(error instanceof Error ? error.message : error) ?? "Internal Server Error"],
-      });
+      statusCode = 500;
+      errorObj.errors = { _errors: ["Internal Server Error"] };
     }
+
+    return res.status(statusCode).json(errorObj);
   });
 }

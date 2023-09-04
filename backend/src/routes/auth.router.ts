@@ -1,10 +1,23 @@
-import { Router, Request, Response } from "express";
-import { validate } from "../utils/helper/validation";
-import { createInsertSchema, createSelectSchema } from "drizzle-zod";
-import { UserSchema } from "../schema/drizzle-schema";
+import { Request, Response, Router } from "express";
+import { validate } from "../utils/helper/validate";
+import { LoginValidationSchema, LoginValidationType } from "../utils/validation_schema/login.schema";
+import { db } from "../schema/kysley-instance";
+import { HttpError } from "../utils/helper/httpError";
 
 export const router = Router();
 
-router.post("/", validate(createInsertSchema(UserSchema).pick({ email: true, password: true })), (req: Request, res: Response) => {
-  res.send("hello world");
+router.post("/", validate(LoginValidationSchema), async (req: Request<any, any, LoginValidationType>, res: Response) => {
+  const body = req.body;
+  const users = await db.selectFrom("user").where("email", "=", body.email).select(["email", "password"]).executeTakeFirst();
+
+  if (!users) {
+    throw new HttpError("Incorrect email or password", 404);
+  }
+
+  // todo: hash the password before querying
+  if (users.password !== body.password) {
+    throw new HttpError("Incorrect email or password", 404);
+  }
+
+  // todo return a temp token
 });
