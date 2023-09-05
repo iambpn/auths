@@ -1,0 +1,1 @@
+ALTER TABLE login_token ADD `token` text NOT NULL;

@@ -12,3 +12,19 @@ export const UserSchema = sqliteTable("user", {
 });
 
 export type UserTable = Kyselify<typeof UserSchema>;
+
+export const LoginTokenSchema = sqliteTable("login_token", {
+  uuid: text("uuid").primaryKey().notNull(),
+  userUuid: text("user_uuid")
+    .notNull()
+    .references(() => UserSchema.uuid, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+  token: text("token").notNull(),
+  expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).default(sql`CURRENT_TIMESTAMP`),
+});
+
+export type LoginTokenTable = Kyselify<typeof LoginTokenSchema>;

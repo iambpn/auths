@@ -5,7 +5,7 @@ export default {
   schema: "./src/schema/drizzle-schema.ts",
   driver: "better-sqlite",
   dbCredentials: {
-    url: process.env.AUTHS_DB_PATH,
+    url: process.env.AUTHS_DB_URI,
   },
   out: "./drizzle",
 };

@@ -1,5 +1,6 @@
-import { UserTable } from "./drizzle-schema";
+import { LoginTokenTable, UserTable } from "./drizzle-schema";
 
 export interface Database {
   user: UserTable;
+  loginToken: LoginTokenTable;
 }
