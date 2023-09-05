@@ -35,3 +35,19 @@ export async function login(email: string, password: string) {
     email: user.email,
   };
 }
+
+export async function signup(email: string, password: string, others: Record<string, any> = {}) {
+  const user = await db.selectFrom("user").where("email", "=", email).select(["email"]).executeTakeFirst();
+
+  if (user) {
+    throw new HttpError("Email already exists. Please use different email", 404);
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  const userId = await db.insertInto("user").values({ email, password: hashedPassword, uuid: uuid.v4(), others }).returningAll().executeTakeFirst();
+
+  if (!userId) {
+    throw new HttpError("Error wile creating user. Please try again later", 404);
+  }
+}
