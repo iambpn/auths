@@ -1,8 +1,17 @@
 ### Login Api
-POST http://127.0.0.1:8080/auths/api HTTP/1.1
+POST http://127.0.0.1:8080/auths/api/login HTTP/1.1
 Content-Type: application/json
 
 {
-  "email": "abc@gmail",
+  "email": "abc@gmail.com",
+  "password": "password"
+}
+
+### Sign up Mock API
+POST http://127.0.0.1:8080/signup HTTP/1.1
+Content-Type: application/json
+
+{
+  "email": "abc@gmail.com",
   "password": "password"
 }
