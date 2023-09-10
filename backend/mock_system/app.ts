@@ -1,5 +1,5 @@
 import express, { type Request, type Response, type NextFunction } from "express";
-import { authsInit, signup } from "../src/main";
+import { authsInit, login, signup } from "../src/main";
 import * as path from "path";
 
 // adding env variable
@@ -15,6 +15,17 @@ app.post("/signup", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password } = req.body;
     const result = await signup(email, password);
+    return res.status(201).json(result);
+  } catch (error) {
+    // Handling error in async handler
+    next(error);
+  }
+});
+
+app.post("/login", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email, token } = req.body;
+    const result = await login(token, email);
     return res.status(201).json(result);
   } catch (error) {
     // Handling error in async handler

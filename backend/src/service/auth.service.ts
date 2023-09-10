@@ -98,7 +98,7 @@ export async function loginFn(token: string, email: string, additionalPayload: R
     .from(LoginTokenSchema)
     .where(and(eq(LoginTokenSchema.token, token), eq(LoginTokenSchema.userUuid, user.uuid)))
     .limit(1)
-    .orderBy(desc(UserSchema.createdAt));
+    .orderBy(desc(LoginTokenSchema.createdAt));
 
   if (!loginToken) {
     throw new HttpError("Invalid token", 404);

@@ -61,4 +61,4 @@ export function authsInit(app: Express) {
   });
 }
 
-export { signUpFn as signup } from "./service/auth.service";
+export { signUpFn as signup, loginFn as login } from "./service/auth.service";

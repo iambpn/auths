@@ -15,3 +15,12 @@ Content-Type: application/json
   "email": "abc@gmail.com",
   "password": "password"
 }
+
+### Login Mock API
+POST http://127.0.0.1:8080/login HTTP/1.1
+Content-Type: application/json
+
+{
+  "token": "1dfa2ff6e1bf2164ddb5d52bf26791fe813560472b0dfee4222bf7b14881fc0e",
+  "email": "abc@gmail.com"
+}
