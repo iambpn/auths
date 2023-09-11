@@ -21,6 +21,10 @@ POST http://127.0.0.1:8080/login HTTP/1.1
 Content-Type: application/json
 
 {
-  "token": "1dfa2ff6e1bf2164ddb5d52bf26791fe813560472b0dfee4222bf7b14881fc0e",
+  "token": "6f3335755e62a72dd18f6dd2c46416cf098341aaba3dee06262895a26e2667a0",
   "email": "abc@gmail.com"
 }
+
+### Get / Mock API
+GET http://127.0.0.1:8080 HTTP/1.1
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFiY0BnbWFpbC5jb20iLCJpYXQiOjE2OTQ0MDcyMjcsImV4cCI6MTc4MDgwNzIyN30.ujavAoaceiylPnOL3Zppv1uHr01xd2rpsEZ_r2oAP5A

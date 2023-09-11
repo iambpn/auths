@@ -4,14 +4,14 @@
   "description": "",
   "main": "dist/main.js",
   "scripts": {
-    "dev": "tsnd --rs mock_system/app.ts",
+    "dev": "tsnd --rs example/app.ts",
     "prebuild": "shx rm -r ./dist || true",
     "build": "tsc",
     "serve": "node .",
     "drizzle:generate": "drizzle-kit generate:sqlite --config=./drizzle.config.js",
-    "drizzle:push": "AUTHS_DB_URI=./mock_system/dev.sqlite drizzle-kit push:sqlite --config=./drizzle.config.js",
+    "drizzle:push": "AUTHS_DB_URI=./example/dev.sqlite drizzle-kit push:sqlite --config=./drizzle.config.js",
     "drizzle:drop": "drizzle-kit drop --config=./drizzle.config.js",
-    "drizzle:studio": "AUTHS_DB_URI=./mock_system/dev.sqlite drizzle-kit studio",
+    "drizzle:studio": "AUTHS_DB_URI=./example/dev.sqlite drizzle-kit studio",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

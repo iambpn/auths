@@ -3,3 +3,7 @@ export interface ENV_VARIABLE {
   AUTHS_SECRET: string;
   AUTHS_JWT_EXPIRATION_TIME: string;
 }
+
+export interface ADDITIONAL_REQUEST_PROPERTIES {
+  currentUser?: Record<string, any>;
+}

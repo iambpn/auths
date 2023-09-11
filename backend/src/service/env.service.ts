@@ -18,7 +18,7 @@ export function validateEnv() {
       for (const err of error.errors) {
         errors.push(`Incorrect or Missing ${err.path.join(", ")} env variable`);
       }
-      throw errors;
+      throw new Error(JSON.stringify(errors));
     }
 
     throw error;

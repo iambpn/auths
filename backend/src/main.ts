@@ -62,3 +62,4 @@ export function authsInit(app: Express) {
 }
 
 export { signUpFn as signup, loginFn as login } from "./service/auth.service";
+export { isAuthenticated } from "./middleware/auth.middleware";

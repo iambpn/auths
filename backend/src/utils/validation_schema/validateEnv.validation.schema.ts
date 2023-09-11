@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ENV_VARIABLE } from "../../_env.type";
+import { ENV_VARIABLE } from "../../_app.type";
 
 export const validateEnvSchema = z.object({
   AUTHS_DB_URI: z.string(),

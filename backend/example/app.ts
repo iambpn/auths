@@ -1,5 +1,5 @@
 import express, { type Request, type Response, type NextFunction } from "express";
-import { authsInit, login, signup } from "../src/main";
+import { authsInit, isAuthenticated, login, signup } from "../src/main";
 import * as path from "path";
 
 // adding env variable
@@ -33,8 +33,12 @@ app.post("/login", async (req: Request, res: Response, next: NextFunction) => {
   }
 });
 
+app.get("/", isAuthenticated, (req, res) => {
+  res.json({ msg: req.currentUser?.email });
+});
+
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
-  console.log(error, "MOK ERROR HANDLER");
+  console.log(error, "MOCK ERROR HANDLER");
   return res.status(500).json({ message: error.message });
 });
 
