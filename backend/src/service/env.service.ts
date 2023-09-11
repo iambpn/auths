@@ -11,6 +11,8 @@ export function validateEnv() {
     ENV_VARS = validateEnvSchema.parse({
       AUTHS_DB_URI: process.env.AUTHS_DB_URI!,
       AUTHS_SECRET: process.env.AUTHS_SECRET!,
+      AUTHS_JWT_EXPIRATION_TIME: process.env.AUTHS_JWT_EXPIRATION_TIME!,
+      AUTHS_TOKEN_EXPIRATION_TIME: process.env.AUTHS_TOKEN_EXPIRATION_TIME!,
     } satisfies ValidateEnvType);
   } catch (error) {
     if (error instanceof ZodError) {

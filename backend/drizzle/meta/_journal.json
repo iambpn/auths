@@ -36,6 +36,13 @@
       "when": 1694242663775,
       "tag": "0004_stale_warbound",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1694435001447,
+      "tag": "0005_right_inhumans",
+      "breakpoints": true
     }
   ]
 }

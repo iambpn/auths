@@ -1,6 +1,6 @@
-import express, { type Request, type Response, type NextFunction } from "express";
-import { authsInit, isAuthenticated, login, signup } from "../src/main";
+import express, { type NextFunction, type Request, type Response } from "express";
 import * as path from "path";
+import { authsInit, initiateForgotPassword, isAuthenticated, login, signup } from "../src/main";
 
 // adding env variable
 process.env["AUTHS_DB_URI"] = path.join(__dirname, "./dev.sqlite");
@@ -27,8 +27,21 @@ app.post("/login", async (req: Request, res: Response, next: NextFunction) => {
     const { email, token } = req.body;
     const result = await login(token, email);
     return res.status(201).json(result);
-  } catch (error) {
+  } catch (error: unknown) {
     // Handling error in async handler
+    next(error);
+  }
+});
+
+app.post("/forgetPassword", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email } = req.body;
+    const resetPasswordDetails = await initiateForgotPassword(email);
+
+    // send email or send sms
+
+    return res.json(resetPasswordDetails);
+  } catch (error: unknown) {
     next(error);
   }
 });

@@ -1,13 +1,14 @@
-import { db } from "../schema/drizzle-migrate";
-import { getRandomKey } from "../utils/helper/getRandomKey";
-import { HttpError } from "../utils/helper/httpError";
 import * as bcrypt from "bcrypt";
-import * as uuid from "uuid";
-import { minutesToMilliseconds } from "../utils/helper/miliseconds";
-import { LoginTokenSchema, UserSchema } from "../schema/drizzle-schema";
 import { and, desc, eq } from "drizzle-orm";
 import * as jwt from "jsonwebtoken";
+import * as uuid from "uuid";
+import { db } from "../schema/drizzle-migrate";
+import { ForgotPasswordSchema, LoginTokenSchema, UserSchema } from "../schema/drizzle-schema";
+import { getRandomKey } from "../utils/helper/getRandomKey";
+import { HttpError } from "../utils/helper/httpError";
+import { minutesToMilliseconds } from "../utils/helper/miliseconds";
 import { ENV_VARS } from "./env.service";
+import { config } from "../utils/config/app-config";
 
 export async function getLoginToken(email: string, password: string) {
   const [user] = await db
@@ -35,7 +36,7 @@ export async function getLoginToken(email: string, password: string) {
     await db
       .update(LoginTokenSchema)
       .set({ expiresAt: new Date(Date.now()) })
-      .where(eq(LoginTokenSchema.userUuid, prevToken.uuid));
+      .where(eq(LoginTokenSchema.uuid, prevToken.uuid));
   }
 
   const token = getRandomKey(32);
@@ -46,7 +47,7 @@ export async function getLoginToken(email: string, password: string) {
       token: token,
       userUuid: user.uuid,
       uuid: uuid.v4(),
-      expiresAt: new Date(Date.now() + minutesToMilliseconds(2)),
+      expiresAt: new Date(Date.now() + minutesToMilliseconds(+(ENV_VARS.AUTHS_TOKEN_EXPIRATION_TIME ?? 2))),
     })
     .returning();
 
@@ -73,7 +74,7 @@ export async function signUpFn(email: string, password: string, others: Record<s
     throw new HttpError("Email already exists. Please use different email", 404);
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const hashedPassword = await bcrypt.hash(password, config.hashRounds);
 
   const [savedUser] = await db
     .insert(UserSchema)
@@ -112,4 +113,83 @@ export async function loginFn(token: string, email: string, additionalPayload: R
     uuid: user.uuid,
     jwtToken,
   };
+}
+
+/**
+ *
+ * @param email
+ * @returns
+ * @throws {HttpError} User not found
+ *
+ */
+export async function validateUser(email: string) {
+  const [user] = await db.select().from(UserSchema).where(eq(UserSchema.email, email)).limit(1);
+
+  if (!user) {
+    throw new HttpError("User not found", 404);
+  }
+
+  return {
+    email: user.email,
+    uuid: user.uuid,
+  };
+}
+
+export async function initiateForgotPasswordFn(email: string, token?: string) {
+  let forgetPasswordToken = token;
+  if (!forgetPasswordToken) {
+    forgetPasswordToken = getRandomKey(16);
+  }
+
+  const [user] = await db.select().from(UserSchema).where(eq(UserSchema.email, email)).limit(1);
+  if (!user) {
+    throw new HttpError("User with provided email not found", 404);
+  }
+
+  const [prevToken] = await db.select().from(ForgotPasswordSchema).where(eq(ForgotPasswordSchema.userUuid, user.uuid)).orderBy(desc(ForgotPasswordSchema.createdAt)).limit(1);
+  if (prevToken) {
+    await db.update(ForgotPasswordSchema).set({ expiresAt: new Date() }).where(eq(ForgotPasswordSchema.uuid, prevToken.uuid));
+  }
+
+  const [forgetPassword] = await db
+    .insert(ForgotPasswordSchema)
+    .values({
+      uuid: uuid.v4(),
+      userUuid: user.uuid,
+      token: forgetPasswordToken,
+      expiresAt: new Date(Date.now() ?? minutesToMilliseconds(+(ENV_VARS.AUTHS_TOKEN_EXPIRATION_TIME ?? 2))),
+    })
+    .returning();
+
+  return {
+    email,
+    token: forgetPassword.token,
+    expires_at: forgetPassword.expiresAt,
+  };
+}
+
+export async function resetPassword(token: string, email: string, newPassword: string) {
+  const [user] = await db.select().from(UserSchema).where(eq(UserSchema.email, email)).limit(1);
+
+  if (!user) {
+    throw new HttpError("User with provided email not found", 404);
+  }
+
+  const [forgotPassword] = await db
+    .select()
+    .from(ForgotPasswordSchema)
+    .where(and(eq(ForgotPasswordSchema.token, token), eq(ForgotPasswordSchema.userUuid, user.uuid)))
+    .orderBy(desc(ForgotPasswordSchema.createdAt))
+    .limit(1);
+
+  if (!forgotPassword) {
+    throw new HttpError("Invalid token", 400);
+  }
+
+  const newPasswordHash = await bcrypt.hash(newPassword, config.hashRounds);
+  // update password
+  await db.update(UserSchema).set({ password: newPasswordHash }).where(eq(UserSchema.uuid, user.uuid));
+
+  // invalidate token
+  await db.update(ForgotPasswordSchema).set({ expiresAt: new Date() }).where(eq(ForgotPasswordSchema.uuid, forgotPassword.uuid));
 }

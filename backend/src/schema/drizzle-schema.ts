@@ -23,3 +23,16 @@ export const LoginTokenSchema = sqliteTable("login_token", {
   createdAt: integer("created_at", { mode: "timestamp" }).default(sql`CURRENT_TIMESTAMP`),
   updatedAt: integer("updated_at", { mode: "timestamp" }).default(sql`CURRENT_TIMESTAMP`),
 });
+
+export const ForgotPasswordSchema = sqliteTable("forgot_password", {
+  uuid: text("uuid").primaryKey().notNull(),
+  userUuid: text("user_uuid")
+    .notNull()
+    .references(() => UserSchema.uuid, {
+      onDelete: "no action",
+      onUpdate: "no action",
+    }),
+  token: text("token").notNull(),
+  expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).default(sql`CURRENT_TIMESTAMP`),
+});
