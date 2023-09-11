@@ -12,7 +12,7 @@
     "drizzle:push": "AUTHS_DB_URI=./example/dev.sqlite drizzle-kit push:sqlite --config=./drizzle.config.js",
     "drizzle:drop": "drizzle-kit drop --config=./drizzle.config.js",
     "drizzle:studio": "AUTHS_DB_URI=./example/dev.sqlite drizzle-kit studio",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --watchAll"
   },
   "repository": {
     "type": "git",
@@ -28,6 +28,7 @@
     "@jest/globals": "^29.6.4",
     "@types/better-sqlite3": "^7.6.4",
     "@types/express": "^4.17.17",
+    "@types/jest": "^29.5.4",
     "@types/jsonwebtoken": "^9.0.2",
     "@types/uuid": "^9.0.3",
     "drizzle-kit": "^0.19.13",
