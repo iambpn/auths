@@ -134,16 +134,23 @@ export async function loginFn(token: string, email: string, additionalPayload: R
  *
  */
 export async function validateUser(email: string) {
-  const [user] = await db.select().from(UserSchema).where(eq(UserSchema.email, email)).limit(1);
+  const [user] = await db
+    .select({
+      uuid: UserSchema.uuid,
+      email: UserSchema.email,
+      others: UserSchema.others,
+      createdAt: UserSchema.createdAt,
+      updatedAt: UserSchema.updatedAt,
+    })
+    .from(UserSchema)
+    .where(eq(UserSchema.email, email))
+    .limit(1);
 
   if (!user) {
     throw new HttpError("User not found", 404);
   }
 
-  return {
-    email: user.email,
-    uuid: user.uuid,
-  };
+  return user;
 }
 
 export async function initiateForgotPasswordFn(email: string, token?: string) {
