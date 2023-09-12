@@ -21,7 +21,7 @@ POST http://127.0.0.1:8080/login HTTP/1.1
 Content-Type: application/json
 
 {
-  "token": "67ef57264332ec80a29dcb5f86dc2f185758755aa6fce3e373933f9a96634c93",
+  "token": "34ac64bcb9ca51e14555ee6da858933f2fcdb6ea5290c131d5828c1da4c0b89e",
   "email": "abc@gmail.com"
 }
 
@@ -43,6 +43,6 @@ Content-Type: application/json
 
 {
   "email": "abc@gmail.com",
-  "token": "4bad51e56cfc76bcf487ea966607ce3e",
+  "token": "790075da958a5642e8117cf7ff0b37d0",
   "newPassword": "password"
 }

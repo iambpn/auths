@@ -1,47 +1,12 @@
 {
   "version": "5",
-  "dialect": "pg",
+  "dialect": "sqlite",
   "entries": [
     {
       "idx": 0,
       "version": "5",
-      "when": 1693218711454,
-      "tag": "0000_broken_maria_hill",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1693902650989,
-      "tag": "0001_sad_matthew_murdock",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1693904775301,
-      "tag": "0002_curious_venus",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1694242654129,
-      "tag": "0003_magical_jocasta",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "5",
-      "when": 1694242663775,
-      "tag": "0004_stale_warbound",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "5",
-      "when": 1694435001447,
-      "tag": "0005_right_inhumans",
+      "when": 1694535452266,
+      "tag": "0000_broken_psynapse",
       "breakpoints": true
     }
   ]

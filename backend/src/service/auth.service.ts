@@ -53,6 +53,8 @@ export async function getLoginToken(email: string, password: string) {
       userUuid: user.uuid,
       uuid: uuid.v4(),
       expiresAt: new Date(Date.now() + minutesToMilliseconds(+(ENV_VARS.AUTHS_TOKEN_EXPIRATION_TIME ?? 2))),
+      createdAt: new Date(),
+      updatedAt: new Date(),
     })
     .returning();
 
@@ -76,14 +78,14 @@ export async function signUpFn(email: string, password: string, others: Record<s
     .where(eq(UserSchema.email, email));
 
   if (user) {
-    throw new HttpError("Email already exists. Please use different email", 404);
+    throw new HttpError("Email already exists. Please use different email", 409);
   }
 
   const hashedPassword = await bcrypt.hash(password, config.hashRounds);
 
   const [savedUser] = await db
     .insert(UserSchema)
-    .values({ email, password: hashedPassword, uuid: uuid.v4(), others: JSON.stringify(others) })
+    .values({ email, password: hashedPassword, uuid: uuid.v4(), others: JSON.stringify(others), createdAt: new Date(), updatedAt: new Date() })
     .returning();
 
   if (!savedUser) {
@@ -181,6 +183,7 @@ export async function initiateForgotPasswordFn(email: string, token?: string) {
       userUuid: user.uuid,
       token: forgetPasswordToken,
       expiresAt: new Date(Date.now() + minutesToMilliseconds(+(ENV_VARS.AUTHS_TOKEN_EXPIRATION_TIME ?? 2))),
+      createdAt: new Date(),
     })
     .returning();
 

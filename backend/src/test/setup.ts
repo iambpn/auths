@@ -12,6 +12,7 @@ beforeAll(() => {
   // setup env variables
   process.env["AUTHS_DB_URI"] = ":memory:";
   process.env["AUTHS_SECRET"] = "secret_key";
+  process.env["TZ"] = "Etc/UTC";
   validateEnv();
 });
 
