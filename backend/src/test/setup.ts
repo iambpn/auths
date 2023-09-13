@@ -17,14 +17,14 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
-  // create in memory sql instance
+  // create in memory sql instance before each test
   let inMemSqLite = new SQLite(":memory:");
   db = drizzle(inMemSqLite, { schema: schema });
   migrate(db, { migrationsFolder: "drizzle" });
 });
 
-// close in memory sqlite
 afterEach(() => {
+  // close in memory sqlite after each test
   if (inMemSqLite) {
     inMemSqLite.close();
   }

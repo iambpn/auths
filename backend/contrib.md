@@ -25,3 +25,5 @@ _update `_env.type.ts` to add additional types to `process.env`._
 - [Drizzle Kysely repo](https://github.com/drizzle-team/drizzle-kysely)
 - [Drizzle Kit](https://orm.drizzle.team/kit-docs/overview)
 - [kysely](https://kysely.dev/docs/getting-started?dialect=sqlite)
+- [Jest](https://jestjs.io/docs/getting-started)
+- [Test-Coverage](https://timdeschryver.dev/blog/reading-code-coverage)

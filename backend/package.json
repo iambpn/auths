@@ -12,7 +12,8 @@
     "drizzle:push": "AUTHS_DB_URI=./example/dev.sqlite drizzle-kit push:sqlite --config=./drizzle.config.js",
     "drizzle:drop": "drizzle-kit drop --config=./drizzle.config.js",
     "drizzle:studio": "AUTHS_DB_URI=./example/dev.sqlite drizzle-kit studio",
-    "test": "jest --watchAll"
+    "test": "jest --watchAll --collectCoverage",
+    "coverage": "jest --coverage --coverageDirectory=./coverage"
   },
   "repository": {
     "type": "git",

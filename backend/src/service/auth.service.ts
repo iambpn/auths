@@ -101,6 +101,10 @@ export async function signUpFn(email: string, password: string, others: Record<s
 export async function loginFn(token: string, email: string, additionalPayload: Record<string, any> = {}) {
   const [user] = await db.select().from(UserSchema).where(eq(UserSchema.email, email)).limit(1);
 
+  if (!user) {
+    throw new HttpError("User not found.", 404);
+  }
+
   const [loginToken] = await db
     .select()
     .from(LoginTokenSchema)
