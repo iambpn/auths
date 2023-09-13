@@ -178,7 +178,7 @@ describe("Integration Testing Auth service", () => {
         expect(error.statusCode).toEqual(404);
       }
     });
-    it("should disable login token after using it", async () => {
+    it("should return success object and disable login token after using it", async () => {
       const email = "abc@gmail.com";
       const password = "password";
       const [user] = await db
@@ -213,9 +213,9 @@ describe("Integration Testing Auth service", () => {
 
       const [expiredToken] = await db.select().from(LoginTokenSchema).where(eq(LoginTokenSchema.uuid, loginToken.uuid));
 
+      expect(loginToken.token).toEqual(expiredToken.token);
       expect(expiredToken.expiresAt.getTime()).toBeLessThan(Date.now());
     });
-    it.todo("should return success object on success");
   });
 
   describe("Validate User", () => {
