@@ -3,9 +3,11 @@ import { db } from "../schema/__mocks__/drizzle-migrate";
 import { LoginTokenSchema, UserSchema } from "../schema/drizzle-schema";
 import { config } from "../utils/config/app-config";
 import { HttpError } from "../utils/helper/httpError";
-import { getLoginToken, signUpFn } from "./auth.service";
+import { getLoginToken, loginFn, signUpFn } from "./auth.service";
 import * as bcrypt from "bcrypt";
 import * as uuid from "uuid";
+import { getRandomKey } from "../utils/helper/getRandomKey";
+import { minutesToMilliseconds } from "../utils/helper/miliseconds";
 
 //  mocking drizzle instance using manual mocking
 jest.mock("../schema/drizzle-migrate");
@@ -144,9 +146,75 @@ describe("Integration Testing Auth service", () => {
   });
 
   describe("Login FN", () => {
-    it.todo("should throw 404 error on invalid login token");
-    it.todo("should throw 404 error on invalid email");
-    it.todo("should disable login token after using it");
+    it("should throw 404 error on invalid login token", async () => {
+      try {
+        await db.insert(UserSchema).values({
+          email: "abc@gmail.com",
+          password: "password123",
+          uuid: uuid.v4(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+
+        // login with invalid token
+        await loginFn("wrong token", "abc@gmail.com", {});
+      } catch (error: unknown) {
+        if (!(error instanceof HttpError)) {
+          throw error;
+        }
+
+        expect(error.statusCode).toEqual(404);
+      }
+    });
+    it("should throw 404 error on invalid email", async () => {
+      try {
+        // login with invalid token and invalid email
+        await loginFn("wrong token", "abc@gmail.com", {});
+      } catch (error: unknown) {
+        if (!(error instanceof HttpError)) {
+          throw error;
+        }
+
+        expect(error.statusCode).toEqual(404);
+      }
+    });
+    it("should disable login token after using it", async () => {
+      const email = "abc@gmail.com";
+      const password = "password";
+      const [user] = await db
+        .insert(UserSchema)
+        .values({
+          email,
+          password,
+          uuid: uuid.v4(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .returning();
+
+      const token = getRandomKey(64);
+      const [loginToken] = await db
+        .insert(LoginTokenSchema)
+        .values({
+          uuid: uuid.v4(),
+          userUuid: user.uuid,
+          token,
+          expiresAt: new Date(Date.now() + minutesToMilliseconds(5)),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .returning();
+
+      const loginParams = await loginFn(token, email, {});
+
+      expect(loginParams.email).toEqual(email);
+      expect(loginParams.uuid).toEqual(user.uuid);
+      expect(loginParams.jwtToken).toBeDefined();
+
+      const [expiredToken] = await db.select().from(LoginTokenSchema).where(eq(LoginTokenSchema.uuid, loginToken.uuid));
+
+      expect(expiredToken.expiresAt.getTime()).toBeLessThan(Date.now());
+    });
     it.todo("should return success object on success");
   });
 
