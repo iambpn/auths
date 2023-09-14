@@ -3,7 +3,7 @@ import { db } from "../schema/__mocks__/drizzle-migrate";
 import { ForgotPasswordSchema, LoginTokenSchema, UserSchema } from "../schema/drizzle-schema";
 import { config } from "../utils/config/app-config";
 import { HttpError } from "../utils/helper/httpError";
-import { getLoginToken, initiateForgotPasswordFn, loginFn, signUpFn, validateUser } from "./auth.service";
+import { getLoginToken, initiateForgotPasswordFn, loginFn, resetPassword, signUpFn, validateUser } from "./auth.service";
 import * as bcrypt from "bcrypt";
 import * as uuid from "uuid";
 import { getRandomKey } from "../utils/helper/getRandomKey";
@@ -319,8 +319,83 @@ describe("Integration Testing Auth service", () => {
   });
 
   describe("Reset password", () => {
-    it.todo("should return 404 error on invalid email error");
-    it.todo("should return 400 error on invalid token error");
-    it.todo("should update the user password and invalidate used token");
+    it("should return 404 error on invalid email error", async () => {
+      const email = "abc@gmail.com";
+      const token = "token";
+
+      try {
+        await resetPassword(token, email, "password");
+      } catch (error) {
+        if (!(error instanceof HttpError)) {
+          throw error;
+        }
+
+        expect(error.statusCode).toEqual(404);
+      }
+    });
+
+    it("should return 400 error on invalid token error", async () => {
+      const email = "abc@gmail.com";
+      const token = "token";
+
+      try {
+        await db.insert(UserSchema).values({
+          email,
+          password: "password",
+          uuid: uuid.v4(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+
+        await resetPassword(token, email, "password");
+      } catch (error: unknown) {
+        if (!(error instanceof HttpError)) {
+          throw error;
+        }
+
+        expect(error.statusCode).toEqual(400);
+      }
+    });
+
+    it("should update the user password and invalidate used token", async () => {
+      const email = "abc@gmail.com";
+      const token = "token";
+      const password = "password";
+      const newPassword = "new_password";
+
+      const [user] = await db
+        .insert(UserSchema)
+        .values({
+          email,
+          password,
+          uuid: uuid.v4(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .returning();
+
+      expect(user.password).toEqual(password);
+
+      const [returnForgotPasswordToken] = await db
+        .insert(ForgotPasswordSchema)
+        .values({
+          userUuid: user.uuid,
+          token,
+          uuid: uuid.v4(),
+          expiresAt: new Date(Date.now() + 1000 * 60 * 5),
+          createdAt: new Date(),
+        })
+        .returning();
+
+      await resetPassword(token, email, newPassword);
+
+      const [fpToken] = await db.select().from(ForgotPasswordSchema).where(eq(ForgotPasswordSchema.uuid, returnForgotPasswordToken.uuid)).limit(1);
+      const [updatedUser] = await db.select().from(UserSchema).where(eq(UserSchema.uuid, user.uuid)).limit(1);
+
+      expect(updatedUser.password).not.toEqual(password);
+
+      expect(fpToken.token).toEqual(token);
+      expect(fpToken.expiresAt.getTime()).toBeLessThan(Date.now());
+    });
   });
 });
