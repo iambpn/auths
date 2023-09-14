@@ -3,7 +3,7 @@ import { db } from "../schema/__mocks__/drizzle-migrate";
 import { LoginTokenSchema, UserSchema } from "../schema/drizzle-schema";
 import { config } from "../utils/config/app-config";
 import { HttpError } from "../utils/helper/httpError";
-import { getLoginToken, loginFn, signUpFn } from "./auth.service";
+import { getLoginToken, loginFn, signUpFn, validateUser } from "./auth.service";
 import * as bcrypt from "bcrypt";
 import * as uuid from "uuid";
 import { getRandomKey } from "../utils/helper/getRandomKey";
@@ -219,11 +219,43 @@ describe("Integration Testing Auth service", () => {
   });
 
   describe("Validate User", () => {
-    it.todo("should throw 404 error on invalid email");
-    it.todo("should return user object on success");
+    it("should throw 404 error on invalid email", async () => {
+      const email = "abc@gmail.com";
+      try {
+        await validateUser(email);
+      } catch (error: unknown) {
+        if (!(error instanceof HttpError)) {
+          throw error;
+        }
+        expect(error.statusCode).toEqual(404);
+      }
+    });
+    it("should return user object on success", async () => {
+      const email = "abc@gmail.com";
+      const password = "password";
+      await db.insert(UserSchema).values({
+        email,
+        password: password,
+        uuid: uuid.v4(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      const user = await validateUser(email);
+
+      expect(user).toBeDefined();
+      expect(user.email).toEqual(email);
+    });
   });
 
-  describe("Initiate forgot password FN", () => {});
+  describe("Initiate forgot password FN", () => {
+    it.todo("should return 404 error on invalid email error");
+    it.todo("should expire previous token before on success and should return the success object ");
+  });
 
-  describe("Reset password", () => {});
+  describe("Reset password", () => {
+    it.todo("should return 404 error on invalid email error");
+    it.todo("should return 400 error on invalid token error");
+    it.todo("should update the user password and invalidate used token");
+  });
 });

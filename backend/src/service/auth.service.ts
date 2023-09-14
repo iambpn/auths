@@ -159,8 +159,8 @@ export async function validateUser(email: string) {
   return user;
 }
 
-export async function initiateForgotPasswordFn(email: string, token?: string) {
-  let forgetPasswordToken = token;
+export async function initiateForgotPasswordFn(email: string, returnToken?: string) {
+  let forgetPasswordToken = returnToken;
   if (!forgetPasswordToken) {
     forgetPasswordToken = getRandomKey(16);
   }

@@ -2,8 +2,8 @@ import { sql } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const UserSchema = sqliteTable("user", {
-  uuid: text("uuid").primaryKey().notNull(),
-  email: text("email").notNull(),
+  uuid: text("uuid").primaryKey(),
+  email: text("email").notNull().unique(),
   password: text("password").notNull(),
   others: text("others"),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
@@ -11,7 +11,7 @@ export const UserSchema = sqliteTable("user", {
 });
 
 export const LoginTokenSchema = sqliteTable("login_token", {
-  uuid: text("uuid").primaryKey().notNull(),
+  uuid: text("uuid").primaryKey(),
   userUuid: text("user_uuid")
     .notNull()
     .references(() => UserSchema.uuid, {
@@ -25,7 +25,7 @@ export const LoginTokenSchema = sqliteTable("login_token", {
 });
 
 export const ForgotPasswordSchema = sqliteTable("forgot_password", {
-  uuid: text("uuid").primaryKey().notNull(),
+  uuid: text("uuid").primaryKey(),
   userUuid: text("user_uuid")
     .notNull()
     .references(() => UserSchema.uuid, {
