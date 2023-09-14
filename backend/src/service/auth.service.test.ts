@@ -1,9 +1,9 @@
 import { desc, eq } from "drizzle-orm";
 import { db } from "../schema/__mocks__/drizzle-migrate";
-import { LoginTokenSchema, UserSchema } from "../schema/drizzle-schema";
+import { ForgotPasswordSchema, LoginTokenSchema, UserSchema } from "../schema/drizzle-schema";
 import { config } from "../utils/config/app-config";
 import { HttpError } from "../utils/helper/httpError";
-import { getLoginToken, loginFn, signUpFn, validateUser } from "./auth.service";
+import { getLoginToken, initiateForgotPasswordFn, loginFn, signUpFn, validateUser } from "./auth.service";
 import * as bcrypt from "bcrypt";
 import * as uuid from "uuid";
 import { getRandomKey } from "../utils/helper/getRandomKey";
@@ -249,8 +249,73 @@ describe("Integration Testing Auth service", () => {
   });
 
   describe("Initiate forgot password FN", () => {
-    it.todo("should return 404 error on invalid email error");
-    it.todo("should expire previous token before on success and should return the success object ");
+    it("should return 404 error on invalid email error", async () => {
+      const email = "abc@gmail.com";
+      try {
+        await initiateForgotPasswordFn(email);
+      } catch (error: unknown) {
+        if (!(error instanceof HttpError)) {
+          throw error;
+        }
+
+        expect(error.statusCode).toEqual(404);
+      }
+    });
+    it("should expire previous token before on success and should return the success object", async () => {
+      const email = "abc@gmail.com";
+      const password = "password";
+
+      // create user
+      const [user] = await db
+        .insert(UserSchema)
+        .values({
+          email,
+          password: password,
+          uuid: uuid.v4(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .returning();
+
+      const forgotPasswordToken = await initiateForgotPasswordFn(email);
+
+      const forgotPasswordToken2 = await initiateForgotPasswordFn(email);
+
+      expect(forgotPasswordToken2.email).toBeDefined();
+      expect(forgotPasswordToken2.expires_at).toBeDefined();
+      expect(forgotPasswordToken2.token).toBeDefined();
+      expect(forgotPasswordToken2.expires_at.getTime()).toBeGreaterThan(Date.now());
+
+      const [prevToken] = await db.select().from(ForgotPasswordSchema).where(eq(ForgotPasswordSchema.userUuid, user.uuid)).orderBy(desc(ForgotPasswordSchema.createdAt)).limit(1).offset(1);
+
+      expect(prevToken.token).toEqual(forgotPasswordToken.token);
+      expect(prevToken.expiresAt.getTime()).toBeLessThan(Date.now());
+    });
+    it("should return returnToken as forget password token if it is passed", async () => {
+      const email = "abc@gmail.com";
+      const password = "password";
+      const token = "fptoken";
+
+      // create user
+      const [user] = await db
+        .insert(UserSchema)
+        .values({
+          email,
+          password: password,
+          uuid: uuid.v4(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .returning();
+
+      const forgotPasswordToken = await initiateForgotPasswordFn(email, token);
+
+      expect(forgotPasswordToken.token).toEqual(token);
+
+      const [forgetPasswordToken2] = await db.select().from(ForgotPasswordSchema).where(eq(ForgotPasswordSchema.token, token)).limit(1);
+
+      expect(forgotPasswordToken.token).toEqual(forgetPasswordToken2.token);
+    });
   });
 
   describe("Reset password", () => {
