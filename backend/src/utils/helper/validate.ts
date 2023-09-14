@@ -1,8 +1,25 @@
+import { NextFunction, Request, Response } from "express";
 import { z } from "zod";
 
-export function validate(schema: z.Schema) {
-  return (req: any, res: any, next: any) => {
-    schema.parse(req.body);
+/**
+ *
+ * @param schema
+ * @param type default 'body'
+ * @returns
+ */
+export function validate(schema: z.Schema, type: "body" | "query" | "path" = "body") {
+  return (req: Request, res: Response, next: NextFunction) => {
+    switch (type) {
+      case "body":
+        schema.parse(req.body);
+        break;
+      case "path":
+        schema.parse(req.path);
+        break;
+      case "query":
+        schema.parse(req.query);
+        break;
+    }
     next();
   };
 }

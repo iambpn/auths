@@ -2,7 +2,7 @@ import { NextFunction, Request, Response, Router } from "express";
 import { validate } from "../utils/helper/validate";
 import { LoginValidationSchema, LoginValidationType } from "../utils/validation_schema/login.validation.schema";
 import { getLoginToken, resetPassword } from "../service/auth.service";
-import { ResetPasswordValidationSchema, ResetPasswordValidationType } from "../utils/validation_schema/resetPassoword.validation.schema";
+import { ResetPasswordValidationSchema, ResetPasswordValidationType } from "../utils/validation_schema/resetPassword.validation.schema";
 
 export const router = Router();
 
