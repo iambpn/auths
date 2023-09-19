@@ -12,6 +12,8 @@ import { minutesToMilliseconds } from "../utils/helper/miliseconds";
 //  mocking drizzle instance using manual mocking
 jest.mock("../schema/drizzle-migrate");
 
+const UserRole = "user";
+
 describe("Integration Testing Auth service", () => {
   describe("Get Login Token", () => {
     it("should throw 404 error for invalid user error", async () => {
@@ -36,6 +38,7 @@ describe("Integration Testing Auth service", () => {
       try {
         await db.insert(UserSchema).values({
           email,
+          role: UserRole,
           password: await bcrypt.hash(password, config.hashRounds),
           uuid: uuid.v4(),
           createdAt: new Date(),
@@ -57,6 +60,7 @@ describe("Integration Testing Auth service", () => {
 
       await db.insert(UserSchema).values({
         email,
+        role: UserRole,
         password: await bcrypt.hash(password, config.hashRounds),
         uuid: uuid.v4(),
         createdAt: new Date(),
@@ -78,6 +82,7 @@ describe("Integration Testing Auth service", () => {
         .insert(UserSchema)
         .values({
           email,
+          role: UserRole,
           password: await bcrypt.hash(password, config.hashRounds),
           uuid: uuid.v4(),
           createdAt: new Date(),
@@ -115,6 +120,7 @@ describe("Integration Testing Auth service", () => {
         .insert(UserSchema)
         .values({
           email,
+          role: UserRole,
           password: await bcrypt.hash(password, config.hashRounds),
           uuid: uuid.v4(),
           createdAt: new Date(),
@@ -123,7 +129,7 @@ describe("Integration Testing Auth service", () => {
         .returning();
 
       try {
-        await signUpFn(email, password);
+        await signUpFn(email, password, UserRole);
       } catch (error: unknown) {
         if (!(error instanceof HttpError)) {
           throw error;
@@ -137,11 +143,12 @@ describe("Integration Testing Auth service", () => {
       const email = "abc@gmail.com";
       const password = "password123";
 
-      const user = await signUpFn(email, password);
+      const user = await signUpFn(email, password, UserRole);
 
       const [sameUser] = await db.select().from(UserSchema).where(eq(UserSchema.email, email)).limit(1);
 
       expect(user.uuid).toEqual(sameUser.uuid);
+      expect(user.role).toEqual(UserRole);
     });
   });
 
@@ -150,6 +157,7 @@ describe("Integration Testing Auth service", () => {
       try {
         await db.insert(UserSchema).values({
           email: "abc@gmail.com",
+          role: UserRole,
           password: "password123",
           uuid: uuid.v4(),
           createdAt: new Date(),
@@ -185,6 +193,7 @@ describe("Integration Testing Auth service", () => {
         .insert(UserSchema)
         .values({
           email,
+          role: UserRole,
           password,
           uuid: uuid.v4(),
           createdAt: new Date(),
@@ -235,6 +244,7 @@ describe("Integration Testing Auth service", () => {
       const password = "password";
       await db.insert(UserSchema).values({
         email,
+        role: UserRole,
         password: password,
         uuid: uuid.v4(),
         createdAt: new Date(),
@@ -270,6 +280,7 @@ describe("Integration Testing Auth service", () => {
         .insert(UserSchema)
         .values({
           email,
+          role: UserRole,
           password: password,
           uuid: uuid.v4(),
           createdAt: new Date(),
@@ -301,6 +312,7 @@ describe("Integration Testing Auth service", () => {
         .insert(UserSchema)
         .values({
           email,
+          role: UserRole,
           password: password,
           uuid: uuid.v4(),
           createdAt: new Date(),
@@ -341,6 +353,7 @@ describe("Integration Testing Auth service", () => {
       try {
         await db.insert(UserSchema).values({
           email,
+          role: UserRole,
           password: "password",
           uuid: uuid.v4(),
           createdAt: new Date(),
@@ -367,6 +380,7 @@ describe("Integration Testing Auth service", () => {
         .insert(UserSchema)
         .values({
           email,
+          role: UserRole,
           password,
           uuid: uuid.v4(),
           createdAt: new Date(),

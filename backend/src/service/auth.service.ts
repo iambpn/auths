@@ -69,7 +69,7 @@ export async function getLoginToken(email: string, password: string) {
   };
 }
 
-export async function signUpFn(email: string, password: string, others: Record<string, any> = {}) {
+export async function signUpFn(email: string, password: string, role: string, others: Record<string, any> = {}) {
   const [user] = await db
     .select({
       email: UserSchema.email,
@@ -85,7 +85,7 @@ export async function signUpFn(email: string, password: string, others: Record<s
 
   const [savedUser] = await db
     .insert(UserSchema)
-    .values({ email, password: hashedPassword, uuid: uuid.v4(), others: JSON.stringify(others), createdAt: new Date(), updatedAt: new Date() })
+    .values({ email, password: hashedPassword, uuid: uuid.v4(), others: JSON.stringify(others), role: role, createdAt: new Date(), updatedAt: new Date() })
     .returning();
 
   if (!savedUser) {
@@ -95,6 +95,7 @@ export async function signUpFn(email: string, password: string, others: Record<s
   return {
     email: savedUser.email,
     uuid: savedUser.uuid,
+    role: savedUser.role,
   };
 }
 

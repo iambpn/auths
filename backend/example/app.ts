@@ -14,7 +14,7 @@ authsInit(app);
 app.post("/signup", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password } = req.body;
-    const result = await signup(email, password);
+    const result = await signup(email, password, "user");
     return res.status(201).json(result);
   } catch (error) {
     // Handling error in async handler
@@ -47,7 +47,7 @@ app.post("/forgetPassword", async (req: Request, res: Response, next: NextFuncti
 });
 
 app.get("/", isAuthenticated, (req, res) => {
-  res.json({ msg: req.currentUser?.email });
+  res.json({ msg: (req as any).currentUser?.email });
 });
 
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
