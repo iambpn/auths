@@ -10,7 +10,7 @@ import { seedPermission } from "./service/seedPermission.service";
 
 const FRONTEND_PATH = path.join(__dirname, "..", "public", "frontend", "build");
 
-export async function authsInit(app: Express, permissionFile?: string) {
+export function authsInit(app: Express, permissionFile?: string) {
   // validate Env
   validateEnv();
 

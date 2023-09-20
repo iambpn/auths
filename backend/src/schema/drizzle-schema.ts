@@ -37,7 +37,7 @@ export const ForgotPasswordSchema = sqliteTable("forgot_password", {
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
 });
 
-export const Roles = sqliteTable("roles", {
+export const RolesSchema = sqliteTable("roles", {
   uuid: text("uuid").primaryKey(),
   name: text("name").notNull(),
   slug: text("slug").unique().notNull(),
@@ -45,7 +45,7 @@ export const Roles = sqliteTable("roles", {
   updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
 });
 
-export const Permission = sqliteTable("permissions", {
+export const PermissionSchema = sqliteTable("permissions", {
   uuid: text("uuid").primaryKey(),
   name: text("name").notNull(),
   slug: text("slug").unique().notNull(),
@@ -53,13 +53,13 @@ export const Permission = sqliteTable("permissions", {
   updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
 });
 
-export const RolesPermissions = sqliteTable("rolesPermissions", {
+export const RolesPermissionsSchema = sqliteTable("rolesPermissions", {
   uuid: text("uuid").primaryKey(),
-  roleUuid: text("role_uuid").references(() => Roles.uuid, {
+  roleUuid: text("role_uuid").references(() => RolesSchema.uuid, {
     onDelete: "cascade",
     onUpdate: "cascade",
   }),
-  permissionUuid: text("permission_uuid").references(() => Permission.uuid, {
+  permissionUuid: text("permission_uuid").references(() => PermissionSchema.uuid, {
     onDelete: "cascade",
     onUpdate: "cascade",
   }),

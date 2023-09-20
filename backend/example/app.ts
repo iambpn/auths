@@ -9,7 +9,7 @@ process.env["AUTHS_SECRET"] = "secret_key";
 const app = express();
 app.use(express.json());
 
-authsInit(app);
+authsInit(app, path.join(__dirname, "permission.json"));
 
 app.post("/signup", async (req: Request, res: Response, next: NextFunction) => {
   try {
