@@ -13,6 +13,7 @@ export function migrateDB(dbUri: string) {
   console.log("\n** Migrating DB using Drizzle Kit.");
 
   const sqlite = new Database(dbUri);
+  sqlite.pragma("foreign_keys = ON");
   db = drizzle(sqlite, { schema: schema });
   migrate(db, { migrationsFolder: "drizzle" });
 

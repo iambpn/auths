@@ -19,7 +19,7 @@ export const permissionValidationSchema = z.object({
         .min(2, {
           message: "Slug must be at least 2 characters",
         })
-        .refine((val) => Boolean(word_with_underscore_regex.test(val)), {
+        .refine((val) => !Boolean(word_with_underscore_regex.test(val)), {
           message: "Slug especial characters are not allowed in slug",
         }),
     })

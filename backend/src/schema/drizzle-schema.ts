@@ -66,3 +66,9 @@ export const RolesPermissionsSchema = sqliteTable("rolesPermissions", {
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
 });
+
+export const PermissionSeedSchema = sqliteTable("__permissionSeed", {
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  hash: text("hash").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+});

@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "eb812cc9-7a88-468b-9dde-8b53526b1eb5",
+  "id": "1b2b2e28-0569-4e93-8f42-d1b5b82d9714",
   "prevId": "3a5a1c67-64ee-4deb-8e62-d61352857c46",
   "tables": {
     "forgot_password": {
@@ -179,25 +179,18 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "roles": {
-      "name": "roles",
+    "__permissionSeed": {
+      "name": "__permissionSeed",
       "columns": {
-        "uuid": {
-          "name": "uuid",
-          "type": "text",
+        "id": {
+          "name": "id",
+          "type": "integer",
           "primaryKey": true,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": true
         },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "slug": {
-          "name": "slug",
+        "hash": {
+          "name": "hash",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -209,24 +202,9 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
         }
       },
-      "indexes": {
-        "roles_slug_unique": {
-          "name": "roles_slug_unique",
-          "columns": [
-            "slug"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
@@ -299,6 +277,58 @@
           "onUpdate": "cascade"
         }
       },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "roles": {
+      "name": "roles",
+      "columns": {
+        "uuid": {
+          "name": "uuid",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "roles_slug_unique": {
+          "name": "roles_slug_unique",
+          "columns": [
+            "slug"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
