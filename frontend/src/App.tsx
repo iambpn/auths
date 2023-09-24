@@ -1,10 +1,24 @@
-import { Button } from "@/components/ui/button";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { ErrorPage } from "./pages/ErrorPage";
+import { Login } from "./pages/login";
+
+const browserRouter = createBrowserRouter([
+  {
+    path: "/",
+    errorElement: <ErrorPage />,
+    children: [
+      {
+        element: <Login />,
+        index: true,
+      },
+    ],
+  },
+]);
 
 function App() {
   return (
     <>
-      <h1 className='text-3xl font-bold underline'>Heading 1 tag</h1>
-      <Button>button</Button>
+      <RouterProvider router={browserRouter} />
     </>
   );
 }
