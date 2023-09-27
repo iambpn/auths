@@ -6,8 +6,8 @@ export function Login() {
   return (
     <>
       <div className='h-screen'>
-        <div className='h-full flex flex-col justify-center items-center'>
-          <div className='w-1/5 shadow-jubilation p-7 grid gap-7 rounded'>
+        <div className='h-full flex flex-col justify-center items-center p-2'>
+          <div className='w-full sm:w-1/2 md:w-3/6 lg:w-2/6 xl:w-1/4 shadow-jubilation p-7 grid gap-7 rounded'>
             <div className='flex flex-col'>
               <span className='text-2xl pb-1'>Admin Login</span>
               <span className='text-sm text-gray-600'>Login to your account with Email and Password</span>
