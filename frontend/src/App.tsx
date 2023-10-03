@@ -1,8 +1,10 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import { ErrorPage } from "./pages/ErrorPage";
 import { Login } from "./pages/login";
-import { Dashboard } from "./pages/dashboard";
 import { Layout } from "./pages/dashboard/layout";
+import { Roles } from "./pages/dashboard/role";
+import { Users } from "./pages/dashboard/users";
+import { Permission } from "./pages/dashboard/permission";
 
 const browserRouter = createBrowserRouter([
   {
@@ -15,13 +17,21 @@ const browserRouter = createBrowserRouter([
       },
       {
         path: "/",
-        element: <Layout/>,
+        element: <Layout />,
         children: [
           {
-            path: '/dashboard',
-            element: <Dashboard />
-          }
-        ]
+            path: "/roles",
+            element: <Roles />,
+          },
+          {
+            path: "/users",
+            element: <Users />,
+          },
+          {
+            path: "/permission",
+            element: <Permission />,
+          },
+        ],
       },
     ],
   },
