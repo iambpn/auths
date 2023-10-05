@@ -20,8 +20,8 @@ export function Users() {
               <TableHead>Profile</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Role</TableHead>
-              <TableHead className='w-[100px]'>Updated At</TableHead>
-              <TableHead className='w-[100px]'>Created At</TableHead>
+              <TableHead>Updated At</TableHead>
+              <TableHead>Created At</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
