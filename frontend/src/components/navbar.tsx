@@ -15,7 +15,7 @@ export function Navbar() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant='ghost' className='relative h-8 w-8 rounded-full'>
-            <AvatarComponent link='https://github.com/shadcn.png' fallBack='BM' />
+            <AvatarComponent link='https://github.com/shadcn.png' fallBackText='BM' />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className='w-56'>

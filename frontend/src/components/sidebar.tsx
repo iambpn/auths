@@ -14,24 +14,30 @@ export function Sidebar() {
   return (
     <div>
       <div className='px-2 py-2'>
-        <h2 className='mb-2 px-4 text-lg font-medium tracking-tight'>Hi, User</h2>
+        <h2 className='mb-2 px-4 text-lg font-medium tracking-tight whitespace-nowrap'>Hi, User</h2>
         <div className='space-y-1'>
           <Link to={"/users"} onClick={() => updateActiveNavLink(NavName.users)}>
             <Button variant={activeNav === NavName.users ? "default" : "ghost"} className='w-full justify-start'>
-              <FaUsers className='mr-2 h-4 w-4' />
-              Users
+              <span>
+                <FaUsers className='mr-2 h-4 w-4' />
+              </span>
+              <span>Users</span>
             </Button>
           </Link>
           <Link to={"/permission"} onClick={() => updateActiveNavLink(NavName.permission)}>
             <Button variant={activeNav === NavName.permission ? "default" : "ghost"} className='w-full justify-start'>
-              <FaUserCog className='mr-2 h-4 w-4' />
-              Permission
+              <span>
+                <FaUserCog className='mr-2 h-4 w-4' />
+              </span>
+              <span className='overflow-hidden'>Permission</span>
             </Button>
           </Link>
           <Link to={"/roles"} onClick={() => updateActiveNavLink(NavName.roles)}>
             <Button variant={activeNav === NavName.roles ? "default" : "ghost"} className='w-full justify-start'>
-              <FaUserCheck className='mr-2 h-4 w-4' />
-              Roles
+              <span>
+                <FaUserCheck className='mr-2 h-4 w-4' />
+              </span>
+              <span>Roles</span>
             </Button>
           </Link>
         </div>
