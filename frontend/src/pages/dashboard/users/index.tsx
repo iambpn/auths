@@ -12,8 +12,10 @@ export function Users() {
 
   return (
     <div className=''>
-      <h1 className='text-3xl font-bold tracking-tight'>Users</h1>
-      <div>
+      <div className=''>
+        <h1 className='text-3xl font-bold tracking-tight'>Users</h1>
+      </div>
+      <div className="pt-2">
         <Table>
           <TableHeader>
             <TableRow>
