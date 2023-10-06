@@ -24,5 +24,8 @@
   ],
   "devDependencies": {
     "shx": "^0.3.4"
+  },
+  "volta": {
+    "node": "16.20.2"
   }
 }

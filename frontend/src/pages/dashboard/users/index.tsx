@@ -5,6 +5,7 @@ import { useAppStore } from "@/store/useAppStore";
 import { useEffect } from "react";
 
 export function Users() {
+  // update Permission Nav Selection
   const updateActiveNavLink = useAppStore((state) => state.setActiveNav);
   useEffect(() => {
     updateActiveNavLink(NavName.users);
@@ -15,7 +16,7 @@ export function Users() {
       <div className=''>
         <h1 className='text-3xl font-bold tracking-tight'>Users</h1>
       </div>
-      <div className="pt-2">
+      <div className='pt-2'>
         <Table>
           <TableHeader>
             <TableRow>

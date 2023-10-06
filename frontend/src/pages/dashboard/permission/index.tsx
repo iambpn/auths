@@ -16,18 +16,33 @@ import { NavName } from "@/lib/navName";
 import { useAppStore } from "@/store/useAppStore";
 import { useEffect } from "react";
 import { BiEditAlt } from "react-icons/bi";
+import { IoMdAdd } from "react-icons/io";
 import { MdDeleteOutline } from "react-icons/md";
 import { Link } from "react-router-dom";
 
-export function Permission() {
+export function ListPermission() {
+  // update Permission Nav Selection
   const updateActiveNavLink = useAppStore((state) => state.setActiveNav);
   useEffect(() => {
     updateActiveNavLink(NavName.permission);
   }, []);
+
   return (
     <div>
-      <div className=''>
+      <div className='flex items-center justify-between'>
         <h1 className='text-3xl font-bold tracking-tight'>Permission</h1>
+        <div>
+          <Link to={"create"} className='inline-block'>
+            <Button variant={"default"}>
+              <div className='flex items-center'>
+                <span className='mr-1'>
+                  <IoMdAdd className='h-5 w-5' />
+                </span>
+                <span>Add Permission</span>
+              </div>
+            </Button>
+          </Link>
+        </div>
       </div>
       <div className='pt-2'>
         <Table>
@@ -51,7 +66,7 @@ export function Permission() {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Link to={"/permission"} className='inline-block'>
+                        <Link to={"id"} className='inline-block'>
                           <Button variant={"outline"} size={"icon"}>
                             <BiEditAlt className={"h-4 w-4"} />
                           </Button>

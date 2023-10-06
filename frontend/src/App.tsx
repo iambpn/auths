@@ -2,9 +2,13 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import { ErrorPage } from "./pages/ErrorPage";
 import { Login } from "./pages/login";
 import { Layout } from "./pages/dashboard/layout";
-import { Roles } from "./pages/dashboard/role";
+import { ListRoles } from "./pages/dashboard/role";
 import { Users } from "./pages/dashboard/users";
-import { Permission } from "./pages/dashboard/permission";
+import { ListPermission } from "./pages/dashboard/permission";
+import { CreateRole } from "./pages/dashboard/role/create";
+import { EditRole } from "./pages/dashboard/role/edit";
+import { CreatePermission } from "./pages/dashboard/permission/create";
+import { EditPermission } from "./pages/dashboard/permission/edit";
 
 const browserRouter = createBrowserRouter([
   {
@@ -20,16 +24,32 @@ const browserRouter = createBrowserRouter([
         element: <Layout />,
         children: [
           {
-            path: "/roles",
-            element: <Roles />,
-          },
-          {
             path: "/users",
             element: <Users />,
           },
           {
+            path: "/roles",
+            element: <ListRoles />,
+          },
+          {
+            path: "/roles/create",
+            element: <CreateRole />,
+          },
+          {
+            path: "/roles/:id",
+            element: <EditRole />,
+          },
+          {
             path: "/permission",
-            element: <Permission />,
+            element: <ListPermission />,
+          },
+          {
+            path: "/permission/create",
+            element: <CreatePermission />,
+          },
+          {
+            path: "/permission/:id",
+            element: <EditPermission />,
           },
         ],
       },
