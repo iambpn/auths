@@ -1,3 +1,4 @@
+import { RoleForm } from "@/components/role.form";
 import { NavName } from "@/lib/navName";
 import { useAppStore } from "@/store/useAppStore";
 import { useEffect } from "react";
@@ -8,5 +9,9 @@ export function CreateRole() {
   useEffect(() => {
     updateActiveNavLink(NavName.roles);
   }, []);
-  return <div>Create Role</div>;
+  return (
+    <div>
+      <RoleForm />
+    </div>
+  );
 }
