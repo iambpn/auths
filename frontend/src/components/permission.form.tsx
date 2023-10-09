@@ -7,38 +7,38 @@ import { Button } from "./ui/button";
 
 const word_with_underscore_regex = /[^a-zA-Z0-9_]/;
 
-const RoleSchema = z.object({
+const PermissionSchema = z.object({
   name: z
     .string({
-      required_error: "Role name is required",
-      invalid_type_error: "Role name must be a string",
+      required_error: "Permission name is required",
+      invalid_type_error: "Permission name must be a string",
     })
     .min(2, {
-      message: "Role name must be at least 2 characters long",
+      message: "Permission name must be at least 2 characters long",
     }),
   slug: z
     .string({
-      required_error: "Role slug is required",
-      invalid_type_error: "Role slug must be a string",
+      required_error: "Permission slug is required",
+      invalid_type_error: "Permission slug must be a string",
     })
     .min(2, {
-      message: "Role slug must be at least 2 characters long",
+      message: "Permission slug must be at least 2 characters long",
     })
     .refine((val) => !Boolean(word_with_underscore_regex.test(val)), {
       message: "Special characters are not allowed in slug",
     }),
 });
 
-export type RoleType = z.infer<typeof RoleSchema>;
+export type PermissionType = z.infer<typeof PermissionSchema>;
 
 type Props = {
-  defaultValue?: RoleType;
-  onSubmit: SubmitHandler<RoleType>;
+  defaultValue?: PermissionType;
+  onSubmit: SubmitHandler<PermissionType>;
 };
 
-export function RoleForm(props: Props) {
-  const form = useForm<RoleType>({
-    resolver: zodResolver(RoleSchema),
+export function PermissionForm(props: Props) {
+  const form = useForm<PermissionType>({
+    resolver: zodResolver(PermissionSchema),
     defaultValues: {
       name: props.defaultValue ? props.defaultValue.name : "",
       slug: props.defaultValue ? props.defaultValue.slug : "",
@@ -55,7 +55,7 @@ export function RoleForm(props: Props) {
             name='name'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Role Name</FormLabel>
+                <FormLabel>Permission Name</FormLabel>
                 <FormControl>
                   <Input placeholder='Name' {...field} />
                 </FormControl>
@@ -68,7 +68,7 @@ export function RoleForm(props: Props) {
             name='slug'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Role Slug</FormLabel>
+                <FormLabel>Permission Slug</FormLabel>
                 <FormControl>
                   <Input placeholder='Slug' {...field} />
                 </FormControl>

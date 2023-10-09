@@ -1,7 +1,8 @@
-import { RoleForm } from "@/components/role.form";
+import { RoleForm, RoleType } from "@/components/role.form";
 import { NavName } from "@/lib/navName";
 import { useAppStore } from "@/store/useAppStore";
 import { useEffect } from "react";
+import { SubmitHandler } from "react-hook-form";
 
 export function CreateRole() {
   // update Permission Nav Selection
@@ -9,9 +10,17 @@ export function CreateRole() {
   useEffect(() => {
     updateActiveNavLink(NavName.roles);
   }, []);
+
+  const onFormSubmit: SubmitHandler<RoleType> = (data, e) => {
+    console.log(data);
+  };
+
   return (
     <div>
-      <RoleForm />
+      <div className='mb-3'>
+        <h1 className='text-3xl font-bold tracking-tight'>Add Roles</h1>
+      </div>
+      <RoleForm onSubmit={onFormSubmit} />
     </div>
   );
 }

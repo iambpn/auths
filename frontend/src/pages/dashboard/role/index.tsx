@@ -65,7 +65,7 @@ export function ListRoles() {
                 <div className='space-x-3'>
                   <TooltipProvider>
                     <Tooltip>
-                      <TooltipTrigger>
+                      <TooltipTrigger asChild>
                         <Link to={"id"} className='inline-block'>
                           <Button variant={"outline"} size={"icon"}>
                             <BiEditAlt className={"h-4 w-4"} />
