@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -50,9 +51,9 @@ export function Login() {
                   name='email'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <Label>Email</Label>
                       <FormControl>
-                        <Input id='email' type='email' placeholder='mail@example.com' {...field} />
+                        <Input id='email' type='email' placeholder='Mail@example.com' {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -64,7 +65,7 @@ export function Login() {
                   name='password'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <Label>Password</Label>
                       <FormControl>
                         <Input id='password' type='password' placeholder='********' {...field} />
                       </FormControl>

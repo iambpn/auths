@@ -11,6 +11,7 @@ import { Users } from "./pages/afterLogin/dashboard/users";
 import Settings from "./pages/afterLogin/settings";
 import { Login } from "./pages/login";
 import AfterLoginLayout from "./pages/afterLogin/layout";
+import Logout from "./pages/logout";
 
 const browserRouter = createBrowserRouter([
   {
@@ -20,6 +21,10 @@ const browserRouter = createBrowserRouter([
       {
         element: <Login />,
         index: true,
+      },
+      {
+        path: "/logout",
+        element: <Logout />,
       },
       {
         path: "/",

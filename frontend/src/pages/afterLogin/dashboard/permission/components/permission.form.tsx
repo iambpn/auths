@@ -1,9 +1,10 @@
+import { Label } from "@/components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../../../../components/ui/form";
-import { Input } from "../../../../../components/ui/input";
 import { Button } from "../../../../../components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "../../../../../components/ui/form";
+import { Input } from "../../../../../components/ui/input";
 
 const word_with_underscore_regex = /[^a-zA-Z0-9_]/;
 
@@ -57,7 +58,7 @@ export function PermissionForm(props: Props) {
             name='name'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Permission Name</FormLabel>
+                <Label>Permission Name</Label>
                 <FormControl>
                   <Input placeholder='Name' {...field} />
                 </FormControl>
@@ -70,7 +71,7 @@ export function PermissionForm(props: Props) {
             name='slug'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Permission Slug</FormLabel>
+                <Label>Permission Slug</Label>
                 <FormControl>
                   <Input placeholder='Slug' {...field} />
                 </FormControl>

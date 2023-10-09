@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
+import SettingHeader from "./settingHeader";
 
 const ChangePasswordSchema = z
   .object({
@@ -47,21 +49,22 @@ export default function ChangePassword() {
     mode: "onChange",
   });
 
+  const handleSubmit: SubmitHandler<ChangePasswordType> = (values) => {};
+
   return (
     <>
       <div className='space-x-2 w-full'>
         <div>
-          <h2 className='text-2xl font-bold tracking-tight'>Change Password</h2>
-          <p className='text-muted-foreground'>Change your password here.</p>
+          <SettingHeader header='Change Password' description='Change your password here.' />
         </div>
         <Form {...form}>
-          <form className='mt-2 space-y-2' onSubmit={form.handleSubmit(() => {})}>
+          <form className='mt-2 space-y-2' onSubmit={form.handleSubmit(handleSubmit)}>
             <FormField
               control={form.control}
               name='currentPassword'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Current Password</FormLabel>
+                  <Label>Current Password</Label>
                   <FormControl>
                     <Input type='password' className='w-full rounded-sm' placeholder='Current Password' {...field} />
                   </FormControl>
@@ -74,7 +77,7 @@ export default function ChangePassword() {
               name='newPassword'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>New Password</FormLabel>
+                  <Label>New Password</Label>
                   <FormControl>
                     <Input type='password' className='w-full rounded-sm' placeholder='New Password' {...field} />
                   </FormControl>
@@ -87,7 +90,7 @@ export default function ChangePassword() {
               name='confirmPassword'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Confirm New Password</FormLabel>
+                  <Label>Confirm New Password</Label>
                   <FormControl>
                     <Input type='password' className='w-full rounded-sm' placeholder='Confirm New Password' {...field} />
                   </FormControl>

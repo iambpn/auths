@@ -1,15 +1,24 @@
+import { Separator } from "@/components/ui/separator";
+import { MdArrowBack } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
 import ChangePassword from "./components/changePassword";
 import SecurityQuestion from "./components/securityQuestion";
-import { Separator } from "@/components/ui/separator";
+import SettingHeader from "./components/settingHeader";
 
 export default function Settings() {
+  const navigate = useNavigate();
+
   return (
-    <div className='container p-5'>
-      <div className='space-y-0.5'>
-        <h2 className='text-2xl font-bold tracking-tight'>Settings</h2>
-        <p className='text-muted-foreground'>Manage your account settings here.</p>
+    <div className='container py-4 px-3'>
+      <div className='space-y-0.5 flex flex-row items-start'>
+        <span className='border border-[transparent] hover:border-inherit rounded-full p-1 inline-block cursor-pointer' onClick={() => navigate(-1)}>
+          <MdArrowBack className='w-5 h-5' />
+        </span>
+        <div className='px-2'>
+          <SettingHeader header='Settings' description='Manage your account settings here.' />
+        </div>
       </div>
-      <Separator className='my-3' />
+      <Separator className='my-4' />
       <div className='flex flex-col justify-center items-center'>
         <div className='w-2/3'>
           <ChangePassword />
