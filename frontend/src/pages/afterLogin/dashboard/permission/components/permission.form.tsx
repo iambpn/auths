@@ -1,9 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../../../../components/ui/form";
+import { Input } from "../../../../../components/ui/input";
+import { Button } from "../../../../../components/ui/button";
 
 const word_with_underscore_regex = /[^a-zA-Z0-9_]/;
 
@@ -13,6 +13,7 @@ const PermissionSchema = z.object({
       required_error: "Permission name is required",
       invalid_type_error: "Permission name must be a string",
     })
+    .trim()
     .min(2, {
       message: "Permission name must be at least 2 characters long",
     }),
@@ -21,6 +22,7 @@ const PermissionSchema = z.object({
       required_error: "Permission slug is required",
       invalid_type_error: "Permission slug must be a string",
     })
+    .trim()
     .min(2, {
       message: "Permission slug must be at least 2 characters long",
     })

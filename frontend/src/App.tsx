@@ -1,14 +1,16 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import { ErrorPage } from "./pages/ErrorPage";
+import { DashboardLayout } from "./pages/afterLogin/dashboard/layout";
+import { ListPermission } from "./pages/afterLogin/dashboard/permission";
+import { CreatePermission } from "./pages/afterLogin/dashboard/permission/create";
+import { EditPermission } from "./pages/afterLogin/dashboard/permission/edit";
+import { ListRoles } from "./pages/afterLogin/dashboard/role";
+import { CreateRole } from "./pages/afterLogin/dashboard/role/create";
+import { EditRole } from "./pages/afterLogin/dashboard/role/edit";
+import { Users } from "./pages/afterLogin/dashboard/users";
+import Settings from "./pages/afterLogin/settings";
 import { Login } from "./pages/login";
-import { Layout } from "./pages/dashboard/layout";
-import { ListRoles } from "./pages/dashboard/role";
-import { Users } from "./pages/dashboard/users";
-import { ListPermission } from "./pages/dashboard/permission";
-import { CreateRole } from "./pages/dashboard/role/create";
-import { EditRole } from "./pages/dashboard/role/edit";
-import { CreatePermission } from "./pages/dashboard/permission/create";
-import { EditPermission } from "./pages/dashboard/permission/edit";
+import AfterLoginLayout from "./pages/afterLogin/layout";
 
 const browserRouter = createBrowserRouter([
   {
@@ -21,35 +23,45 @@ const browserRouter = createBrowserRouter([
       },
       {
         path: "/",
-        element: <Layout />,
+        element: <AfterLoginLayout />,
         children: [
           {
-            path: "/users",
-            element: <Users />,
+            path: "/",
+            element: <DashboardLayout />,
+            children: [
+              {
+                path: "/users",
+                element: <Users />,
+              },
+              {
+                path: "/roles",
+                element: <ListRoles />,
+              },
+              {
+                path: "/roles/create",
+                element: <CreateRole />,
+              },
+              {
+                path: "/roles/:id",
+                element: <EditRole />,
+              },
+              {
+                path: "/permission",
+                element: <ListPermission />,
+              },
+              {
+                path: "/permission/create",
+                element: <CreatePermission />,
+              },
+              {
+                path: "/permission/:id",
+                element: <EditPermission />,
+              },
+            ],
           },
           {
-            path: "/roles",
-            element: <ListRoles />,
-          },
-          {
-            path: "/roles/create",
-            element: <CreateRole />,
-          },
-          {
-            path: "/roles/:id",
-            element: <EditRole />,
-          },
-          {
-            path: "/permission",
-            element: <ListPermission />,
-          },
-          {
-            path: "/permission/create",
-            element: <CreatePermission />,
-          },
-          {
-            path: "/permission/:id",
-            element: <EditPermission />,
+            path: "/settings",
+            element: <Settings />,
           },
         ],
       },
