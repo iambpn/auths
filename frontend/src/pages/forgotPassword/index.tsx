@@ -50,7 +50,7 @@ export default function ForgotPassword() {
           </span>
         </div>
       </div>
-      <div className='flex justify-center h-full pt-28'>
+      <div className='flex justify-center h-full items-center'>
         {step === 1 && (
           <div className='w-2/5 space-x-2'>
             <SettingHeader description='Enter you email address to reset password' header='Forget Password' />
