@@ -2,9 +2,9 @@ import { Label } from "@/components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-import { Button } from "../../../../../components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "../../../../../components/ui/form";
-import { Input } from "../../../../../components/ui/input";
+import { Button } from "../ui/button";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "../ui/form";
+import { Input } from "../ui/input";
 
 const word_with_underscore_regex = /[^a-zA-Z0-9_]/;
 

@@ -42,6 +42,7 @@ export type SecurityQuestionType = z.infer<typeof SecurityQuestionSchema>;
 type Props = {
   questions: { id: string; question: string }[];
   defaultValues?: Omit<SecurityQuestionType, "answer1" | "answer2" | "password">;
+  disabled?: boolean;
   onSubmit: SubmitHandler<SecurityQuestionType>;
 };
 
@@ -67,7 +68,7 @@ export default function SecurityQuestionForm(props: Props) {
             <FormItem>
               <FormLabel>Question 1</FormLabel>
               <FormControl>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={props.disabled}>
                   <SelectTrigger>
                     <SelectValue placeholder='Select Question' />
                   </SelectTrigger>
@@ -104,7 +105,7 @@ export default function SecurityQuestionForm(props: Props) {
             <FormItem>
               <FormLabel>Question 2</FormLabel>
               <FormControl>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={props.disabled}>
                   <SelectTrigger>
                     <SelectValue placeholder='Select Question' />
                   </SelectTrigger>

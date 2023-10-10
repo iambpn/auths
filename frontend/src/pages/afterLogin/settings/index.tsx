@@ -1,9 +1,9 @@
+import ChangePassword from "@/components/changePassword/changePassword";
+import SecurityQuestion from "@/components/securityQuestion/securityQuestion";
+import SettingHeader from "@/components/settings/settingHeader";
 import { Separator } from "@/components/ui/separator";
 import { MdArrowBack } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-import ChangePassword from "./components/changePassword";
-import SecurityQuestion from "./components/securityQuestion";
-import SettingHeader from "./components/settingHeader";
 
 export default function Settings() {
   const navigate = useNavigate();

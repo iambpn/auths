@@ -1,4 +1,4 @@
-import { PermissionType, PermissionForm } from "./components/permission.form";
+import { PermissionForm, PermissionType } from "@/components/permission/permission.form";
 import { NavName } from "@/lib/navName";
 import { useAppStore } from "@/store/useAppStore";
 import { useEffect } from "react";

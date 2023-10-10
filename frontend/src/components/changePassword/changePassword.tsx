@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-import SettingHeader from "./settingHeader";
+import SettingHeader from "../settings/settingHeader";
 
 const ChangePasswordSchema = z
   .object({
