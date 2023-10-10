@@ -1,8 +1,8 @@
-import { FaUserCheck, FaUserCog, FaUsers } from "react-icons/fa";
-import { Link } from "react-router-dom";
-import { Button } from "./ui/button";
 import { NavName } from "@/lib/navName";
 import { useAppStore } from "@/store/useAppStore";
+import { FaUserCheck, FaUserCog, FaUsers } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import { Button } from "../ui/button";
 
 export function Sidebar() {
   const activeNav = useAppStore((state) => state.activeNav);

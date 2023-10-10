@@ -1,7 +1,7 @@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { AvatarComponent } from "./avatar.component";
-import { Button } from "./ui/button";
 import { Link } from "react-router-dom";
+import { AvatarComponent } from "../avatar/avatar.component";
+import { Button } from "../ui/button";
 
 export function Navbar() {
   return (

@@ -3,14 +3,18 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Label } from "@radix-ui/react-label";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
+import { Label } from "../ui/label";
 
 const SecurityQuestionSchema = z.object({
-  question1: z.string({
-    required_error: "Question is required",
-  }),
+  question1: z
+    .string({
+      required_error: "Question is required",
+    })
+    .min(2, {
+      message: "You must select a question",
+    }),
   answer1: z
     .string({
       required_error: "Answer is required",
@@ -18,22 +22,19 @@ const SecurityQuestionSchema = z.object({
     .min(2, {
       message: "Answer must be at least 2 characters",
     }),
-  question2: z.string({
-    required_error: "Question is required",
-  }),
+  question2: z
+    .string({
+      required_error: "Question is required",
+    })
+    .min(2, {
+      message: "You must select a question",
+    }),
   answer2: z
     .string({
       required_error: "Answer is required",
     })
     .min(2, {
       message: "Answer must be at least 2 characters",
-    }),
-  password: z
-    .string({
-      required_error: "Password is required",
-    })
-    .min(8, {
-      message: "Password must be at least 8 characters",
     }),
 });
 
@@ -66,7 +67,7 @@ export default function SecurityQuestionForm(props: Props) {
           name='question1'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Question 1</FormLabel>
+              <Label>Question 1</Label>
               <FormControl>
                 <Select onValueChange={field.onChange} defaultValue={field.value} disabled={props.disabled}>
                   <SelectTrigger>
@@ -103,7 +104,7 @@ export default function SecurityQuestionForm(props: Props) {
           name='question2'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Question 2</FormLabel>
+              <Label>Question 2</Label>
               <FormControl>
                 <Select onValueChange={field.onChange} defaultValue={field.value} disabled={props.disabled}>
                   <SelectTrigger>
@@ -135,22 +136,8 @@ export default function SecurityQuestionForm(props: Props) {
             </FormItem>
           )}
         />
-
-        <FormField
-          control={form.control}
-          name='password'
-          render={({ field }) => (
-            <FormItem>
-              <Label>Password</Label>
-              <FormControl>
-                <Input type='password' className='w-full' placeholder='Current Password' {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
         <div className='pt-2'>
-          <Button type='submit'>Change Password</Button>
+          <Button type='submit'>{props.defaultValues ? "Reset Password" : "Change Password"}</Button>
         </div>
       </form>
     </Form>

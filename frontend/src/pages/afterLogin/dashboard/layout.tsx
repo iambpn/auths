@@ -1,4 +1,4 @@
-import { Sidebar } from "@/components/sidebar";
+import { Sidebar } from "@/components/sidebar/sidebar";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/store/useAppStore";
 import { GrClose, GrMenu } from "react-icons/gr";
@@ -11,7 +11,7 @@ export function DashboardLayout(props: Props) {
   const toggleOpenDrawer = useAppStore((state) => state.toggleOpenDrawer);
 
   return (
-    <div className='md:container flex flex-grow p-2 md:p-4 overflow-clip h-full'>
+    <div className='md:container flex p-2 md:p-4 overflow-clip h-full'>
       <div className={cn(`lg:w-1/6 transition-[width] ease-in-out duration-500 h-full py-2`, openDrawer ? "w-2/6" : "w-0 overflow-clip")}>
         <Sidebar />
       </div>

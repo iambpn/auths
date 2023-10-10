@@ -12,11 +12,14 @@ import Settings from "./pages/afterLogin/settings";
 import { Login } from "./pages/login";
 import AfterLoginLayout from "./pages/afterLogin/layout";
 import Logout from "./pages/logout";
+import ForgotPassword from "./pages/forgotPassword";
+import { InitialLayout } from "./pages/layout";
 
 const browserRouter = createBrowserRouter([
   {
     path: "/",
     errorElement: <ErrorPage />,
+    element: <InitialLayout />,
     children: [
       {
         element: <Login />,
@@ -25,6 +28,10 @@ const browserRouter = createBrowserRouter([
       {
         path: "/logout",
         element: <Logout />,
+      },
+      {
+        path: "/forgotpassword",
+        element: <ForgotPassword />,
       },
       {
         path: "/",

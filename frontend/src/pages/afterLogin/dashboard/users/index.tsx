@@ -1,4 +1,4 @@
-import { AvatarComponent } from "@/components/avatar.component";
+import { AvatarComponent } from "@/components/avatar/avatar.component";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { NavName } from "@/lib/navName";
 import { useAppStore } from "@/store/useAppStore";
