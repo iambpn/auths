@@ -78,7 +78,7 @@ export default function ForgotPassword() {
         {step === 2 && (
           <div className='w-2/5 space-x-2'>
             <SettingHeader description='Enter your security question answers' header='Forget Password' />
-            <SecurityQuestionForm onSubmit={handleSecurityQuestionSubmission} questions={[]} defaultValues={{ question1: "", question2: "" }} disabled={true} />
+            <SecurityQuestionForm onSubmit={handleSecurityQuestionSubmission} questions={[]} defaultValues={{ question1: "", question2: "" }} disabled={true} submitBtn='Reset Password' />
           </div>
         )}
       </div>

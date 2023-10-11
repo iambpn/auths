@@ -45,6 +45,7 @@ type Props = {
   defaultValues?: Omit<SecurityQuestionType, "answer1" | "answer2" | "password">;
   disabled?: boolean;
   onSubmit: SubmitHandler<SecurityQuestionType>;
+  submitBtn?: string
 };
 
 export default function SecurityQuestionForm(props: Props) {
@@ -137,7 +138,7 @@ export default function SecurityQuestionForm(props: Props) {
           )}
         />
         <div className='pt-2'>
-          <Button type='submit'>{props.defaultValues ? "Reset Password" : "Change Password"}</Button>
+          <Button type='submit'>{props.submitBtn ? props.submitBtn : "Change Question"}</Button>
         </div>
       </form>
     </Form>
