@@ -9,7 +9,7 @@ import { permissionValidationSchema } from "../utils/validation_schema/permissio
 
 export function seedPermission(filePath?: string) {
   if (!filePath) {
-    return;
+    return false;
   }
 
   const fileExt = path.extname(filePath);
@@ -31,7 +31,7 @@ export async function readFileCallback(err: unknown, data: string) {
     const [existingPermission] = await db.select().from(PermissionSeedSchema).orderBy(desc(PermissionSeedSchema.createdAt)).limit(1);
 
     if (existingPermission && existingPermission.hash === hash) {
-      return;
+      return false;
     }
 
     const jsonData = JSON.parse(data);

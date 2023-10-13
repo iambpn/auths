@@ -2,7 +2,7 @@
 
 # Structure
 
-- `mock_system`: Test system to test this package
+- `example`: Test system to test this package
 - `public`: Public files
 - `src`: Source files
 - `dist`: Compiled source files
