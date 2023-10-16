@@ -1,7 +1,7 @@
 import { db } from "../schema/__mocks__/drizzle-migrate";
 import { createHash } from "crypto";
 import { readFileCallback, seedPermission } from "./seedPermission.service";
-import { PermissionSchema, PermissionSeedSchema } from "../schema/drizzle-schema";
+import { PermissionSchema, PermissionSeedSchema, RolesSchema } from "../schema/drizzle-schema";
 import { eq } from "drizzle-orm";
 
 //  mocking drizzle instance using manual mocking
@@ -67,7 +67,7 @@ describe("Testing Seed Permission service", () => {
     });
 
     it("Should delete permission according to params", async () => {
-      // seed all premission
+      // seed all permission
       await readFileCallback(null, JSON.stringify(jsonData));
 
       //  remove one permission
@@ -95,7 +95,66 @@ describe("Testing Seed Permission service", () => {
       });
     });
 
-    it.todo("Should update permission according to params");
-    it.todo("Should create superAdmin role on initial seed and all the permission should be added to superAdmin.");
+    it("Should update permission according to params slug", async () => {
+      // seed all permission
+      await readFileCallback(null, JSON.stringify(jsonData));
+
+      //  update permission
+      const [perm, ...rest] = jsonData.permission;
+      perm.name = "newPermName";
+
+      const newPerm: { name: string; slug: string } = {
+        name: "updatedPerm",
+        slug: "updatedPerm",
+      };
+
+      // updated perm: update one perm and added one new perm
+      const newJsonData = { permission: [...rest, newPerm, perm] };
+
+      // seed removed permission
+      await readFileCallback(null, JSON.stringify(newJsonData));
+
+      const [updatedPerm] = await db.select().from(PermissionSchema).where(eq(PermissionSchema.slug, perm.slug));
+      // updated permission
+      expect(updatedPerm.name).toEqual(perm.name);
+      expect(updatedPerm.slug).toEqual(perm.slug);
+
+      const [insertedNewPerm] = await db.select().from(PermissionSchema).where(eq(PermissionSchema.slug, newPerm.slug));
+      // inserted permission
+      expect(insertedNewPerm.name).toEqual(newPerm.name);
+      expect(insertedNewPerm.slug).toEqual(newPerm.slug);
+
+      //  get all permissions
+      const permissions = await db.select().from(PermissionSchema);
+
+      // check length
+      expect(permissions.length).toEqual(newJsonData.permission.length);
+
+      //  verify permissions
+      newJsonData.permission.forEach((perm, idx) => {
+        const found = permissions.find((item) => item.slug === perm.slug);
+        expect(found).toBeDefined();
+      });
+    });
+
+    it("Should create superAdmin role on initial seed and all the permission should be added to superAdmin.", async () => {
+      // seed all permission
+      await readFileCallback(null, JSON.stringify(jsonData));
+
+      const [superAdminRole] = await db.select().from(RolesSchema).where(eq(RolesSchema.slug, "superadmin"));
+      expect(superAdminRole).toBeDefined();
+
+      //  get all permissions
+      const permissions = await db.select().from(PermissionSchema);
+
+      // check length
+      expect(permissions.length).toEqual(jsonData.permission.length);
+
+      //  verify permissions
+      jsonData.permission.forEach((perm, idx) => {
+        const found = permissions.find((item) => item.slug === perm.slug);
+        expect(found).toBeDefined();
+      });
+    });
   });
 });
