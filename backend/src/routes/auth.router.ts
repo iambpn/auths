@@ -4,9 +4,9 @@ import { LoginValidationSchema, LoginValidationType } from "../utils/validation_
 import { getLoginToken, resetPassword } from "../service/auth.service";
 import { ResetPasswordValidationSchema, ResetPasswordValidationType } from "../utils/validation_schema/resetPassword.validation.schema";
 
-export const router = Router();
+export const AuthsRouter = Router();
 
-router.post("/login", validate(LoginValidationSchema), async (req: Request<any, any, LoginValidationType>, res: Response, next: NextFunction) => {
+AuthsRouter.post("/login", validate(LoginValidationSchema), async (req: Request<any, any, LoginValidationType>, res: Response, next: NextFunction) => {
   try {
     const body = req.body;
     const response = await getLoginToken(body.email, body.password);
@@ -16,7 +16,7 @@ router.post("/login", validate(LoginValidationSchema), async (req: Request<any, 
   }
 });
 
-router.post("/resetPassword", validate(ResetPasswordValidationSchema), async (req: Request<any, any, ResetPasswordValidationType>, res: Response, next: NextFunction) => {
+AuthsRouter.post("/resetPassword", validate(ResetPasswordValidationSchema), async (req: Request<any, any, ResetPasswordValidationType>, res: Response, next: NextFunction) => {
   try {
     const body = req.body;
     const response = await resetPassword(body.token, body.email, body.newPassword);

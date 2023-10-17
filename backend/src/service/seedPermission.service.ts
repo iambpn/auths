@@ -95,6 +95,8 @@ export async function readFileCallback(err: unknown, data: string) {
       });
     }
 
+    // Todo: add super admin user
+
     // add all permission to super admin
     if (insertPermissions.length > 0) {
       const insertPermissionSlugs = insertPermissions.map((x) => x.slug);

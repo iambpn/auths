@@ -1,12 +1,15 @@
 import express, { type NextFunction, type Request, type Response, type Express } from "express";
 import * as path from "path";
 import { z } from "zod";
-import { router } from "./routes/auth.router";
+import { AuthsRouter } from "./routes/auth.router";
 import { migrateDB } from "./schema/drizzle-migrate";
 import { HttpError } from "./utils/helper/httpError";
 import { ErrorResponse } from "./utils/types/errorResponse";
 import { ENV_VARS, validateEnv } from "./service/env.service";
 import { seedPermission } from "./service/seedPermission.service";
+import { CmsAuthRouter } from "./routes/cms.auth.router";
+import { PermissionRouter } from "./routes/permission.router";
+import { RolesRouter } from "./routes/roles.router";
 
 const FRONTEND_PATH = path.join(__dirname, "..", "public", "frontend", "build");
 
@@ -25,7 +28,10 @@ export function authsInit(app: Express, permissionFile?: string) {
   seedPermission(permissionFile);
 
   // Adding Routes
-  app.use("/auths/api", router);
+  app.use("/auths/api", AuthsRouter);
+  app.use("/auths/api/cms", CmsAuthRouter);
+  app.use("/auths/api/permission", PermissionRouter);
+  app.use("/auths/api/Roles", RolesRouter);
 
   // server prod frontend build
   app.use("/auths", express.static(FRONTEND_PATH));
