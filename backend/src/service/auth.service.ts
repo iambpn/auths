@@ -52,14 +52,14 @@ export async function getLoginToken(email: string, password: string) {
       token: token,
       userUuid: user.uuid,
       uuid: uuid.v4(),
-      expiresAt: new Date(Date.now() + minutesToMilliseconds(+(ENV_VARS.AUTHS_TOKEN_EXPIRATION_TIME ?? 2))),
+      expiresAt: new Date(Date.now() + minutesToMilliseconds(+(ENV_VARS.AUTHS_LOGIN_TOKEN_EXPIRATION_TIME ?? 2))),
       createdAt: new Date(),
       updatedAt: new Date(),
     })
     .returning();
 
   if (!loginToken) {
-    throw new HttpError("Error wile logging you in. Please try again later.", 404);
+    throw new HttpError("Error while logging you in. Please try again later.", 404);
   }
 
   return {
@@ -187,7 +187,7 @@ export async function initiateForgotPasswordFn(email: string, returnToken?: stri
       uuid: uuid.v4(),
       userUuid: user.uuid,
       token: forgetPasswordToken,
-      expiresAt: new Date(Date.now() + minutesToMilliseconds(+(ENV_VARS.AUTHS_TOKEN_EXPIRATION_TIME ?? 2))),
+      expiresAt: new Date(Date.now() + minutesToMilliseconds(+(ENV_VARS.AUTHS_LOGIN_TOKEN_EXPIRATION_TIME ?? 2))),
       createdAt: new Date(),
     })
     .returning();

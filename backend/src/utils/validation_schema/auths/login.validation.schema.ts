@@ -1,5 +1,5 @@
 import { createInsertSchema } from "drizzle-zod";
-import { UserSchema } from "../../schema/drizzle-schema";
+import { UserSchema } from "../../../schema/drizzle-schema";
 import { z } from "zod";
 
 export const LoginValidationSchema = createInsertSchema(UserSchema, {

@@ -15,9 +15,9 @@
 - `AUTHS_DB_PATH`: Path to AUTHS DB.
 - `AUTHS_SECRET`: Auths Secret token.
 - `AUTHS_JWT_EXPIRATION_TIME`: Auths jwt expiration time. default is 1 day. _Value is expressed in seconds or a string describing a time span [vercel/ms](https://github.com/vercel/ms)._
-- `AUTHS_TOKEN_EXPIRATION_TIME`: Auths token expiration time in minutes. default is 2 minutes.
+- `AUTHS_LOGIN_TOKEN_EXPIRATION_TIME`: Auths token expiration time in minutes. default is 2 minutes.
 
-_update `_env.type.ts` to add additional types to `process.env`._
+_update `_app.type.ts` to add additional types to `process.env`._
 
 ## Resources:
 

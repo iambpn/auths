@@ -5,7 +5,7 @@ import * as path from "path";
 import * as UUID from "uuid";
 import { db } from "../schema/drizzle-migrate";
 import { PermissionSchema, PermissionSeedSchema, RolesPermissionsSchema, RolesSchema } from "../schema/drizzle-schema";
-import { permissionValidationSchema } from "../utils/validation_schema/permission.validation.schema";
+import { permissionValidationSchema } from "../utils/validation_schema/auths/permission.validation.schema";
 
 export function seedPermission(filePath?: string) {
   if (!filePath) {
