@@ -13,7 +13,8 @@ export function validateEnv() {
       AUTHS_SECRET: process.env.AUTHS_SECRET!,
       AUTHS_JWT_EXPIRATION_TIME: process.env.AUTHS_JWT_EXPIRATION_TIME!,
       AUTHS_LOGIN_TOKEN_EXPIRATION_TIME: process.env.AUTHS_LOGIN_TOKEN_EXPIRATION_TIME!,
-    } satisfies ValidateEnvType);
+      AUTHS_HASH_SALT_ROUNDS: process.env.AUTHS_HASH_SALT_ROUNDS!,
+    } satisfies { [key in keyof ValidateEnvType]: any });
   } catch (error) {
     if (error instanceof ZodError) {
       const errors = [];

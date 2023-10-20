@@ -39,7 +39,7 @@ describe("Integration Testing Auth service", () => {
         await db.insert(UserSchema).values({
           email,
           role: UserRole,
-          password: await bcrypt.hash(password, config.hashRounds),
+          password: await bcrypt.hash(password, config.hashRounds()),
           uuid: uuid.v4(),
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -61,7 +61,7 @@ describe("Integration Testing Auth service", () => {
       await db.insert(UserSchema).values({
         email,
         role: UserRole,
-        password: await bcrypt.hash(password, config.hashRounds),
+        password: await bcrypt.hash(password, config.hashRounds()),
         uuid: uuid.v4(),
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -83,7 +83,7 @@ describe("Integration Testing Auth service", () => {
         .values({
           email,
           role: UserRole,
-          password: await bcrypt.hash(password, config.hashRounds),
+          password: await bcrypt.hash(password, config.hashRounds()),
           uuid: uuid.v4(),
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -121,7 +121,7 @@ describe("Integration Testing Auth service", () => {
         .values({
           email,
           role: UserRole,
-          password: await bcrypt.hash(password, config.hashRounds),
+          password: await bcrypt.hash(password, config.hashRounds()),
           uuid: uuid.v4(),
           createdAt: new Date(),
           updatedAt: new Date(),

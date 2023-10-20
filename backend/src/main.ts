@@ -42,8 +42,8 @@ export function authsInit(app: Express, permissionFile?: string) {
   });
 
   // route not found error handler
-  app.use("/auths/*", (req: Request, res: Response) => {
-    throw new HttpError("Invalid URL " + req.path, 404);
+  app.use("/auths/*", (req: Request, res: Response, next: any) => {
+    next(new HttpError("Invalid URL " + req.path, 404));
   });
 
   // Custom Error Handler for /auths route

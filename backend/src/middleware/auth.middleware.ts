@@ -2,6 +2,9 @@ import { type Request, type Response, type NextFunction } from "express";
 import { HttpError } from "../utils/helper/httpError";
 import * as jwt from "jsonwebtoken";
 import { ENV_VARS } from "../service/env.service";
+import { db } from "../schema/drizzle-migrate";
+import { RolesSchema } from "../schema/drizzle-schema";
+import { eq } from "drizzle-orm";
 
 /**
  * Check if user is authenticated via bearer token.
@@ -26,5 +29,23 @@ export function isAuthenticated(req: Request, res: Response, next: NextFunction)
     }
   } else {
     throw new HttpError("Unauthorized Request", 401);
+  }
+}
+
+export async function isSuperAdmin(req: Request, res: Response, next: NextFunction) {
+  try {
+    if (!req.currentUser) {
+      throw new HttpError("Unauthorized Request", 401);
+    }
+
+    const [role] = await db.select().from(RolesSchema).where(eq(RolesSchema.slug, "superadmin")).limit(1);
+
+    if (!role || role.uuid !== req.currentUser.role) {
+      throw new HttpError("Insufficient role", 401);
+    }
+
+    next();
+  } catch (error: unknown) {
+    next(error);
   }
 }

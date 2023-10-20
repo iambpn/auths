@@ -1,1 +1,3 @@
-// cms auth service test
+describe("CMS Auth Service Testing", () => {
+  it.todo("TODO");
+});

@@ -5,7 +5,8 @@ export const UserSchema = sqliteTable("user", {
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
   others: text("others"),
-  role: text("role").notNull(),
+  role: text("role_uuid").notNull(),
+  isRecoverable: integer("is_recoverable", { mode: "boolean" }).default(false),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
 });
@@ -74,7 +75,7 @@ export const PermissionSeedSchema = sqliteTable("__permissionSeed", {
 });
 
 export const SecurityQuestionSchema = sqliteTable("securityQuestion", {
-  id: text("uuid").primaryKey(),
+  uuid: text("uuid").primaryKey(),
   userUuid: text("user_uuid").references(() => UserSchema.uuid, {
     onDelete: "cascade",
     onUpdate: "cascade",
@@ -85,4 +86,17 @@ export const SecurityQuestionSchema = sqliteTable("securityQuestion", {
   answer2: text("answer2").notNull(),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
+});
+
+export const ResetPasswordToken = sqliteTable("resetPasswordToken", {
+  uuid: text("uuid").primaryKey(),
+  userUuid: text("user_uuid")
+    .notNull()
+    .references(() => UserSchema.uuid, {
+      onDelete: "no action",
+      onUpdate: "no action",
+    }),
+  token: text("token").notNull(),
+  expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
 });

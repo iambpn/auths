@@ -81,7 +81,7 @@ export async function signUpFn(email: string, password: string, role: string, ot
     throw new HttpError("Email already exists. Please use different email", 409);
   }
 
-  const hashedPassword = await bcrypt.hash(password, config.hashRounds);
+  const hashedPassword = await bcrypt.hash(password, config.hashRounds());
 
   const [savedUser] = await db
     .insert(UserSchema)
@@ -217,12 +217,12 @@ export async function resetPassword(token: string, email: string, newPassword: s
     throw new HttpError("Invalid token", 400);
   }
 
-  const newPasswordHash = await bcrypt.hash(newPassword, config.hashRounds);
-  // update password
-  await db.update(UserSchema).set({ password: newPasswordHash }).where(eq(UserSchema.uuid, user.uuid));
-
   // invalidate token
   await db.update(ForgotPasswordSchema).set({ expiresAt: new Date() }).where(eq(ForgotPasswordSchema.uuid, forgotPassword.uuid));
+
+  const newPasswordHash = await bcrypt.hash(newPassword, config.hashRounds());
+  // update password
+  await db.update(UserSchema).set({ password: newPasswordHash }).where(eq(UserSchema.uuid, user.uuid));
 
   return {
     message: "Password changed successfully",
