@@ -31,7 +31,7 @@ export function authsInit(app: Express, permissionFile?: string) {
   app.use("/auths/api", AuthsRouter);
   app.use("/auths/api/cms", CmsAuthRouter);
   app.use("/auths/api/permission", PermissionRouter);
-  app.use("/auths/api/Roles", RolesRouter);
+  app.use("/auths/api/roles", RolesRouter);
 
   // server prod frontend build
   app.use("/auths", express.static(FRONTEND_PATH));

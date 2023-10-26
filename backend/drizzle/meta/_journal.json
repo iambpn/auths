@@ -22,6 +22,13 @@
       "when": 1695298675064,
       "tag": "0002_wet_nick_fury",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1698315914555,
+      "tag": "0003_burly_northstar",
+      "breakpoints": true
     }
   ]
 }
