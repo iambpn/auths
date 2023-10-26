@@ -5,8 +5,7 @@ import { forgotPasswordService, loginService, resetPassword, setInitialSecurityQ
 import { ForgotPasswordType, ForgotPasswordValidationSchema } from "../utils/validation_schema/cms/forgotPassword.validation.schema";
 import { ResetPasswordValidationSchema, ResetPasswordValidationType } from "../utils/validation_schema/cms/resetPassword.validation.schema";
 import { SetSecurityQnASchema, SetSecurityQnAType } from "../utils/validation_schema/cms/setSecurityQnA.validation.schema";
-import { isAuthenticated } from "../main";
-import { isSuperAdmin } from "../middleware/auth.middleware";
+import { isSuperAdmin, isAuthenticated } from "../middleware/auth.middleware";
 
 export const CmsAuthRouter = Router();
 
