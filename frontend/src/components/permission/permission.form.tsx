@@ -27,7 +27,7 @@ const PermissionSchema = z.object({
     .min(2, {
       message: "Permission slug must be at least 2 characters long",
     })
-    .refine((val) => !Boolean(word_with_underscore_regex.test(val)), {
+    .refine((val) => !word_with_underscore_regex.test(val), {
       message: "Special characters are not allowed in slug",
     }),
 });

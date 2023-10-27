@@ -14,6 +14,8 @@ import AfterLoginLayout from "./pages/afterLogin/layout";
 import Logout from "./pages/logout";
 import ForgotPassword from "./pages/forgotPassword";
 import { InitialLayout } from "./pages/layout";
+import { RequireAuth } from "./components/requireAuth";
+import { BlockOnAuth } from "./components/blockOnAuth";
 
 const browserRouter = createBrowserRouter([
   {
@@ -22,20 +24,34 @@ const browserRouter = createBrowserRouter([
     element: <InitialLayout />,
     children: [
       {
-        element: <Login />,
-        index: true,
-      },
-      {
-        path: "/logout",
-        element: <Logout />,
-      },
-      {
-        path: "/forgotpassword",
-        element: <ForgotPassword />,
+        path: "/",
+        element: (
+          <BlockOnAuth>
+            <AfterLoginLayout />
+          </BlockOnAuth>
+        ),
+        children: [
+          {
+            element: <Login />,
+            index: true,
+          },
+          {
+            path: "/logout",
+            element: <Logout />,
+          },
+          {
+            path: "/forgotpassword",
+            element: <ForgotPassword />,
+          },
+        ],
       },
       {
         path: "/",
-        element: <AfterLoginLayout />,
+        element: (
+          <RequireAuth>
+            <AfterLoginLayout />
+          </RequireAuth>
+        ),
         children: [
           {
             path: "/",
@@ -80,6 +96,10 @@ const browserRouter = createBrowserRouter([
     ],
   },
 ]);
+
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => browserRouter.dispose());
+}
 
 function App() {
   return (

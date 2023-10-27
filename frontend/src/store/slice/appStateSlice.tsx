@@ -7,11 +7,15 @@ export type AppStateSlice = {
   toggleOpenDrawer: () => void;
   activeNav: string;
   setActiveNav: (nav: string) => void;
+  currentUser?: {
+    email: string;
+  };
 };
 
-export const CreateAppStateSlice: StateCreator<StoreSlices, [], [], AppStateSlice> = (set, get) => ({
+export const CreateAppStateSlice: StateCreator<StoreSlices, [], [], AppStateSlice> = (set) => ({
   isDrawerOpen: false,
   toggleOpenDrawer: () => set((state) => ({ isDrawerOpen: !state.isDrawerOpen })),
   activeNav: NavName.users,
-  setActiveNav: (nav) => set((state) => ({ activeNav: nav })),
+  setActiveNav: (nav) => set(() => ({ activeNav: nav })),
+  currentUser: undefined,
 });
