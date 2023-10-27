@@ -1,4 +1,4 @@
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 import { ErrorPage } from "./pages/ErrorPage";
 import { DashboardLayout } from "./pages/afterLogin/dashboard/layout";
 import { ListPermission } from "./pages/afterLogin/dashboard/permission";
@@ -27,7 +27,7 @@ const browserRouter = createBrowserRouter([
         path: "/",
         element: (
           <BlockOnAuth>
-            <AfterLoginLayout />
+            <Outlet />
           </BlockOnAuth>
         ),
         children: [

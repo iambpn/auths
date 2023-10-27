@@ -1,15 +1,14 @@
 import { StateCreator } from "zustand";
 import { StoreSlices } from "../useAppStore";
 import { NavName } from "@/lib/navName";
+import { currentUser } from "@/types/common_types";
 
 export type AppStateSlice = {
   isDrawerOpen: boolean;
   toggleOpenDrawer: () => void;
   activeNav: string;
   setActiveNav: (nav: string) => void;
-  currentUser?: {
-    email: string;
-  };
+  currentUser?: currentUser;
 };
 
 export const CreateAppStateSlice: StateCreator<StoreSlices, [], [], AppStateSlice> = (set) => ({

@@ -15,11 +15,13 @@ import { eq } from "drizzle-orm";
 export function isAuthenticated(req: Request, res: Response, next: NextFunction) {
   if (req.headers["authorization"]) {
     const token = req.headers["authorization"].split(" ")[1];
+    console.log(token)
     if (!token) {
       throw new HttpError("Unauthorized Request", 401);
     }
 
     try {
+      // checks token against secret and the expires in time
       const decoded = jwt.verify(token, ENV_VARS.AUTHS_SECRET);
       req.currentUser = decoded as any;
       next();

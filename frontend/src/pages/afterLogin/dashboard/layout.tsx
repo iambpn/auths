@@ -4,9 +4,7 @@ import { useAppStore } from "@/store/useAppStore";
 import { GrClose, GrMenu } from "react-icons/gr";
 import { Outlet } from "react-router-dom";
 
-type Props = {};
-
-export function DashboardLayout(props: Props) {
+export function DashboardLayout() {
   const openDrawer = useAppStore((state) => state.isDrawerOpen);
   const toggleOpenDrawer = useAppStore((state) => state.toggleOpenDrawer);
 

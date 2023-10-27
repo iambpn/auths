@@ -21,6 +21,8 @@ export function authsInit(app: Express, permissionFile?: string) {
   app.use(express.urlencoded({ extended: true, limit: 5 * 1024 }));
   app.use(express.json());
 
+  app.use((req, resm,next)=>{console.log(req.path); next()});
+
   // Migrate and instantiate db
   migrateDB(ENV_VARS.AUTHS_DB_URI);
 
@@ -28,10 +30,10 @@ export function authsInit(app: Express, permissionFile?: string) {
   seedPermission(permissionFile);
 
   // Adding Routes
-  app.use("/auths/api", AuthsRouter);
-  app.use("/auths/api/cms", CmsAuthRouter);
-  app.use("/auths/api/permission", PermissionRouter);
-  app.use("/auths/api/roles", RolesRouter);
+  app.use("/api/auths", AuthsRouter);
+  app.use("/api/auths/cms", CmsAuthRouter);
+  app.use("/api/auths/permission", PermissionRouter);
+  app.use("/api/auths/roles", RolesRouter);
 
   // server prod frontend build
   app.use("/auths", express.static(FRONTEND_PATH));
@@ -42,12 +44,12 @@ export function authsInit(app: Express, permissionFile?: string) {
   });
 
   // route not found error handler
-  app.use("/auths/*", (req: Request, res: Response, next: any) => {
+  app.use("/api/auths/*", (req: Request, res: Response, next: any) => {
     next(new HttpError("Invalid URL " + req.path, 404));
   });
 
   // Custom Error Handler for /auths route
-  app.use("/auths/*", (error: unknown, req: Request, res: Response<ErrorResponse>, next: NextFunction) => {
+  app.use("/api/auths/*", (error: unknown, req: Request, res: Response<ErrorResponse>, next: NextFunction) => {
     const errorObj: ErrorResponse = {
       errors: {} as any,
       path: req.path,

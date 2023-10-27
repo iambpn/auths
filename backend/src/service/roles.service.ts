@@ -133,3 +133,8 @@ export async function assignPermission(id: string, data: AssignPermissionToRoleT
     insertedUuid: insertedRolePermissionUuids.map((x) => x.permissionUuid),
   };
 }
+
+export async function getSuperAdminRole() {
+  const [superAdminRole] = await db.select().from(RolesSchema).where(eq(RolesSchema.slug, "superadmin")).limit(1);
+  return superAdminRole;
+}

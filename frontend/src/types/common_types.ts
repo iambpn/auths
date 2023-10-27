@@ -1,4 +1,4 @@
-export type CmsRequestUser = {
+export type currentUser = {
   role: {
     permissions: {
       uuid: string;

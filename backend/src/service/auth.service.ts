@@ -9,6 +9,7 @@ import { getRandomKey } from "../utils/helper/getRandomKey";
 import { HttpError } from "../utils/helper/httpError";
 import { minutesToMilliseconds } from "../utils/helper/miliseconds";
 import { ENV_VARS } from "./env.service";
+import { getRoleById } from "./roles.service";
 
 export async function getLoginToken(email: string, password: string) {
   const [user] = await db
@@ -100,7 +101,16 @@ export async function signUpFn(email: string, password: string, role: string, ot
 }
 
 export async function loginFn(token: string, email: string, additionalPayload: Record<string, any> = {}) {
-  const [user] = await db.select().from(UserSchema).where(eq(UserSchema.email, email)).limit(1);
+  const [user] = await db
+    .select({
+      email: UserSchema.email,
+      password: UserSchema.password,
+      role: UserSchema.role,
+      uuid: UserSchema.uuid,
+    })
+    .from(UserSchema)
+    .where(eq(UserSchema.email, email))
+    .limit(1);
 
   if (!user) {
     throw new HttpError("User not found.", 404);
@@ -117,8 +127,12 @@ export async function loginFn(token: string, email: string, additionalPayload: R
     throw new HttpError("Invalid token", 404);
   }
 
+  // get role
+  const rolesPermission = await getRoleById(user.role);
+
   // encode email and additional payload to jwt token
-  const jwtToken = jwt.sign({ email, ...additionalPayload }, ENV_VARS.AUTHS_SECRET, { expiresIn: ENV_VARS.AUTHS_JWT_EXPIRATION_TIME ?? minutesToMilliseconds(60 * 24) });
+  const payload = { ...user, ...additionalPayload, role: rolesPermission, password: undefined };
+  const jwtToken = jwt.sign(payload, ENV_VARS.AUTHS_SECRET, { expiresIn: ENV_VARS.AUTHS_JWT_EXPIRATION_TIME ?? minutesToMilliseconds(60 * 24) });
 
   // disable login token
   await db

@@ -13,6 +13,7 @@ import { ResetPasswordValidationType } from "../utils/validation_schema/cms/rese
 import { ENV_VARS } from "./env.service";
 import { SetSecurityQnAType } from "../utils/validation_schema/cms/setSecurityQnA.validation.schema";
 import { CmsRequestUser } from "../utils/types/req.user.type";
+import { getRoleById, getSuperAdminRole } from "./roles.service";
 
 export async function loginService(email: string, password: string) {
   const [user] = await db
@@ -30,7 +31,7 @@ export async function loginService(email: string, password: string) {
     throw new HttpError("Incorrect email or password", 404);
   }
 
-  const [superAdminRole] = await db.select().from(RolesSchema).where(eq(RolesSchema.slug, "superadmin")).limit(1);
+  const superAdminRole = await getSuperAdminRole();
 
   if (user.role !== superAdminRole.uuid) {
     throw new HttpError("Unauthorized", 401);
@@ -40,8 +41,11 @@ export async function loginService(email: string, password: string) {
     throw new HttpError("Incorrect email or password", 404);
   }
 
+  const rolesPermission = await getRoleById(superAdminRole.uuid);
+
   // encode email and additional payload to jwt token
-  const jwtToken = jwt.sign({ ...user, password: undefined }, ENV_VARS.AUTHS_SECRET, { expiresIn: ENV_VARS.AUTHS_JWT_EXPIRATION_TIME ?? minutesToMilliseconds(60 * 24) });
+  const payload = { ...user, password: undefined, role: rolesPermission };
+  const jwtToken = jwt.sign(payload, ENV_VARS.AUTHS_SECRET, { expiresIn: ENV_VARS.AUTHS_JWT_EXPIRATION_TIME ?? minutesToMilliseconds(60 * 24) });
 
   return {
     uuid: user.uuid,
@@ -65,7 +69,7 @@ export async function forgotPasswordService(data: ForgotPasswordType) {
     throw new HttpError("Incorrect email or password", 404);
   }
 
-  const [superAdminRole] = await db.select().from(RolesSchema).where(eq(RolesSchema.slug, "superadmin")).limit(1);
+  const superAdminRole = await getSuperAdminRole();
 
   if (user.role !== superAdminRole.uuid) {
     throw new HttpError("Unauthorized", 401);
