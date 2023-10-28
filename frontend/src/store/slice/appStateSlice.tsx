@@ -9,6 +9,7 @@ export type AppStateSlice = {
   activeNav: string;
   setActiveNav: (nav: string) => void;
   currentUser?: currentUser;
+  setCurrentUser: (user?: currentUser) => void;
 };
 
 export const CreateAppStateSlice: StateCreator<StoreSlices, [], [], AppStateSlice> = (set) => ({
@@ -17,4 +18,5 @@ export const CreateAppStateSlice: StateCreator<StoreSlices, [], [], AppStateSlic
   activeNav: NavName.users,
   setActiveNav: (nav) => set(() => ({ activeNav: nav })),
   currentUser: undefined,
+  setCurrentUser: (user) => set(() => ({ currentUser: user })),
 });
