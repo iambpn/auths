@@ -19,7 +19,7 @@ export default defineConfig({
       // Conditionally set up proxy only during development
       ...(process.env.NODE_ENV === "development" && {
         "/api": {
-          target: process.env.BASE_URL, // proxying and rewriting path with fe_base/api to env_base/api/auths in dev
+          target: process.env.DEV_BASE_URL, // proxying and rewriting path with fe_base_api/api/... to env_base_api/api/... in dev env
           changeOrigin: true,
           secure: false,
           ws: true,
