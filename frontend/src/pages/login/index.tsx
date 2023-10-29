@@ -2,9 +2,14 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { axiosInstance } from "@/utils/axiosInstance";
+import { handleError } from "@/utils/handleError";
+import { getToken, setToken } from "@/utils/localstorage";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { FormSubmitHandler, SubmitHandler, useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const LoginSchema = z.object({
@@ -35,6 +40,37 @@ export function Login() {
     },
     mode: "onChange",
   });
+  const queryClient = useQueryClient();
+
+  const loginMutateQuery = useMutation<
+    {
+      uuid: string;
+      jwtToken: string;
+    },
+    any,
+    LoginType
+  >({
+    mutationFn: async (values) => {
+      const res = await axiosInstance.post("/cms/login", {
+        email: values.email,
+        password: values.password,
+      });
+
+      return res.data;
+    },
+    onError(error) {
+      handleError(error);
+    },
+    onSuccess(data) {
+      setToken(data.jwtToken);
+      queryClient.invalidateQueries(["currentUser"], { exact: true });
+      toast.success(`Successfully logged in.`);
+    },
+  });
+
+  const submitForm: SubmitHandler<LoginType> = (values) => {
+    loginMutateQuery.mutate(values);
+  };
 
   return (
     <>
@@ -45,7 +81,7 @@ export function Login() {
             <span className='text-sm text-gray-600'>Login to your account with Email and Password</span>
           </div>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(() => {})} className='space-y-3'>
+            <form onSubmit={form.handleSubmit(submitForm)} className='space-y-3'>
               <FormField
                 control={form.control}
                 name='email'
@@ -74,7 +110,7 @@ export function Login() {
                 )}
               />
               <div>
-                <Button className='w-full' type='submit'>
+                <Button className='w-full' type='submit' disabled={loginMutateQuery.isLoading}>
                   Login
                 </Button>
               </div>

@@ -15,11 +15,11 @@ const queryClient = new QueryClient({
 });
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  // <React.StrictMode>
+  <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <App />
       <Toaster closeButton={true} richColors={true} expand={true} />
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
-  // </React.StrictMode>
+  </React.StrictMode>
 );

@@ -29,7 +29,25 @@ export async function getRoleById(id: string) {
   const [role] = await db.select().from(RolesSchema).where(eq(RolesSchema.uuid, id)).limit(1);
 
   if (!role) {
-    throw new HttpError("Permission not found.", 404);
+    throw new HttpError("Role not found.", 404);
+  }
+
+  const permissions = await db
+    .select({
+      permission: PermissionSchema,
+    })
+    .from(RolesPermissionsSchema)
+    .innerJoin(PermissionSchema, eq(RolesPermissionsSchema.permissionUuid, PermissionSchema.uuid))
+    .where(eq(RolesPermissionsSchema.roleUuid, role.uuid));
+
+  return { ...role, permissions: permissions.map((x) => x.permission) };
+}
+
+export async function getRoleBySlug(slug: string) {
+  const [role] = await db.select().from(RolesSchema).where(eq(RolesSchema.slug, slug)).limit(1);
+
+  if (!role) {
+    throw new HttpError("Role not found.", 404);
   }
 
   const permissions = await db

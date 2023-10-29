@@ -10,6 +10,7 @@ import { seedPermission } from "./service/seedPermission.service";
 import { CmsAuthRouter } from "./routes/cms.auth.router";
 import { PermissionRouter } from "./routes/permission.router";
 import { RolesRouter } from "./routes/roles.router";
+import url from "url";
 
 const FRONTEND_PATH = path.join(__dirname, "..", "public", "frontend", "build");
 
@@ -20,11 +21,6 @@ export function authsInit(app: Express, permissionFile?: string) {
   // Body parser
   app.use(express.urlencoded({ extended: true, limit: 5 * 1024 }));
   app.use(express.json());
-
-  app.use((req, resm, next) => {
-    console.log(req.path);
-    next();
-  });
 
   // Migrate and instantiate db
   migrateDB(ENV_VARS.AUTHS_DB_URI);
@@ -40,7 +36,13 @@ export function authsInit(app: Express, permissionFile?: string) {
 
   // route not found error handler
   app.use("/auths/api/*", (req: Request, res: Response, next: any) => {
-    next(new HttpError("Invalid URL " + req.path, 404));
+    const fullUrl = url.format({
+      protocol: req.protocol,
+      host: req.get("host"),
+      pathname: req.originalUrl,
+    });
+
+    next(new HttpError(`Invalid URL: [${req.method}] ${fullUrl}`, 404));
   });
 
   // Custom Error Handler for /auths/api/* route

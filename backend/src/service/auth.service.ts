@@ -9,7 +9,7 @@ import { getRandomKey } from "../utils/helper/getRandomKey";
 import { HttpError } from "../utils/helper/httpError";
 import { minutesToMilliseconds } from "../utils/helper/miliseconds";
 import { ENV_VARS } from "./env.service";
-import { getRoleById } from "./roles.service";
+import { getRoleById, getRoleBySlug } from "./roles.service";
 
 export async function getLoginToken(email: string, password: string) {
   const [user] = await db
@@ -70,7 +70,7 @@ export async function getLoginToken(email: string, password: string) {
   };
 }
 
-export async function signUpFn(email: string, password: string, role: string, others: Record<string, any> = {}) {
+export async function signUpFn(email: string, password: string, roleSlug: string, others: Record<string, any> = {}) {
   const [user] = await db
     .select({
       email: UserSchema.email,
@@ -82,11 +82,12 @@ export async function signUpFn(email: string, password: string, role: string, ot
     throw new HttpError("Email already exists. Please use different email", 409);
   }
 
-  const hashedPassword = await bcrypt.hash(password, config.hashRounds());
+  const role = await getRoleBySlug(roleSlug);
 
+  const hashedPassword = await bcrypt.hash(password, config.hashRounds());
   const [savedUser] = await db
     .insert(UserSchema)
-    .values({ email, password: hashedPassword, uuid: uuid.v4(), others: JSON.stringify(others), role: role, createdAt: new Date(), updatedAt: new Date() })
+    .values({ email, password: hashedPassword, uuid: uuid.v4(), others: JSON.stringify(others), role: role.uuid, createdAt: new Date(), updatedAt: new Date() })
     .returning();
 
   if (!savedUser) {

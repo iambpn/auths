@@ -8,7 +8,7 @@ import { z } from "zod";
 import { Label } from "../ui/label";
 
 const SecurityQuestionSchema = z.object({
-  question1: z
+  question1Idx: z
     .string({
       required_error: "Question is required",
     })
@@ -22,7 +22,7 @@ const SecurityQuestionSchema = z.object({
     .min(2, {
       message: "Answer must be at least 2 characters",
     }),
-  question2: z
+  question2Idx: z
     .string({
       required_error: "Question is required",
     })
@@ -41,20 +41,21 @@ const SecurityQuestionSchema = z.object({
 export type SecurityQuestionType = z.infer<typeof SecurityQuestionSchema>;
 
 type Props = {
-  questions: { id: string; question: string }[];
+  question1s: string[];
+  question2s: string[];
   defaultValues?: Omit<SecurityQuestionType, "answer1" | "answer2" | "password">;
   disabled?: boolean;
   onSubmit: SubmitHandler<SecurityQuestionType>;
-  submitBtn?: string
+  submitBtn?: string;
 };
 
 export default function SecurityQuestionForm(props: Props) {
   const form = useForm<SecurityQuestionType>({
     resolver: zodResolver(SecurityQuestionSchema),
     defaultValues: {
-      question1: props.defaultValues ? props.defaultValues.question1 : "",
+      question1Idx: props.defaultValues ? props.defaultValues.question1Idx : "",
       answer1: "",
-      question2: props.defaultValues ? props.defaultValues.question2 : "",
+      question2Idx: props.defaultValues ? props.defaultValues.question2Idx : "",
       answer2: "",
     },
     mode: "onChange",
@@ -65,7 +66,7 @@ export default function SecurityQuestionForm(props: Props) {
       <form className='mt-2 space-y-2' onSubmit={form.handleSubmit(props.onSubmit)}>
         <FormField
           control={form.control}
-          name='question1'
+          name='question1Idx'
           render={({ field }) => (
             <FormItem>
               <Label>Question 1</Label>
@@ -77,8 +78,8 @@ export default function SecurityQuestionForm(props: Props) {
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Questions</SelectLabel>
-                      {props.questions.map((q) => (
-                        <SelectItem value={q.id}>{q.question}</SelectItem>
+                      {props.question1s.map((q, idx) => (
+                        <SelectItem value={idx.toString()}>{q}</SelectItem>
                       ))}
                     </SelectGroup>
                   </SelectContent>
@@ -102,7 +103,7 @@ export default function SecurityQuestionForm(props: Props) {
         />
         <FormField
           control={form.control}
-          name='question2'
+          name='question2Idx'
           render={({ field }) => (
             <FormItem>
               <Label>Question 2</Label>
@@ -114,8 +115,8 @@ export default function SecurityQuestionForm(props: Props) {
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Questions</SelectLabel>
-                      {props.questions.map((q) => (
-                        <SelectItem value={q.id}>{q.question}</SelectItem>
+                      {props.question2s.map((q, idx) => (
+                        <SelectItem value={idx.toString()}>{q}</SelectItem>
                       ))}
                     </SelectGroup>
                   </SelectContent>

@@ -17,6 +17,7 @@ export function InitialLayout() {
       const res = await axiosInstance.get("currentUser");
       return res.data;
     },
+    retry: 2,
     initialData: currentUser,
   });
 

@@ -150,6 +150,8 @@ describe("Integration Testing Auth service", () => {
       expect(user.uuid).toEqual(sameUser.uuid);
       expect(user.role).toEqual(UserRole);
     });
+
+    it.todo("should verify the provided slug");
   });
 
   describe("Login FN", () => {

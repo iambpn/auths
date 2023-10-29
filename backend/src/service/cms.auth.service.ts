@@ -14,6 +14,8 @@ import { ENV_VARS } from "./env.service";
 import { SetSecurityQnAType } from "../utils/validation_schema/cms/setSecurityQnA.validation.schema";
 import { CmsRequestUser } from "../utils/types/req.user.type";
 import { getRoleById, getSuperAdminRole } from "./roles.service";
+import { ValidateEmailType } from "../utils/validation_schema/cms/verifyEmail.validation.schema";
+import { QuestionsType1, QuestionsType2 } from "../utils/config/securityQuestion.config";
 
 export async function loginService(email: string, password: string) {
   const [user] = await db
@@ -50,6 +52,41 @@ export async function loginService(email: string, password: string) {
   return {
     uuid: user.uuid,
     jwtToken,
+  };
+}
+
+export async function validateEmail(data: ValidateEmailType) {
+  const [user] = await db
+    .select({
+      email: UserSchema.email,
+      password: UserSchema.password,
+      uuid: UserSchema.uuid,
+      role: UserSchema.role,
+    })
+    .from(UserSchema)
+    .where(eq(UserSchema.email, data.email))
+    .limit(1);
+
+  if (!user) {
+    throw new HttpError("Incorrect email or password", 404);
+  }
+
+  const superAdminRole = await getSuperAdminRole();
+
+  if (user.role !== superAdminRole.uuid) {
+    throw new HttpError("Unauthorized", 401);
+  }
+
+  const [securityQuestion] = await db.select().from(SecurityQuestionSchema).where(eq(SecurityQuestionSchema.userUuid, user.uuid)).limit(1);
+
+  if (!securityQuestion) {
+    throw new HttpError("Security question is not configured", 404);
+  }
+
+  return {
+    email: user.email,
+    question1: QuestionsType1[securityQuestion.question1],
+    question2: QuestionsType2[securityQuestion.question2],
   };
 }
 
@@ -100,7 +137,7 @@ export async function forgotPasswordService(data: ForgotPasswordType) {
     .values({
       uuid: uuid.v4(),
       createdAt: new Date(),
-      expiresAt: new Date(),
+      expiresAt: new Date(Date.now() + minutesToMilliseconds(5)),
       token: token,
       userUuid: user.uuid,
     })
@@ -150,6 +187,13 @@ export async function resetPassword(data: ResetPasswordValidationType) {
 
   return {
     message: "Password changed successfully",
+  };
+}
+
+export function getSecurityQuestions() {
+  return {
+    question1s: QuestionsType1,
+    question2s: QuestionsType2,
   };
 }
 
