@@ -7,7 +7,7 @@ import { axiosInstance } from "@/utils/axiosInstance";
 import { handleError } from "@/utils/handleError";
 import { setResetToken } from "@/utils/localstorage";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { MdArrowBack } from "react-icons/md";

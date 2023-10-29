@@ -41,7 +41,7 @@ export async function isSuperAdmin(req: Request, res: Response, next: NextFuncti
 
     const [role] = await db.select().from(RolesSchema).where(eq(RolesSchema.slug, "superadmin")).limit(1);
 
-    if (!role || role.uuid !== req.currentUser.role) {
+    if (!role || role.uuid !== req.currentUser.role.uuid) {
       throw new HttpError("Insufficient role", 401);
     }
 

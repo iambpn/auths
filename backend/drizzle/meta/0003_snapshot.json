@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "ab983660-c6bc-4dc4-921c-a80f017d493a",
+  "id": "db5bc6b2-7c5d-4abb-9cf4-a5f5793713af",
   "prevId": "1b2b2e28-0569-4e93-8f42-d1b5b82d9714",
   "tables": {
     "forgot_password": {
@@ -404,7 +404,7 @@
           "name": "user_uuid",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "question1": {

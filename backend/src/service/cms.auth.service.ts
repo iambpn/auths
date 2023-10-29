@@ -80,7 +80,7 @@ export async function validateEmail(data: ValidateEmailType) {
   const [securityQuestion] = await db.select().from(SecurityQuestionSchema).where(eq(SecurityQuestionSchema.userUuid, user.uuid)).limit(1);
 
   if (!securityQuestion) {
-    throw new HttpError("Security question is not configured", 404);
+    throw new HttpError("Security question is not configured", 400);
   }
 
   return {
@@ -218,8 +218,16 @@ export async function setInitialSecurityQuestion(data: SetSecurityQnAType, curre
     question2: data.question2,
     createdAt: new Date(),
     updatedAt: new Date(),
+    userUuid: user.uuid,
     uuid: uuid.v4(),
   });
+
+  await db
+    .update(UserSchema)
+    .set({
+      isRecoverable: true,
+    })
+    .where(eq(UserSchema.uuid, user.uuid));
 
   return {
     message: "Security Question added successfully",

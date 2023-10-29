@@ -12,7 +12,7 @@ const SecurityQuestionSchema = z.object({
     .string({
       required_error: "Question is required",
     })
-    .min(2, {
+    .min(1, {
       message: "You must select a question",
     }),
   answer1: z
@@ -26,7 +26,7 @@ const SecurityQuestionSchema = z.object({
     .string({
       required_error: "Question is required",
     })
-    .min(2, {
+    .min(1, {
       message: "You must select a question",
     }),
   answer2: z
@@ -63,7 +63,7 @@ export default function SecurityQuestionForm(props: Props) {
 
   return (
     <Form {...form}>
-      <form className='mt-2 space-y-2' onSubmit={form.handleSubmit(props.onSubmit)}>
+      <form className='mt-2 space-y-2' onSubmit={form.handleSubmit(props.onSubmit)} autoComplete={"off"}>
         <FormField
           control={form.control}
           name='question1Idx'
@@ -78,8 +78,10 @@ export default function SecurityQuestionForm(props: Props) {
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Questions</SelectLabel>
-                      {props.question1s.map((q, idx) => (
-                        <SelectItem value={idx.toString()}>{q}</SelectItem>
+                      {props.question1s.map((question, idx) => (
+                        <SelectItem value={idx.toString()} key={`q1-${idx}`}>
+                          {question}
+                        </SelectItem>
                       ))}
                     </SelectGroup>
                   </SelectContent>
@@ -115,8 +117,10 @@ export default function SecurityQuestionForm(props: Props) {
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Questions</SelectLabel>
-                      {props.question2s.map((q, idx) => (
-                        <SelectItem value={idx.toString()}>{q}</SelectItem>
+                      {props.question2s.map((question, idx) => (
+                        <SelectItem value={idx.toString()} key={`q2-${idx}`}>
+                          {question}
+                        </SelectItem>
                       ))}
                     </SelectGroup>
                   </SelectContent>

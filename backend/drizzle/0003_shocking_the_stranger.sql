@@ -9,7 +9,7 @@ CREATE TABLE `resetPasswordToken` (
 --> statement-breakpoint
 CREATE TABLE `securityQuestion` (
 	`uuid` text PRIMARY KEY NOT NULL,
-	`user_uuid` text,
+	`user_uuid` text NOT NULL,
 	`question1` integer NOT NULL,
 	`answer1` text NOT NULL,
 	`question2` integer NOT NULL,

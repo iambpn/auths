@@ -50,7 +50,7 @@ CmsAuthRouter.post("/resetPassword", validate(ResetPasswordValidationSchema), as
   }
 });
 
-CmsAuthRouter.post("/getSecurityQuestions", isAuthenticated, async (req: Request, res: Response, next: NextFunction) => {
+CmsAuthRouter.get("/getSecurityQuestions", isAuthenticated, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const response = getSecurityQuestions();
     res.status(200).json(response);

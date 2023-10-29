@@ -14,7 +14,7 @@ authsInit(app, path.join(__dirname, "permission.json"));
 app.post("/signup", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password } = req.body;
-    const result = await signup(email, password, "user");
+    const result = await signup(email, password, "superadmin");
     return res.status(201).json(result);
   } catch (error) {
     // Handling error in async handler

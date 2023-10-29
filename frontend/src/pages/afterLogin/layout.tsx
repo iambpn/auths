@@ -1,14 +1,40 @@
 import { Navbar } from "@/components/navbar/navbar";
 import SecurityQuestionForm, { SecurityQuestionType } from "@/components/securityQuestion/securityQuestion.form";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useAppStore } from "@/store/useAppStore";
 import { axiosInstance } from "@/utils/axiosInstance";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { handleError } from "@/utils/handleError";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { SubmitHandler } from "react-hook-form";
 import { Outlet } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function AfterLoginLayout() {
-  const [showDialog, setShowDialog] = useState(true);
+  const [showDialog, setShowDialog] = useState(false);
+  const currentUser = useAppStore.getState().currentUser;
+
+  const verifyEmailQuery = useQuery<{
+    email: string;
+    question1: string;
+    question2: string;
+  }>({
+    queryKey: ["cms", "verifyEmail", currentUser?.email],
+    queryFn: async () => {
+      const res = await axiosInstance.post("/cms/verifyEmail", {
+        email: currentUser?.email,
+      });
+      return res.data;
+    },
+    retry: false,
+  });
+
+  useEffect(() => {
+    if (verifyEmailQuery.isError) {
+      handleError(verifyEmailQuery.error);
+      setShowDialog(true);
+    }
+  }, [verifyEmailQuery.isError, verifyEmailQuery.error]);
 
   const securityQuestionQuery = useQuery<{
     question1s: string[];
@@ -19,15 +45,43 @@ export default function AfterLoginLayout() {
       const res = await axiosInstance.get("/cms/getSecurityQuestions");
       return res.data;
     },
+    staleTime: Infinity,
   });
 
-  const closeDialog = (value: boolean) => {
-    // api call and id security question is changed then only close dialog
-    setShowDialog(true);
+  const securityQuestionMutationQuery = useMutation<{ message: string }, unknown, SecurityQuestionType>({
+    mutationFn: async (values) => {
+      const res = await axiosInstance.post("/cms/setSecurityQuestions", {
+        question1: values.question1Idx,
+        answer1: values.answer1,
+        question2: values.question2Idx,
+        answer2: values.answer2,
+      });
+
+      return res.data;
+    },
+    onError(error) {
+      handleError(error);
+    },
+    onSuccess(data) {
+      toast.success(data.message);
+    },
+  });
+
+  const closeDialog: (state?: boolean) => void = () => {
+    verifyEmailQuery.refetch({
+      cancelRefetch: true,
+    });
+
+    if (verifyEmailQuery.data) {
+      setShowDialog(false);
+    } else {
+      toast.error("You must setup security questions.");
+    }
   };
 
-  const saveSecurityQuestion: SubmitHandler<SecurityQuestionType> = (value) => {
-    // make api call
+  const saveSecurityQuestion: SubmitHandler<SecurityQuestionType> = async (value) => {
+    await securityQuestionMutationQuery.mutateAsync(value);
+    setShowDialog(false);
   };
 
   return (
@@ -42,8 +96,8 @@ export default function AfterLoginLayout() {
             <SecurityQuestionForm
               onSubmit={saveSecurityQuestion}
               question1s={securityQuestionQuery.data.question1s}
-              question2s={securityQuestionQuery.data.question1s}
-              disabled={true}
+              question2s={securityQuestionQuery.data.question2s}
+              disabled={false}
               defaultValues={{ question1Idx: "", question2Idx: "" }}
               submitBtn='Save Question'
             />

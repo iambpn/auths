@@ -7,6 +7,7 @@ import { SubmitHandler } from "react-hook-form";
 export function CreatePermission() {
   // update Permission Nav Selection
   const updateActiveNavLink = useAppStore((state) => state.setActiveNav);
+
   useEffect(() => {
     updateActiveNavLink(NavName.permission);
   }, []);

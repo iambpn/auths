@@ -4,10 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { axiosInstance } from "@/utils/axiosInstance";
 import { handleError } from "@/utils/handleError";
-import { getToken, setToken } from "@/utils/localstorage";
+import { setToken } from "@/utils/localstorage";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { FormSubmitHandler, SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -47,7 +47,7 @@ export function Login() {
       uuid: string;
       jwtToken: string;
     },
-    any,
+    unknown,
     LoginType
   >({
     mutationFn: async (values) => {

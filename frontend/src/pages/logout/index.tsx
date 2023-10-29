@@ -6,11 +6,9 @@ import { Navigate } from "react-router-dom";
 export default function Logout() {
   const setCurrentUser = useAppStore((state) => state.setCurrentUser);
 
-  //  TODO: FIX LOGOUT ISSUE
-
   useEffect(() => {
     setToken("");
-    // setCurrentUser(undefined);
+    setCurrentUser(undefined);
   }, []);
 
   return (

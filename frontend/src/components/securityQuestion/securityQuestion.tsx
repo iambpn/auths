@@ -48,7 +48,7 @@ export default function SecurityQuestion() {
         <SettingHeader header='Security Questions' description='Change your Security Question here.' />
       </div>
       <div>
-        <SecurityQuestionForm onSubmit={verifyFormSubmission} questions={[]} />
+        <SecurityQuestionForm onSubmit={verifyFormSubmission} question1s={[]} question2s={[]} />
         <Dialog
           open={showDialog}
           onOpenChange={(open) => {

@@ -76,10 +76,12 @@ export const PermissionSeedSchema = sqliteTable("__permissionSeed", {
 
 export const SecurityQuestionSchema = sqliteTable("securityQuestion", {
   uuid: text("uuid").primaryKey(),
-  userUuid: text("user_uuid").references(() => UserSchema.uuid, {
-    onDelete: "cascade",
-    onUpdate: "cascade",
-  }),
+  userUuid: text("user_uuid")
+    .references(() => UserSchema.uuid, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    })
+    .notNull(),
   question1: integer("question1").notNull(),
   answer1: text("answer1").notNull(),
   question2: integer("question2").notNull(),

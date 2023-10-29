@@ -19,10 +19,6 @@ import { BlockOnAuth } from "./components/blockOnAuth";
 
 const browserRouter = createBrowserRouter([
   {
-    path: "/logout",
-    element: <Logout />,
-  },
-  {
     path: "/",
     errorElement: <ErrorPage />,
     element: <InitialLayout />,
@@ -92,6 +88,10 @@ const browserRouter = createBrowserRouter([
             element: <Settings />,
           },
         ],
+      },
+      {
+        path: "/logout",
+        element: <Logout />,
       },
     ],
   },
