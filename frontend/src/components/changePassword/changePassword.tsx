@@ -6,6 +6,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import SettingHeader from "../settings/settingHeader";
+import { useMutation } from "@tanstack/react-query";
+import { axiosInstance } from "@/lib/axiosInstance";
+import { toast } from "sonner";
+import { handleError } from "@/lib/handleError";
 
 const ChangePasswordSchema = z
   .object({
@@ -49,7 +53,23 @@ export default function ChangePassword() {
     mode: "onChange",
   });
 
-  const handleSubmit: SubmitHandler<ChangePasswordType> = (values) => {};
+  const updatePasswordMutationQuery = useMutation<{ message: string }, unknown, ChangePasswordType>({
+    mutationFn: async (values) => {
+      const res = await axiosInstance.put("/cms/updatePassword", values);
+      return res.data;
+    },
+    onSuccess(data) {
+      form.reset();
+      toast.success(data.message);
+    },
+    onError(error) {
+      handleError(error);
+    },
+  });
+
+  const handleSubmit: SubmitHandler<ChangePasswordType> = (values) => {
+    updatePasswordMutationQuery.mutate(values);
+  };
 
   return (
     <>

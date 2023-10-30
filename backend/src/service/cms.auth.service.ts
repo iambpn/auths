@@ -16,6 +16,8 @@ import { CmsRequestUser } from "../utils/types/req.user.type";
 import { getRoleById, getSuperAdminRole } from "./roles.service";
 import { ValidateEmailType } from "../utils/validation_schema/cms/verifyEmail.validation.schema";
 import { QuestionsType1, QuestionsType2 } from "../utils/config/securityQuestion.config";
+import { UpdatePasswordValidationType } from "../utils/validation_schema/cms/updatePassword.validation.schema";
+import { UpdateSecurityQnAType } from "../utils/validation_schema/cms/updateSecurityQnA.validation.schema";
 
 export async function loginService(email: string, password: string) {
   const [user] = await db
@@ -40,7 +42,7 @@ export async function loginService(email: string, password: string) {
   }
 
   if (!(await bcrypt.compare(password, user.password))) {
-    throw new HttpError("Incorrect email or password", 404);
+    throw new HttpError("Incorrect email or password", 400);
   }
 
   const rolesPermission = await getRoleById(superAdminRole.uuid);
@@ -231,5 +233,68 @@ export async function setInitialSecurityQuestion(data: SetSecurityQnAType, curre
 
   return {
     message: "Security Question added successfully",
+  };
+}
+
+export async function updateSecurityQuestion(data: UpdateSecurityQnAType, currentUser: CmsRequestUser) {
+  const [user] = await db.select().from(UserSchema).where(eq(UserSchema.uuid, currentUser.uuid)).limit(1);
+
+  if (!user) {
+    throw new HttpError("User not found", 404);
+  }
+
+  if (!(await bcrypt.compare(data.password, user.password))) {
+    throw new HttpError("Incorrect current password", 400);
+  }
+
+  const encryptAnswer1 = await bcrypt.hash(data.answer1, config.hashRounds());
+  const encryptAnswer2 = await bcrypt.hash(data.answer2, config.hashRounds());
+
+  await db.insert(SecurityQuestionSchema).values({
+    answer1: encryptAnswer1,
+    answer2: encryptAnswer2,
+    question1: data.question1,
+    question2: data.question2,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    userUuid: user.uuid,
+    uuid: uuid.v4(),
+  });
+
+  if (!user.isRecoverable) {
+    await db
+      .update(UserSchema)
+      .set({
+        isRecoverable: true,
+      })
+      .where(eq(UserSchema.uuid, user.uuid));
+  }
+
+  return {
+    message: "Security QnA updated successfully",
+  };
+}
+
+export async function updatePassword(data: UpdatePasswordValidationType, currentUser: CmsRequestUser) {
+  const [user] = await db.select().from(UserSchema).where(eq(UserSchema.uuid, currentUser.uuid)).limit(1);
+
+  if (!user) {
+    throw new HttpError("User not found", 404);
+  }
+
+  if (!(await bcrypt.compare(data.currentPassword, user.password))) {
+    throw new HttpError("Incorrect current password", 400);
+  }
+
+  const encryptPassword = await bcrypt.hash(data.newPassword, config.hashRounds());
+  await db
+    .update(UserSchema)
+    .set({
+      password: encryptPassword,
+    })
+    .where(eq(UserSchema.uuid, currentUser.uuid));
+
+  return {
+    message: "Password updated successfully",
   };
 }

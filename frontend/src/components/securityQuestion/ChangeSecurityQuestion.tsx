@@ -1,7 +1,11 @@
+import { axiosInstance } from "@/lib/axiosInstance";
+import { handleError } from "@/lib/handleError";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DialogDescription } from "@radix-ui/react-dialog";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import SettingHeader from "../settings/settingHeader";
 import { Button } from "../ui/button";
@@ -33,13 +37,54 @@ export default function ChangeSecurityQuestion() {
   const [showDialog, setShowDialog] = useState(false);
   const [QnA, setQnA] = useState<SecurityQuestionType>();
 
+  const securityQuestionQuery = useQuery<{
+    question1s: string[];
+    question2s: string[];
+  }>({
+    queryKey: ["cms", "getSecurityQuestions"],
+    queryFn: async () => {
+      const res = await axiosInstance.get("/cms/getSecurityQuestions");
+      return res.data;
+    },
+    staleTime: Infinity,
+    cacheTime: Infinity,
+  });
+
+  const updateQnAMutationQuery = useMutation<
+    {
+      message: string;
+    },
+    unknown,
+    SecurityQuestionType & { password: string }
+  >({
+    mutationFn: async (values) => {
+      const res = await axiosInstance.put("/cms/updateSecurityQuestions", {
+        question1: values.question1Idx,
+        question2: values.question2Idx,
+        answer1: values.answer1,
+        answer2: values.answer2,
+        password: values.password,
+      });
+      return res.data;
+    },
+    onSuccess(data) {
+      toast.success(data.message);
+    },
+    onError(error) {
+      handleError(error);
+    },
+  });
+
   const verifyFormSubmission: SubmitHandler<SecurityQuestionType> = (values) => {
     setQnA(values);
     setShowDialog(true);
   };
 
-  const handleChangeQuestionSubmission: SubmitHandler<{ password: string }> = (values) => {
-    setShowDialog(false);
+  const handleChangeQuestionSubmission: SubmitHandler<{ password: string }> = async (values) => {
+    if (QnA) {
+      await updateQnAMutationQuery.mutateAsync({ ...QnA, ...values });
+      setShowDialog(false);
+    }
   };
 
   return (
@@ -48,7 +93,7 @@ export default function ChangeSecurityQuestion() {
         <SettingHeader header='Security Questions' description='Change your Security Question here.' />
       </div>
       <div>
-        <SecurityQuestionForm onSubmit={verifyFormSubmission} question1s={[]} question2s={[]} />
+        <SecurityQuestionForm onSubmit={verifyFormSubmission} question1s={securityQuestionQuery.data?.question1s ?? []} question2s={securityQuestionQuery.data?.question2s ?? []} />
         <Dialog
           open={showDialog}
           onOpenChange={(open) => {

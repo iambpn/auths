@@ -1,12 +1,14 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { validate } from "../utils/helper/validate";
 import { LoginValidationSchema, LoginValidationType } from "../utils/validation_schema/auths/login.validation.schema";
-import { forgotPasswordService, getSecurityQuestions, loginService, resetPassword, setInitialSecurityQuestion, validateEmail } from "../service/cms.auth.service";
+import { forgotPasswordService, getSecurityQuestions, loginService, resetPassword, setInitialSecurityQuestion, updatePassword, updateSecurityQuestion, validateEmail } from "../service/cms.auth.service";
 import { ForgotPasswordType, ForgotPasswordValidationSchema } from "../utils/validation_schema/cms/forgotPassword.validation.schema";
 import { ResetPasswordValidationSchema, ResetPasswordValidationType } from "../utils/validation_schema/cms/resetPassword.validation.schema";
 import { SetSecurityQnASchema, SetSecurityQnAType } from "../utils/validation_schema/cms/setSecurityQnA.validation.schema";
 import { isSuperAdmin, isAuthenticated } from "../middleware/auth.middleware";
 import { ValidateEmailType, validateEmailSchema } from "../utils/validation_schema/cms/verifyEmail.validation.schema";
+import { UpdatePasswordValidationSchema, UpdatePasswordValidationType } from "../utils/validation_schema/cms/updatePassword.validation.schema";
+import { UpdateSecurityQnASchema, UpdateSecurityQnAType } from "../utils/validation_schema/cms/updateSecurityQnA.validation.schema";
 
 export const CmsAuthRouter = Router();
 
@@ -50,7 +52,9 @@ CmsAuthRouter.post("/resetPassword", validate(ResetPasswordValidationSchema), as
   }
 });
 
-CmsAuthRouter.get("/getSecurityQuestions", isAuthenticated, async (req: Request, res: Response, next: NextFunction) => {
+/* ============ Protected Routes ===================== */
+
+CmsAuthRouter.get("/getSecurityQuestions", isAuthenticated, isSuperAdmin, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const response = getSecurityQuestions();
     res.status(200).json(response);
@@ -68,3 +72,35 @@ CmsAuthRouter.post("/setSecurityQuestions", isAuthenticated, isSuperAdmin, valid
     next(error);
   }
 });
+
+CmsAuthRouter.put(
+  "/updateSecurityQuestions",
+  isAuthenticated,
+  isSuperAdmin,
+  validate(UpdateSecurityQnASchema),
+  async (req: Request<any, any, UpdateSecurityQnAType>, res: Response, next: NextFunction) => {
+    try {
+      const body = req.body;
+      const response = await updateSecurityQuestion(body, req.currentUser as any);
+      res.status(200).json(response);
+    } catch (error: unknown) {
+      next(error);
+    }
+  }
+);
+
+CmsAuthRouter.put(
+  "/updatePassword",
+  isAuthenticated,
+  isSuperAdmin,
+  validate(UpdatePasswordValidationSchema),
+  async (req: Request<any, any, UpdatePasswordValidationType>, res: Response, next: NextFunction) => {
+    try {
+      const body = req.body;
+      const response = await updatePassword(body, req.currentUser as any);
+      res.status(200).json(response);
+    } catch (error: unknown) {
+      next(error);
+    }
+  }
+);
