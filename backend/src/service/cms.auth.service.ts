@@ -159,7 +159,7 @@ export async function resetPassword(data: ResetPasswordValidationType) {
     .limit(1);
 
   if (!token) {
-    throw new HttpError("Invalid Token", 404);
+    throw new HttpError("Invalid Reset Token", 404);
   }
 
   const [user] = await db.select().from(UserSchema).where(eq(UserSchema.uuid, token.userUuid)).limit(1);

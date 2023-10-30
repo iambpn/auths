@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { axiosInstance } from "@/lib/axiosInstance";
+import { RESET_TOKEN } from "@/lib/config";
 import { handleError } from "@/lib/handleError";
-import { setResetToken } from "@/lib/localstorage";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
@@ -87,7 +87,7 @@ export default function ForgotPassword() {
       const dateDiff = expiresAt.getTime() - Date.now();
       console.log(dateDiff);
       toast.success(`Reset Password expires in ${Math.round(dateDiff / (1000 * 60))} Minutes`);
-      setResetToken(data.token, data.expiresAt);
+      navigate(`/resetpassword?${RESET_TOKEN}=${data.token}`);
     },
   });
 

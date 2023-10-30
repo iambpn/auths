@@ -16,6 +16,7 @@ import ForgotPassword from "./pages/forgotPassword";
 import { InitialLayout } from "./pages/layout";
 import { RequireAuth } from "./components/requireAuth";
 import { BlockOnAuth } from "./components/blockOnAuth";
+import { ResetPassword } from "./pages/resetPassword";
 
 const browserRouter = createBrowserRouter([
   {
@@ -38,6 +39,10 @@ const browserRouter = createBrowserRouter([
           {
             path: "/forgotpassword",
             element: <ForgotPassword />,
+          },
+          {
+            path: "/resetpassword",
+            element: <ResetPassword />,
           },
         ],
       },
