@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Form, FormControl, FormField, FormItem, FormMessage } from "../ui/form";
 import { Input } from "../ui/input";
 import SecurityQuestionForm, { SecurityQuestionType } from "./securityQuestion.form";
+import { useNavigate } from "react-router-dom";
 
 const VerifyPasswordSchema = z.object({
   password: z
@@ -36,6 +37,7 @@ export default function ChangeSecurityQuestion() {
   });
   const [showDialog, setShowDialog] = useState(false);
   const [QnA, setQnA] = useState<SecurityQuestionType>();
+  const navigate = useNavigate();
 
   const securityQuestionQuery = useQuery<{
     question1s: string[];
@@ -84,6 +86,10 @@ export default function ChangeSecurityQuestion() {
     if (QnA) {
       await updateQnAMutationQuery.mutateAsync({ ...QnA, ...values });
       setShowDialog(false);
+      // soft navigate back to the settings
+      navigate("/", {
+        state: { from: "/settings" },
+      });
     }
   };
 
