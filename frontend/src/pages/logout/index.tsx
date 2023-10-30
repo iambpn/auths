@@ -1,5 +1,5 @@
 import { useAppStore } from "@/store/useAppStore";
-import { setToken } from "@/utils/localstorage";
+import { setToken } from "@/lib/localstorage";
 import { useEffect } from "react";
 import { Navigate } from "react-router-dom";
 

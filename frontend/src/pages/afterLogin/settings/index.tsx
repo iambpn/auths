@@ -1,5 +1,5 @@
 import ChangePassword from "@/components/changePassword/changePassword";
-import SecurityQuestion from "@/components/securityQuestion/securityQuestion";
+import ChangeSecurityQuestion from "@/components/securityQuestion/ChangeSecurityQuestion";
 import SettingHeader from "@/components/settings/settingHeader";
 import { Separator } from "@/components/ui/separator";
 import { MdArrowBack } from "react-icons/md";
@@ -23,7 +23,7 @@ export default function Settings() {
         <div className='w-2/3'>
           <ChangePassword />
           <Separator className='my-6' />
-          <SecurityQuestion />
+          <ChangeSecurityQuestion />
         </div>
       </div>
     </div>

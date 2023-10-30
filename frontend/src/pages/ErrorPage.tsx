@@ -1,7 +1,7 @@
-import { useRouteError } from "react-router-dom";
+import { isRouteErrorResponse, useRouteError } from "react-router-dom";
 
 export function ErrorPage() {
-  const error: any = useRouteError();
+  const error = useRouteError();
   console.error(error);
 
   return (
@@ -10,7 +10,7 @@ export function ErrorPage() {
         <h1 className='text-3xl text-center'>Oops!</h1>
         <p>Sorry, an unexpected error has occurred.</p>
         <p className='text-center text-gray-600'>
-          <i>{error.statusText || error.message}</i>
+          <i>{isRouteErrorResponse(error) ? error.statusText : error instanceof Error ? error.message : "Oops..."}</i>
         </p>
       </div>
     </div>

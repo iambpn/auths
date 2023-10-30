@@ -1,7 +1,7 @@
 import { LoadingSpinner } from "@/components/spinner/loadingSpinner";
 import { useAppStore } from "@/store/useAppStore";
 import { currentUser } from "@/types/common_types";
-import { axiosInstance } from "@/utils/axiosInstance";
+import { axiosInstance } from "@/lib/axiosInstance";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { Outlet } from "react-router-dom";

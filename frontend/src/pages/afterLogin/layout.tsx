@@ -2,8 +2,8 @@ import { Navbar } from "@/components/navbar/navbar";
 import SecurityQuestionForm, { SecurityQuestionType } from "@/components/securityQuestion/securityQuestion.form";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAppStore } from "@/store/useAppStore";
-import { axiosInstance } from "@/utils/axiosInstance";
-import { handleError } from "@/utils/handleError";
+import { axiosInstance } from "@/lib/axiosInstance";
+import { handleError } from "@/lib/handleError";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { SubmitHandler } from "react-hook-form";
@@ -46,6 +46,7 @@ export default function AfterLoginLayout() {
       return res.data;
     },
     staleTime: Infinity,
+    cacheTime: Infinity,
   });
 
   const securityQuestionMutationQuery = useMutation<{ message: string }, unknown, SecurityQuestionType>({

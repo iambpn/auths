@@ -22,7 +22,7 @@ const VerifyPasswordSchema = z.object({
 
 type VerifyPasswordType = z.infer<typeof VerifyPasswordSchema>;
 
-export default function SecurityQuestion() {
+export default function ChangeSecurityQuestion() {
   const form = useForm<VerifyPasswordType>({
     resolver: zodResolver(VerifyPasswordSchema),
     defaultValues: {

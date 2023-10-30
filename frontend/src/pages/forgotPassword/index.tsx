@@ -3,9 +3,9 @@ import SettingHeader from "@/components/settings/settingHeader";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { axiosInstance } from "@/utils/axiosInstance";
-import { handleError } from "@/utils/handleError";
-import { setResetToken } from "@/utils/localstorage";
+import { axiosInstance } from "@/lib/axiosInstance";
+import { handleError } from "@/lib/handleError";
+import { setResetToken } from "@/lib/localstorage";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
@@ -83,7 +83,10 @@ export default function ForgotPassword() {
       navigate("/");
     },
     onSuccess(data) {
-      toast.success(`Reset Password expires in ${new Date(data.expiresAt).toISOString()}`);
+      const expiresAt = new Date(data.expiresAt);
+      const dateDiff = expiresAt.getTime() - Date.now();
+      console.log(dateDiff);
+      toast.success(`Reset Password expires in ${Math.round(dateDiff / (1000 * 60))} Minutes`);
       setResetToken(data.token, data.expiresAt);
     },
   });
