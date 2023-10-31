@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response, Router } from "express";
-import { isAuthenticated } from "../middleware/auth.middleware";
+import { isAuthenticated, isSuperAdmin } from "../middleware/auth.middleware";
 import { validate } from "../utils/helper/validate";
 import { GetByIdType, getByIdValidationSchema } from "../utils/validation_schema/cms/getById.validation.schema";
 import { CreateRoleType, createRoleValidationSchema } from "../utils/validation_schema/cms/createRole.validation.schema";
@@ -10,7 +10,7 @@ import { AssignPermissionToRoleType, assignPermissionToRoleValidationSchema } fr
 
 export const RolesRouter = Router();
 
-RolesRouter.get("/", isAuthenticated, validate(paginationValidationSchema, "query"), async (req: Request<any, any, any, PaginationType>, res: Response, next: NextFunction) => {
+RolesRouter.get("/", isAuthenticated, isSuperAdmin, validate(paginationValidationSchema, "query"), async (req: Request<any, any, any, PaginationType>, res: Response, next: NextFunction) => {
   try {
     const query = req.query;
     const result = await getAllRoles(PaginationQuery(query));
@@ -20,7 +20,7 @@ RolesRouter.get("/", isAuthenticated, validate(paginationValidationSchema, "quer
   }
 });
 
-RolesRouter.get("/:id", isAuthenticated, validate(getByIdValidationSchema, "path"), async (req: Request<GetByIdType>, res: Response, next: NextFunction) => {
+RolesRouter.get("/:id", isAuthenticated, isSuperAdmin, validate(getByIdValidationSchema, "path"), async (req: Request<GetByIdType>, res: Response, next: NextFunction) => {
   try {
     const params = req.params;
     const result = await getRoleById(params.id);
@@ -30,7 +30,7 @@ RolesRouter.get("/:id", isAuthenticated, validate(getByIdValidationSchema, "path
   }
 });
 
-RolesRouter.post("/", isAuthenticated, validate(createRoleValidationSchema), async (req: Request<any, any, CreateRoleType>, res: Response, next: NextFunction) => {
+RolesRouter.post("/", isAuthenticated, isSuperAdmin, validate(createRoleValidationSchema), async (req: Request<any, any, CreateRoleType>, res: Response, next: NextFunction) => {
   try {
     const body = req.body;
     const result = await createRole(body);
@@ -43,6 +43,7 @@ RolesRouter.post("/", isAuthenticated, validate(createRoleValidationSchema), asy
 RolesRouter.put(
   "/:id",
   isAuthenticated,
+  isSuperAdmin,
   validate(createRoleValidationSchema),
   validate(getByIdValidationSchema),
   async (req: Request<GetByIdType, any, CreateRoleType>, res: Response, next: NextFunction) => {
@@ -58,7 +59,7 @@ RolesRouter.put(
   }
 );
 
-RolesRouter.delete("/:id", isAuthenticated, validate(getByIdValidationSchema), async (req: Request<GetByIdType>, res: Response, next: NextFunction) => {
+RolesRouter.delete("/:id", isAuthenticated, isSuperAdmin, validate(getByIdValidationSchema), async (req: Request<GetByIdType>, res: Response, next: NextFunction) => {
   try {
     const params = req.params;
 
@@ -72,6 +73,7 @@ RolesRouter.delete("/:id", isAuthenticated, validate(getByIdValidationSchema), a
 RolesRouter.post(
   "/assignPermission/:id",
   isAuthenticated,
+  isSuperAdmin,
   validate(getByIdValidationSchema),
   validate(assignPermissionToRoleValidationSchema),
   async (req: Request<GetByIdType, any, AssignPermissionToRoleType>, res: Response, next: NextFunction) => {

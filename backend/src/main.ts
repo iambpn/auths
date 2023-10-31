@@ -11,6 +11,7 @@ import { CmsAuthRouter } from "./routes/cms.auth.router";
 import { PermissionRouter } from "./routes/permission.router";
 import { RolesRouter } from "./routes/roles.router";
 import url from "url";
+import { UsersRouter } from "./routes/users.router";
 
 const FRONTEND_PATH = path.join(__dirname, "..", "public", "frontend", "build");
 
@@ -31,6 +32,7 @@ export function authsInit(app: Express, permissionFile?: string) {
   // Adding Routes
   app.use("/auths/api", AuthsRouter);
   app.use("/auths/api/cms", CmsAuthRouter);
+  app.use("/auths/api/users", UsersRouter);
   app.use("/auths/api/permission", PermissionRouter);
   app.use("/auths/api/roles", RolesRouter);
 

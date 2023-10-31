@@ -10,11 +10,13 @@ export function Sidebar() {
   const updateActiveNavLink = (name: string) => {
     setActiveNav(name);
   };
+  const currentUser = useAppStore.getState().currentUser;
+  const name = currentUser!.email.split("@")[0];
 
   return (
     <div>
       <div className='px-2 py-2'>
-        <h2 className='mb-2 px-4 text-lg font-medium tracking-tight whitespace-nowrap'>Hi, User</h2>
+        <h2 className='mb-2 px-4 text-lg font-medium tracking-tight whitespace-nowrap capitalize'>Hi, {name}</h2>
         <div className='space-y-1'>
           <Link to={"/users"} onClick={() => updateActiveNavLink(NavName.users)}>
             <Button variant={activeNav === NavName.users ? "default" : "ghost"} className='w-full justify-start'>
