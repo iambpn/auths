@@ -20,7 +20,7 @@ RolesRouter.get("/", isAuthenticated, isSuperAdmin, validate(paginationValidatio
   }
 });
 
-RolesRouter.get("/:id", isAuthenticated, isSuperAdmin, validate(getByIdValidationSchema, "path"), async (req: Request<GetByIdType>, res: Response, next: NextFunction) => {
+RolesRouter.get("/:id", isAuthenticated, isSuperAdmin, validate(getByIdValidationSchema, "params"), async (req: Request<GetByIdType>, res: Response, next: NextFunction) => {
   try {
     const params = req.params;
     const result = await getRoleById(params.id);
@@ -45,7 +45,7 @@ RolesRouter.put(
   isAuthenticated,
   isSuperAdmin,
   validate(createRoleValidationSchema),
-  validate(getByIdValidationSchema),
+  validate(getByIdValidationSchema, "params"),
   async (req: Request<GetByIdType, any, CreateRoleType>, res: Response, next: NextFunction) => {
     try {
       const params = req.params;
@@ -74,7 +74,7 @@ RolesRouter.post(
   "/assignPermission/:id",
   isAuthenticated,
   isSuperAdmin,
-  validate(getByIdValidationSchema),
+  validate(getByIdValidationSchema, "params"),
   validate(assignPermissionToRoleValidationSchema),
   async (req: Request<GetByIdType, any, AssignPermissionToRoleType>, res: Response, next: NextFunction) => {
     try {

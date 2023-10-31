@@ -3,7 +3,7 @@ import { handleError } from "@/lib/handleError";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -51,6 +51,12 @@ export default function ChangeSecurityQuestion() {
     staleTime: Infinity,
     cacheTime: Infinity,
   });
+
+  useEffect(() => {
+    if (securityQuestionQuery.isError) {
+      handleError(securityQuestionQuery.error);
+    }
+  }, [securityQuestionQuery.error, securityQuestionQuery.isError]);
 
   const updateQnAMutationQuery = useMutation<
     {

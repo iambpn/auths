@@ -19,7 +19,7 @@ PermissionRouter.get("/", isAuthenticated, isSuperAdmin, validate(paginationVali
   }
 });
 
-PermissionRouter.get("/:id", isAuthenticated, isSuperAdmin, validate(getByIdValidationSchema, "path"), async (req: Request<GetByIdType>, res: Response, next: NextFunction) => {
+PermissionRouter.get("/:id", isAuthenticated, isSuperAdmin, validate(getByIdValidationSchema, "params"), async (req: Request<GetByIdType>, res: Response, next: NextFunction) => {
   try {
     const params = req.params;
     const result = await getPermissionById(params.id);
@@ -44,7 +44,7 @@ PermissionRouter.put(
   isAuthenticated,
   isSuperAdmin,
   validate(createPermissionValidationSchema),
-  validate(getByIdValidationSchema),
+  validate(getByIdValidationSchema, "params"),
   async (req: Request<GetByIdType, any, CreatePermissionType>, res: Response, next: NextFunction) => {
     try {
       const params = req.params;
@@ -58,7 +58,7 @@ PermissionRouter.put(
   }
 );
 
-PermissionRouter.delete("/:id", isAuthenticated, isSuperAdmin, validate(getByIdValidationSchema), async (req: Request<GetByIdType>, res: Response, next: NextFunction) => {
+PermissionRouter.delete("/:id", isAuthenticated, isSuperAdmin, validate(getByIdValidationSchema, "params"), async (req: Request<GetByIdType>, res: Response, next: NextFunction) => {
   try {
     const params = req.params;
 

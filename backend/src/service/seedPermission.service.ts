@@ -17,7 +17,35 @@ export function seedPermission(filePath?: string) {
     throw Error("Invalid Permission file extension. File  must be of type JSON.");
   }
 
-  fs.readFile(filePath, "utf8", readFileCallback);
+  readFileAsync(filePath, "utf8")
+    .then(async (data) => {
+      const jsonData = JSON.parse(data);
+
+      if (jsonData.isSeeded) {
+        return false;
+      }
+
+      await readFileCallback(null, data);
+
+      // modify seed file
+      jsonData.isSeeded = true;
+      fs.writeFileSync(filePath, JSON.stringify(jsonData, null, 2));
+    })
+    .catch(async (err) => {
+      await readFileCallback(err, "");
+    });
+}
+
+function readFileAsync(filename: string, encoding: BufferEncoding) {
+  return new Promise((resolve: (value: string) => void, reject: (reason: unknown) => void) => {
+    fs.readFile(filename, encoding, (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(data);
+      }
+    });
+  });
 }
 
 export async function readFileCallback(err: unknown, data: string) {

@@ -49,6 +49,12 @@ export default function AfterLoginLayout() {
     cacheTime: Infinity,
   });
 
+  useEffect(() => {
+    if (securityQuestionQuery.isError) {
+      handleError(securityQuestionQuery.error);
+    }
+  }, [securityQuestionQuery.error, securityQuestionQuery.isError]);
+
   const securityQuestionMutationQuery = useMutation<{ message: string }, unknown, SecurityQuestionType>({
     mutationFn: async (values) => {
       const res = await axiosInstance.post("/cms/setSecurityQuestions", {

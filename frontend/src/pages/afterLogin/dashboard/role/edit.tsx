@@ -1,18 +1,72 @@
 import { RoleForm, RoleType } from "@/components/role/role.form";
+import { axiosInstance } from "@/lib/axiosInstance";
+import { handleError } from "@/lib/handleError";
 import { NavName } from "@/lib/navName";
 import { useAppStore } from "@/store/useAppStore";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { SubmitHandler } from "react-hook-form";
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 
 export function EditRole() {
-  // update Permission Nav Selection
+  // update Nav Selection
   const updateActiveNavLink = useAppStore((state) => state.setActiveNav);
+  const params = useParams();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
   useEffect(() => {
     updateActiveNavLink(NavName.roles);
   }, []);
 
-  const onFormSubmit: SubmitHandler<RoleType> = (data, e) => {
-    console.log(data);
+  const RoleByIdQuery = useQuery<{
+    createdAt: Date;
+    name: string;
+    slug: string;
+    uuid: string;
+    updatedAt: Date;
+  }>({
+    queryKey: ["roles", params.id],
+    queryFn: async () => {
+      const res = await axiosInstance.get(`/roles/${params.id}`);
+      return res.data;
+    },
+  });
+
+  useEffect(() => {
+    if (RoleByIdQuery.isError) {
+      handleError(RoleByIdQuery.error);
+    }
+  }, [RoleByIdQuery.error, RoleByIdQuery.isError]);
+
+  const rolesMutationQuery = useMutation<
+    {
+      createdAt: Date;
+      name: string;
+      slug: string;
+      uuid: string;
+      updatedAt: Date;
+    },
+    unknown,
+    RoleType
+  >({
+    mutationFn: async (values) => {
+      const res = await axiosInstance.put(`/roles/${params.id}`, values);
+      return res.data;
+    },
+    onError(err) {
+      handleError(err);
+    },
+    onSuccess() {
+      toast.success("Role Edited");
+      queryClient.invalidateQueries(["roles"]);
+      navigate("/roles");
+    },
+  });
+
+  const onFormSubmit: SubmitHandler<RoleType> = (data) => {
+    rolesMutationQuery.mutate(data);
   };
 
   return (
@@ -20,7 +74,7 @@ export function EditRole() {
       <div className='mb-3'>
         <h1 className='text-3xl font-bold tracking-tight'>Edit Roles</h1>
       </div>
-      <RoleForm onSubmit={onFormSubmit} defaultValue={{ name: "role name", slug: "role slug" }} />
+      {RoleByIdQuery.data && <RoleForm onSubmit={onFormSubmit} defaultValue={{ name: RoleByIdQuery.data.name, slug: RoleByIdQuery.data.slug }} />}
     </div>
   );
 }

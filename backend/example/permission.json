@@ -1,4 +1,5 @@
 {
+  "isSeeded": true,
   "permission": [
     { "name": "create", "slug": "create" },
     { "name": "read", "slug": "read" },

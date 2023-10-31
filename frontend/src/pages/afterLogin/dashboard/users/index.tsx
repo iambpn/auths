@@ -1,6 +1,7 @@
 import { AvatarComponent } from "@/components/avatar/avatar.component";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { axiosInstance } from "@/lib/axiosInstance";
+import { handleError } from "@/lib/handleError";
 import { NavName } from "@/lib/navName";
 import { useAppStore } from "@/store/useAppStore";
 import { useQuery } from "@tanstack/react-query";
@@ -35,6 +36,12 @@ export function Users() {
       return res.data;
     },
   });
+
+  useEffect(() => {
+    if (UsersQuery.isError) {
+      handleError(UsersQuery.error);
+    }
+  }, [UsersQuery.error, UsersQuery.isError]);
 
   return (
     <div className=''>
