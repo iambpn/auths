@@ -7,7 +7,6 @@ import { ResetPasswordToken, RolesPermissionsSchema, RolesSchema, SecurityQuesti
 import { config } from "../utils/config/app-config";
 import { getRandomKey } from "../utils/helper/getRandomKey";
 import { HttpError } from "../utils/helper/httpError";
-import { minutesToMilliseconds } from "../utils/helper/miliseconds";
 import { ForgotPasswordType } from "../utils/validation_schema/cms/forgotPassword.validation.schema";
 import { ResetPasswordValidationType } from "../utils/validation_schema/cms/resetPassword.validation.schema";
 import { ENV_VARS } from "./env.service";
@@ -49,7 +48,7 @@ export async function loginService(email: string, password: string) {
 
   // encode email and additional payload to jwt token
   const payload = { ...user, password: undefined, role: rolesPermission };
-  const jwtToken = jwt.sign(payload, ENV_VARS.AUTHS_SECRET, { expiresIn: ENV_VARS.AUTHS_JWT_EXPIRATION_TIME ?? minutesToMilliseconds(60 * 24) });
+  const jwtToken = jwt.sign(payload, ENV_VARS.AUTHS_SECRET, { expiresIn: config.jwtTokenExpiration() });
 
   return {
     uuid: user.uuid,
@@ -139,7 +138,7 @@ export async function forgotPasswordService(data: ForgotPasswordType) {
     .values({
       uuid: uuid.v4(),
       createdAt: new Date(),
-      expiresAt: new Date(Date.now() + minutesToMilliseconds(5)),
+      expiresAt: new Date(Date.now() + config.resetPasswordExpiration()),
       token: token,
       userUuid: user.uuid,
     })

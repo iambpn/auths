@@ -7,7 +7,6 @@ import { ForgotPasswordSchema, LoginTokenSchema, UserSchema } from "../schema/dr
 import { config } from "../utils/config/app-config";
 import { getRandomKey } from "../utils/helper/getRandomKey";
 import { HttpError } from "../utils/helper/httpError";
-import { minutesToMilliseconds } from "../utils/helper/miliseconds";
 import { ENV_VARS } from "./env.service";
 import { getRoleById, getRoleBySlug } from "./roles.service";
 
@@ -53,7 +52,7 @@ export async function getLoginToken(email: string, password: string) {
       token: token,
       userUuid: user.uuid,
       uuid: uuid.v4(),
-      expiresAt: new Date(Date.now() + minutesToMilliseconds(+(ENV_VARS.AUTHS_LOGIN_TOKEN_EXPIRATION_TIME ?? 2))),
+      expiresAt: new Date(Date.now() + config.loginTokenExpiration()),
       createdAt: new Date(),
       updatedAt: new Date(),
     })
@@ -133,7 +132,7 @@ export async function loginFn(token: string, email: string, additionalPayload: R
 
   // encode email and additional payload to jwt token
   const payload = { ...user, ...additionalPayload, role: rolesPermission, password: undefined };
-  const jwtToken = jwt.sign(payload, ENV_VARS.AUTHS_SECRET, { expiresIn: ENV_VARS.AUTHS_JWT_EXPIRATION_TIME ?? minutesToMilliseconds(60 * 24) });
+  const jwtToken = jwt.sign(payload, ENV_VARS.AUTHS_SECRET, { expiresIn: config.jwtTokenExpiration() });
 
   // disable login token
   await db
@@ -202,7 +201,7 @@ export async function initiateForgotPasswordFn(email: string, returnToken?: stri
       uuid: uuid.v4(),
       userUuid: user.uuid,
       token: forgetPasswordToken,
-      expiresAt: new Date(Date.now() + minutesToMilliseconds(+(ENV_VARS.AUTHS_LOGIN_TOKEN_EXPIRATION_TIME ?? 2))),
+      expiresAt: new Date(Date.now() + config.loginTokenExpiration()),
       createdAt: new Date(),
     })
     .returning();

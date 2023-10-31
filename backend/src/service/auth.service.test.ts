@@ -12,7 +12,7 @@ import { minutesToMilliseconds } from "../utils/helper/miliseconds";
 //  mocking drizzle instance using manual mocking
 jest.mock("../schema/drizzle-migrate");
 
-const UserRole = "user";
+const UserRole = uuid.v4();
 
 describe("Integration Testing Auth service", () => {
   describe("Get Login Token", () => {
