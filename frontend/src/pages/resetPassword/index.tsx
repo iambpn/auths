@@ -50,15 +50,15 @@ export function ResetPassword() {
     },
     onSuccess(data) {
       toast.success(data.message);
+      navigate("/");
     },
     onError(error) {
       handleError(error);
     },
   });
 
-  const handleSubmit: SubmitHandler<ValidateResetPasswordType> = async (values) => {
-    await resetPasswordMutationQuery.mutateAsync(values);
-    navigate("/");
+  const handleSubmit: SubmitHandler<ValidateResetPasswordType> = (values) => {
+    resetPasswordMutationQuery.mutate(values);
   };
 
   if (!query.has(RESET_TOKEN)) {

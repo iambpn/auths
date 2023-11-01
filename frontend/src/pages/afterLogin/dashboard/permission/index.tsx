@@ -79,8 +79,8 @@ export function ListPermission() {
     },
   });
 
-  const deletePermission = async (uuid: string) => {
-    await deletePermissionMutationQuery.mutateAsync({ uuid });
+  const deletePermission = (uuid: string) => {
+    deletePermissionMutationQuery.mutate({ uuid });
   };
 
   return (

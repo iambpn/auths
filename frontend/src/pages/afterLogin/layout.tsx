@@ -71,6 +71,7 @@ export default function AfterLoginLayout() {
     },
     onSuccess(data) {
       toast.success(data.message);
+      setShowDialog(false);
     },
   });
 
@@ -86,9 +87,8 @@ export default function AfterLoginLayout() {
     }
   };
 
-  const saveSecurityQuestion: SubmitHandler<SecurityQuestionType> = async (value) => {
-    await securityQuestionMutationQuery.mutateAsync(value);
-    setShowDialog(false);
+  const saveSecurityQuestion: SubmitHandler<SecurityQuestionType> = (value) => {
+    securityQuestionMutationQuery.mutate(value);
   };
 
   return (

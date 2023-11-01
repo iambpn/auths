@@ -44,8 +44,8 @@ export function CreatePermission() {
     },
   });
 
-  const onFormSubmit: SubmitHandler<PermissionType> = async (data) => {
-    await createPermissionMutationQuery.mutateAsync(data);
+  const onFormSubmit: SubmitHandler<PermissionType> = (data) => {
+    createPermissionMutationQuery.mutate(data);
   };
 
   return (

@@ -77,6 +77,11 @@ export default function ChangeSecurityQuestion() {
     },
     onSuccess(data) {
       toast.success(data.message);
+      setShowDialog(false);
+      // soft navigate back to the settings
+      navigate("/", {
+        state: { from: "/settings" },
+      });
     },
     onError(error) {
       handleError(error);
@@ -88,14 +93,9 @@ export default function ChangeSecurityQuestion() {
     setShowDialog(true);
   };
 
-  const handleChangeQuestionSubmission: SubmitHandler<{ password: string }> = async (values) => {
+  const handleChangeQuestionSubmission: SubmitHandler<{ password: string }> = (values) => {
     if (QnA) {
-      await updateQnAMutationQuery.mutateAsync({ ...QnA, ...values });
-      setShowDialog(false);
-      // soft navigate back to the settings
-      navigate("/", {
-        state: { from: "/settings" },
-      });
+      updateQnAMutationQuery.mutate({ ...QnA, ...values });
     }
   };
 

@@ -86,8 +86,8 @@ export function ListRoles() {
     },
   });
 
-  const deleteRole = async (uuid: string) => {
-    await deleteRoleMutationQuery.mutateAsync({ uuid });
+  const deleteRole = (uuid: string) => {
+    deleteRoleMutationQuery.mutate({ uuid });
   };
 
   return (

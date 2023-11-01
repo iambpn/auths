@@ -65,8 +65,8 @@ export function EditPermission() {
     },
   });
 
-  const onFormSubmit: SubmitHandler<PermissionType> = async (data) => {
-    await permissionMutationQuery.mutateAsync(data);
+  const onFormSubmit: SubmitHandler<PermissionType> = (data) => {
+    permissionMutationQuery.mutate(data);
   };
 
   return (
