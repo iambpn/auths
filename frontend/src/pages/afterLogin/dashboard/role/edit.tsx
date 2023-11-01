@@ -1,4 +1,5 @@
 import { RoleForm, RoleType } from "@/components/role/role.form";
+import { SearchBox } from "@/components/search/search";
 import { axiosInstance } from "@/lib/axiosInstance";
 import { handleError } from "@/lib/handleError";
 import { NavName } from "@/lib/navName";
@@ -19,6 +20,10 @@ export function EditRole() {
   useEffect(() => {
     updateActiveNavLink(NavName.roles);
   }, []);
+
+  const PermissionQuery = useQuery({
+    queryKey: ["/permission"],
+  });
 
   const RoleByIdQuery = useQuery<{
     createdAt: Date;
@@ -75,6 +80,7 @@ export function EditRole() {
         <h1 className='text-3xl font-bold tracking-tight'>Edit Roles</h1>
       </div>
       {RoleByIdQuery.data && <RoleForm onSubmit={onFormSubmit} defaultValue={{ name: RoleByIdQuery.data.name, slug: RoleByIdQuery.data.slug }} />}
+      <SearchBox />
     </div>
   );
 }
