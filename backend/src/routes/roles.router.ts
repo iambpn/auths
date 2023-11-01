@@ -4,7 +4,7 @@ import { validate } from "../utils/helper/validate";
 import { GetByIdType, getByIdValidationSchema } from "../utils/validation_schema/cms/getById.validation.schema";
 import { CreateRoleType, createRoleValidationSchema } from "../utils/validation_schema/cms/createRole.validation.schema";
 import { PaginationType, paginationValidationSchema } from "../utils/validation_schema/cms/pagination.validation.schema";
-import { assignPermission, createRole, deleteRole, getAllRoles, getRoleById, updateRole } from "../service/roles.service";
+import { assignPermissionsToRole, createRole, deleteRole, getAllRoles, getRoleById, updateRole } from "../service/roles.service";
 import { PaginationQuery } from "../utils/helper/parsePagination";
 import { AssignPermissionToRoleType, assignPermissionToRoleValidationSchema } from "../utils/validation_schema/cms/assignPermissionToRole.validation.schema";
 
@@ -81,7 +81,7 @@ RolesRouter.post(
       const params = req.params;
       const body = req.body;
 
-      const result = await assignPermission(params.id, body);
+      const result = await assignPermissionsToRole(params.id, body);
       return res.status(200).json(result);
     } catch (error) {
       next(error);

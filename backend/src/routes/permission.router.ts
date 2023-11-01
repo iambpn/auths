@@ -4,8 +4,9 @@ import { validate } from "../utils/helper/validate";
 import { CreatePermissionType, createPermissionValidationSchema } from "../utils/validation_schema/cms/createPermission.validation.schema";
 import { GetByIdType, getByIdValidationSchema } from "../utils/validation_schema/cms/getById.validation.schema";
 import { PaginationType, paginationValidationSchema } from "../utils/validation_schema/cms/pagination.validation.schema";
-import { createPermission, deletePermission, getAllPermission, getPermissionById, updatePermission } from "../service/premission.service";
+import { assignRolesToPermission, createPermission, deletePermission, getAllPermission, getPermissionById, updatePermission } from "../service/premission.service";
 import { PaginationQuery } from "../utils/helper/parsePagination";
+import { AssignRoleToPermissionType, assignRoleToPermissionValidationSchema } from "../utils/validation_schema/cms/assignRoleToPermission.validation.schema";
 
 export const PermissionRouter = Router();
 
@@ -68,3 +69,22 @@ PermissionRouter.delete("/:id", isAuthenticated, isSuperAdmin, validate(getByIdV
     next(error);
   }
 });
+
+PermissionRouter.post(
+  "/assignRoles/:id",
+  isAuthenticated,
+  isSuperAdmin,
+  validate(getByIdValidationSchema, "params"),
+  validate(assignRoleToPermissionValidationSchema),
+  async (req: Request<GetByIdType, any, AssignRoleToPermissionType>, res: Response, next: NextFunction) => {
+    try {
+      const params = req.params;
+      const body = req.body;
+
+      const result = await assignRolesToPermission(params.id, body);
+      return res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+);

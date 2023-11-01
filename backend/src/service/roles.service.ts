@@ -106,23 +106,23 @@ export async function deleteRole(id: string) {
   return role;
 }
 
-export async function assignPermission(id: string, data: AssignPermissionToRoleType) {
+export async function assignPermissionsToRole(id: string, data: AssignPermissionToRoleType) {
   const roleById = await getRoleById(id);
 
-  const permissions = await db
+  const assignedPermissions = await db
     .select({
       permissionUuid: RolesPermissionsSchema.permissionUuid,
     })
     .from(RolesPermissionsSchema)
     .where(eq(RolesPermissionsSchema.roleUuid, roleById.uuid));
 
-  const newPermission = data.permissions
+  const newPermissionUuids = data.permissions
     .map((newPerm) => {
-      return permissions.find((perm) => perm.permissionUuid === newPerm) ? undefined : newPerm;
+      return assignedPermissions.find((perm) => perm.permissionUuid === newPerm) ? undefined : newPerm;
     })
     .filter(Boolean) as string[];
 
-  const removedPermissions = permissions
+  const removedPermissionUuids = assignedPermissions
     .map((perm) => {
       return data.permissions.find((newPerm) => perm.permissionUuid === newPerm) ? undefined : perm.permissionUuid;
     })
@@ -131,7 +131,7 @@ export async function assignPermission(id: string, data: AssignPermissionToRoleT
   const insertedRolePermissionUuids = await db
     .insert(RolesPermissionsSchema)
     .values(
-      newPermission.map((permission) => ({
+      newPermissionUuids.map((permission) => ({
         roleUuid: roleById.uuid,
         permission: permission,
         uuid: uuid.v4(),
@@ -143,7 +143,7 @@ export async function assignPermission(id: string, data: AssignPermissionToRoleT
 
   const removedRolePermissionUuids = await db
     .delete(RolesPermissionsSchema)
-    .where(sql`${RolesPermissionsSchema.permissionUuid} in ${removedPermissions}`)
+    .where(sql`${RolesPermissionsSchema.permissionUuid} in ${removedPermissionUuids}`)
     .returning();
 
   return {
