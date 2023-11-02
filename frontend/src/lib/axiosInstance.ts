@@ -5,8 +5,8 @@ const axiosInstance = axios.create({
   /**
    * this wont be changed on both prod and dev env because of prefix on final build and proxy on dev. see vite.config.ts
    */
-  baseURL: "/api",
-  timeout: 1000,
+  baseURL: `${import.meta.env.VITE_PRODUCTION_PATH_PREFIX}/api`,
+  timeout: 3000,
 });
 
 axiosInstance.interceptors.request.use(

@@ -18,89 +18,95 @@ import { RequireAuth } from "./components/requireAuth";
 import { BlockOnAuth } from "./components/blockOnAuth";
 import { ResetPassword } from "./pages/resetPassword";
 
-const browserRouter = createBrowserRouter([
+const browserRouter = createBrowserRouter(
+  [
+    {
+      path: "/",
+      errorElement: <ErrorPage />,
+      element: <InitialLayout />,
+      children: [
+        {
+          path: "/",
+          element: (
+            <BlockOnAuth>
+              <Outlet />
+            </BlockOnAuth>
+          ),
+          children: [
+            {
+              element: <Login />,
+              index: true,
+            },
+            {
+              path: "/forgotpassword",
+              element: <ForgotPassword />,
+            },
+            {
+              path: "/resetpassword",
+              element: <ResetPassword />,
+            },
+          ],
+        },
+        {
+          path: "/",
+          element: (
+            <RequireAuth>
+              <AfterLoginLayout />
+            </RequireAuth>
+          ),
+          children: [
+            {
+              path: "/",
+              element: <DashboardLayout />,
+              children: [
+                {
+                  path: "/users",
+                  element: <Users />,
+                },
+                {
+                  path: "/roles",
+                  element: <ListRoles />,
+                },
+                {
+                  path: "/roles/create",
+                  element: <CreateRole />,
+                },
+                {
+                  path: "/roles/:id",
+                  element: <EditRole />,
+                },
+                {
+                  path: "/permission",
+                  element: <ListPermission />,
+                },
+                {
+                  path: "/permission/create",
+                  element: <CreatePermission />,
+                },
+                {
+                  path: "/permission/:id",
+                  element: <EditPermission />,
+                },
+              ],
+            },
+            {
+              path: "/settings",
+              element: <Settings />,
+            },
+          ],
+        },
+        {
+          path: "/logout",
+          element: <Logout />,
+        },
+      ],
+    },
+  ],
   {
-    path: "/",
-    errorElement: <ErrorPage />,
-    element: <InitialLayout />,
-    children: [
-      {
-        path: "/",
-        element: (
-          <BlockOnAuth>
-            <Outlet />
-          </BlockOnAuth>
-        ),
-        children: [
-          {
-            element: <Login />,
-            index: true,
-          },
-          {
-            path: "/forgotpassword",
-            element: <ForgotPassword />,
-          },
-          {
-            path: "/resetpassword",
-            element: <ResetPassword />,
-          },
-        ],
-      },
-      {
-        path: "/",
-        element: (
-          <RequireAuth>
-            <AfterLoginLayout />
-          </RequireAuth>
-        ),
-        children: [
-          {
-            path: "/",
-            element: <DashboardLayout />,
-            children: [
-              {
-                path: "/users",
-                element: <Users />,
-              },
-              {
-                path: "/roles",
-                element: <ListRoles />,
-              },
-              {
-                path: "/roles/create",
-                element: <CreateRole />,
-              },
-              {
-                path: "/roles/:id",
-                element: <EditRole />,
-              },
-              {
-                path: "/permission",
-                element: <ListPermission />,
-              },
-              {
-                path: "/permission/create",
-                element: <CreatePermission />,
-              },
-              {
-                path: "/permission/:id",
-                element: <EditPermission />,
-              },
-            ],
-          },
-          {
-            path: "/settings",
-            element: <Settings />,
-          },
-        ],
-      },
-      {
-        path: "/logout",
-        element: <Logout />,
-      },
-    ],
-  },
-]);
+    // Router baseurl: using '/auths' on production because production serve's frontend on '/auths' path.
+    basename: import.meta.env.PROD ? import.meta.env.VITE_PRODUCTION_PATH_PREFIX : undefined,
+  }
+);
 
 if (import.meta.hot) {
   import.meta.hot.dispose(() => browserRouter.dispose());

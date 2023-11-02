@@ -9,7 +9,7 @@ dotenv.config();
 export default defineConfig({
   plugins: [react()],
   ...(process.env.NODE_ENV === "production" && {
-    base: "/auths", // prepending /auths for api calls including fetching resources
+    base: process.env.VITE_PRODUCTION_PATH_PREFIX, // prepending /auths for fetching resources
   }),
   build: {
     outDir: "../backend/public/frontend/build",
@@ -18,8 +18,8 @@ export default defineConfig({
     proxy: {
       // Conditionally set up proxy only during development
       ...(process.env.NODE_ENV === "development" && {
-        "/api": {
-          target: process.env.DEV_BASE_URL, // proxying and rewriting path with fe_base_api/api/... to env_base_api/api/... in dev env
+        [`${process.env.VITE_PRODUCTION_PATH_PREFIX}/api`]: {
+          target: process.env.DEV_BASE_URL, // proxying and rewriting path with [fe_base_api]/[matched_key]/... to [env_base_api]/[matched_key]/... in dev env
           changeOrigin: true,
           secure: false,
           ws: true,
