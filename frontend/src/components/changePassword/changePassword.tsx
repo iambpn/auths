@@ -53,7 +53,7 @@ export default function ChangePassword() {
     mode: "onChange",
   });
 
-  const updatePasswordMutationQuery = useMutation<{ message: string }, unknown, ChangePasswordType>({
+  const updatePasswordMutationQuery = useMutation<APIResponse.CMS["PUT-updatePassword"], unknown, ChangePasswordType>({
     mutationFn: async (values) => {
       const res = await axiosInstance.put("/cms/updatePassword", values);
       return res.data;

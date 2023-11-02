@@ -33,15 +33,7 @@ export function ListPermission() {
     updateActiveNavLink(NavName.permission);
   }, []);
 
-  const permissionQuery = useQuery<
-    {
-      uuid: string;
-      name: string;
-      slug: string;
-      createdAt: Date;
-      updatedAt: Date;
-    }[]
-  >({
+  const permissionQuery = useQuery<APIResponse.Permission["GET-/"]>({
     queryKey: ["permission"],
     queryFn: async () => {
       const res = await axiosInstance.get("/permission?page=0&limit=10");
@@ -55,17 +47,7 @@ export function ListPermission() {
     }
   }, [permissionQuery.error, permissionQuery.isError]);
 
-  const deletePermissionMutationQuery = useMutation<
-    {
-      uuid: string;
-      name: string;
-      slug: string;
-      createdAt: Date;
-      updatedAt: Date;
-    },
-    unknown,
-    { uuid: string }
-  >({
+  const deletePermissionMutationQuery = useMutation<APIResponse.Permission["DELETE-id"], unknown, { uuid: string }>({
     mutationFn: async (values) => {
       const res = await axiosInstance.delete(`/permission/${values.uuid}`);
       return res.data;
@@ -113,7 +95,7 @@ export function ListPermission() {
           </TableHeader>
           <TableBody>
             {permissionQuery.data &&
-              permissionQuery.data.map((permission) => (
+              permissionQuery.data.permissions.map((permission) => (
                 <TableRow key={permission.uuid}>
                   <TableCell className='capitalize'>{permission.name}</TableCell>
                   <TableCell className='font-medium'>{permission.slug}</TableCell>

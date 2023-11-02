@@ -1,7 +1,6 @@
 import { LoadingSpinner } from "@/components/spinner/loadingSpinner";
 import { axiosInstance } from "@/lib/axiosInstance";
 import { useAppStore } from "@/store/useAppStore";
-import { currentUser } from "@/types/common_types";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
@@ -10,7 +9,7 @@ export function InitialLayout() {
   const setCurrentUser = useAppStore((state) => state.setCurrentUser);
   const currentUser = useAppStore.getState().currentUser;
 
-  const { data, isError, isLoading, isSuccess, isPaused } = useQuery<currentUser>({
+  const { data, isError, isLoading, isSuccess, isPaused } = useQuery<APIResponse.Auths["cmsUser"]>({
     queryKey: ["currentUser"],
     queryFn: async () => {
       const res = await axiosInstance.get("currentUser");

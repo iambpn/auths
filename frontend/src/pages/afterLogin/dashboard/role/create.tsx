@@ -19,17 +19,7 @@ export function CreateRole() {
     updateActiveNavLink(NavName.roles);
   }, []);
 
-  const createRoleMutationQuery = useMutation<
-    {
-      uuid: string;
-      name: string;
-      slug: string;
-      createdAt: Date;
-      updatedAt: Date;
-    },
-    unknown,
-    RoleType
-  >({
+  const createRoleMutationQuery = useMutation<APIResponse.Roles["POST-/"], unknown, RoleType>({
     mutationFn: async (values) => {
       const res = await axiosInstance.post("/roles", values);
       return res.data;

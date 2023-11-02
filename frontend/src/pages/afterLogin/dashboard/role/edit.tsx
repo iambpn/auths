@@ -1,5 +1,5 @@
+import { AssignPermissionToRole } from "@/components/role/role.assignPermisson";
 import { RoleForm, RoleType } from "@/components/role/role.form";
-import { SearchBox } from "@/components/search/search";
 import { axiosInstance } from "@/lib/axiosInstance";
 import { handleError } from "@/lib/handleError";
 import { NavName } from "@/lib/navName";
@@ -21,17 +21,19 @@ export function EditRole() {
     updateActiveNavLink(NavName.roles);
   }, []);
 
-  const PermissionQuery = useQuery({
-    queryKey: ["/permission"],
-  });
+  // const PermissionInfiniteQuery = useInfiniteQuery({
+  //   queryKey: ["permission", "infinite"],
+  //   getNextPageParam: (prevData) => {
+  //     // return page + 1;
+  //   },
+  //   queryFn: (ctx) => {
+  //     // // ctx.pageParam is provided by useInfiniteQuery
+  //     // // call api with page data
+  //     // return wait(2000).then(() => POSTS[ctx.pageParam ?? 1]);
+  //   },
+  // });
 
-  const RoleByIdQuery = useQuery<{
-    createdAt: Date;
-    name: string;
-    slug: string;
-    uuid: string;
-    updatedAt: Date;
-  }>({
+  const RoleByIdQuery = useQuery<APIResponse.Roles["GET-id"]>({
     queryKey: ["roles", params.id],
     queryFn: async () => {
       const res = await axiosInstance.get(`/roles/${params.id}`);
@@ -45,17 +47,7 @@ export function EditRole() {
     }
   }, [RoleByIdQuery.error, RoleByIdQuery.isError]);
 
-  const rolesMutationQuery = useMutation<
-    {
-      createdAt: Date;
-      name: string;
-      slug: string;
-      uuid: string;
-      updatedAt: Date;
-    },
-    unknown,
-    RoleType
-  >({
+  const rolesMutationQuery = useMutation<APIResponse.Roles["PUT-id"], unknown, RoleType>({
     mutationFn: async (values) => {
       const res = await axiosInstance.put(`/roles/${params.id}`, values);
       return res.data;
@@ -80,7 +72,7 @@ export function EditRole() {
         <h1 className='text-3xl font-bold tracking-tight'>Edit Roles</h1>
       </div>
       {RoleByIdQuery.data && <RoleForm onSubmit={onFormSubmit} defaultValue={{ name: RoleByIdQuery.data.name, slug: RoleByIdQuery.data.slug }} />}
-      <SearchBox />
+      <AssignPermissionToRole />
     </div>
   );
 }

@@ -14,22 +14,7 @@ export function Users() {
     updateActiveNavLink(NavName.users);
   }, []);
 
-  const UsersQuery = useQuery<
-    {
-      role: {
-        uuid: string;
-        name: string;
-        createdAt: Date;
-        updatedAt: Date;
-        slug: string;
-      };
-      uuid: string;
-      email: string;
-      others: string | null;
-      createdAt: Date;
-      updatedAt: Date;
-    }[]
-  >({
+  const UsersQuery = useQuery<APIResponse.Users["GET-/"]>({
     queryKey: ["users"],
     queryFn: async () => {
       const res = await axiosInstance.get("/users?page=0&limit=10");
@@ -61,7 +46,7 @@ export function Users() {
           </TableHeader>
           <TableBody>
             {UsersQuery.data &&
-              UsersQuery.data.map((user) => (
+              UsersQuery.data.users.map((user) => (
                 <TableRow key={user.uuid}>
                   <TableCell className='pl-2 md:pl-5'>
                     <AvatarComponent fallBackText={user.email.split("@")[0].substring(0, 2)} link='' />

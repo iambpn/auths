@@ -1,7 +1,7 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db } from "../schema/drizzle-migrate";
 import { RolesSchema, UserSchema } from "../schema/drizzle-schema";
-import { PaginationQuery } from "../utils/helper/parsePagination";
+import { PaginatedResponse, PaginationQuery } from "../utils/helper/parsePagination";
 
 export async function getAllUsers(paginationQuery: ReturnType<typeof PaginationQuery>) {
   const users = await db
@@ -17,10 +17,18 @@ export async function getAllUsers(paginationQuery: ReturnType<typeof PaginationQ
     .limit(paginationQuery.limit)
     .offset(paginationQuery.skip);
 
-  return await Promise.all(
+  const usersResponse = await Promise.all(
     users.map(async (user) => {
       const [role] = await db.select().from(RolesSchema).where(eq(RolesSchema.uuid, user.role)).limit(1);
       return { ...user, role: role };
     })
   );
+
+  const [count] = await db
+    .select({
+      count: sql<number>`count(*)`,
+    })
+    .from(UserSchema);
+
+  return { users: usersResponse, ...PaginatedResponse(count.count, paginationQuery) };
 }

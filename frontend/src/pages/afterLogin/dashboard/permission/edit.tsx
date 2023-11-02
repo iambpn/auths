@@ -20,13 +20,7 @@ export function EditPermission() {
     updateActiveNavLink(NavName.permission);
   }, []);
 
-  const PermissionByIdQuery = useQuery<{
-    createdAt: Date;
-    name: string;
-    slug: string;
-    uuid: string;
-    updatedAt: Date;
-  }>({
+  const PermissionByIdQuery = useQuery<APIResponse.Permission["GET-id"]>({
     queryKey: ["permission", params.id],
     queryFn: async () => {
       const res = await axiosInstance.get(`/permission/${params.id}`);
@@ -40,17 +34,7 @@ export function EditPermission() {
     }
   }, [PermissionByIdQuery.error, PermissionByIdQuery.isError]);
 
-  const permissionMutationQuery = useMutation<
-    {
-      createdAt: Date;
-      name: string;
-      slug: string;
-      uuid: string;
-      updatedAt: Date;
-    },
-    unknown,
-    PermissionType
-  >({
+  const permissionMutationQuery = useMutation<APIResponse.Permission["PUT-id"], unknown, PermissionType>({
     mutationFn: async (values) => {
       const res = await axiosInstance.put(`/permission/${params.id}`, values);
       return res.data;

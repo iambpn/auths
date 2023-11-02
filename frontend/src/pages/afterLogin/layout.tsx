@@ -1,9 +1,9 @@
 import { Navbar } from "@/components/navbar/navbar";
 import SecurityQuestionForm, { SecurityQuestionType } from "@/components/securityQuestion/securityQuestion.form";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useAppStore } from "@/store/useAppStore";
 import { axiosInstance } from "@/lib/axiosInstance";
 import { handleError } from "@/lib/handleError";
+import { useAppStore } from "@/store/useAppStore";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { SubmitHandler } from "react-hook-form";
@@ -14,11 +14,7 @@ export default function AfterLoginLayout() {
   const [showDialog, setShowDialog] = useState(false);
   const currentUser = useAppStore.getState().currentUser;
 
-  const verifyEmailQuery = useQuery<{
-    email: string;
-    question1: string;
-    question2: string;
-  }>({
+  const verifyEmailQuery = useQuery<APIResponse.CMS["POST-verifyEmail"]>({
     queryKey: ["cms", "verifyEmail", currentUser?.email],
     queryFn: async () => {
       const res = await axiosInstance.post("/cms/verifyEmail", {
@@ -36,10 +32,7 @@ export default function AfterLoginLayout() {
     }
   }, [verifyEmailQuery.isError, verifyEmailQuery.error]);
 
-  const securityQuestionQuery = useQuery<{
-    question1s: string[];
-    question2s: string[];
-  }>({
+  const securityQuestionQuery = useQuery<APIResponse.CMS["GET-getSecurityQuestion"]>({
     queryKey: ["cms", "getSecurityQuestions"],
     queryFn: async () => {
       const res = await axiosInstance.get("/cms/getSecurityQuestions");
@@ -55,7 +48,7 @@ export default function AfterLoginLayout() {
     }
   }, [securityQuestionQuery.error, securityQuestionQuery.isError]);
 
-  const securityQuestionMutationQuery = useMutation<{ message: string }, unknown, SecurityQuestionType>({
+  const securityQuestionMutationQuery = useMutation<APIResponse.CMS["POST-setSecurityQuestion"], unknown, SecurityQuestionType>({
     mutationFn: async (values) => {
       const res = await axiosInstance.post("/cms/setSecurityQuestions", {
         question1: values.question1Idx,

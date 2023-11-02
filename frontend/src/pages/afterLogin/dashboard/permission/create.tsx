@@ -19,17 +19,7 @@ export function CreatePermission() {
     updateActiveNavLink(NavName.permission);
   }, []);
 
-  const createPermissionMutationQuery = useMutation<
-    {
-      uuid: string;
-      name: string;
-      slug: string;
-      createdAt: Date;
-      updatedAt: Date;
-    },
-    unknown,
-    PermissionType
-  >({
+  const createPermissionMutationQuery = useMutation<APIResponse.Permission["POST-/"], unknown, PermissionType>({
     mutationFn: async (values) => {
       const res = await axiosInstance.post("/permission", values);
       return res.data;

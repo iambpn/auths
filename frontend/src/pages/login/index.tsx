@@ -42,14 +42,7 @@ export function Login() {
   });
   const queryClient = useQueryClient();
 
-  const loginMutateQuery = useMutation<
-    {
-      uuid: string;
-      jwtToken: string;
-    },
-    unknown,
-    LoginType
-  >({
+  const loginMutateQuery = useMutation<APIResponse.CMS["POST-login"], unknown, LoginType>({
     mutationFn: async (values) => {
       const res = await axiosInstance.post("/cms/login", {
         email: values.email,

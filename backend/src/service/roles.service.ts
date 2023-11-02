@@ -1,7 +1,7 @@
 import { eq, sql } from "drizzle-orm";
 import { db } from "../schema/drizzle-migrate";
 import { PermissionSchema, RolesPermissionsSchema, RolesSchema, UserSchema } from "../schema/drizzle-schema";
-import { PaginationQuery } from "../utils/helper/parsePagination";
+import { PaginatedResponse, PaginationQuery } from "../utils/helper/parsePagination";
 import * as uuid from "uuid";
 import { HttpError } from "../utils/helper/httpError";
 import { CreateRoleType } from "../utils/validation_schema/cms/createRole.validation.schema";
@@ -10,7 +10,7 @@ import { AssignPermissionToRoleType } from "../utils/validation_schema/cms/assig
 export async function getAllRoles(paginationQuery: ReturnType<typeof PaginationQuery>) {
   const roles = await db.select().from(RolesSchema).limit(paginationQuery.limit).offset(paginationQuery.skip);
 
-  return await Promise.all(
+  const rolesResponse = await Promise.all(
     roles.map(async (role) => {
       const permission = await db
         .select({
@@ -23,6 +23,17 @@ export async function getAllRoles(paginationQuery: ReturnType<typeof PaginationQ
       return { ...role, permission: permission.map((x) => x.permission) };
     })
   );
+
+  const [count] = await db
+    .select({
+      count: sql<number>`count(*)`,
+    })
+    .from(RolesSchema);
+
+  return {
+    roles: rolesResponse,
+    ...PaginatedResponse(count.count, paginationQuery),
+  };
 }
 
 export async function getRoleById(id: string) {

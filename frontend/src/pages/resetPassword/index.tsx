@@ -40,7 +40,7 @@ export function ResetPassword() {
   const [query] = useSearchParams();
   const navigate = useNavigate();
 
-  const resetPasswordMutationQuery = useMutation<{ message: string }, unknown, ValidateResetPasswordType>({
+  const resetPasswordMutationQuery = useMutation<APIResponse.CMS["POST-resetPassword"], unknown, ValidateResetPasswordType>({
     mutationFn: async (values) => {
       const res = await axiosInstance.post("/cms/resetPassword", {
         token: query.get(RESET_TOKEN),

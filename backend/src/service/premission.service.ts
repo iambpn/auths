@@ -1,7 +1,7 @@
 import { eq, sql } from "drizzle-orm";
 import { db } from "../schema/drizzle-migrate";
 import { PermissionSchema, RolesPermissionsSchema, RolesSchema } from "../schema/drizzle-schema";
-import { PaginationQuery } from "../utils/helper/parsePagination";
+import { PaginatedResponse, PaginationQuery } from "../utils/helper/parsePagination";
 import { CreatePermissionType } from "../utils/validation_schema/cms/createPermission.validation.schema";
 import * as uuid from "uuid";
 import { HttpError } from "../utils/helper/httpError";
@@ -9,7 +9,12 @@ import { AssignRoleToPermissionType } from "../utils/validation_schema/cms/assig
 
 export async function getAllPermission(paginationQuery: ReturnType<typeof PaginationQuery>) {
   const permissions = await db.select().from(PermissionSchema).limit(paginationQuery.limit).offset(paginationQuery.skip);
-  return permissions;
+  const [count] = await db
+    .select({
+      count: sql<number>`count(*)`,
+    })
+    .from(PermissionSchema);
+  return { permissions, ...PaginatedResponse(count.count, paginationQuery) };
 }
 
 export async function getPermissionById(id: string) {

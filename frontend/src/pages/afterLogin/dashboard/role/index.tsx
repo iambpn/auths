@@ -33,22 +33,7 @@ export function ListRoles() {
     updateActiveNavLink(NavName.roles);
   }, []);
 
-  const rolesQuery = useQuery<
-    {
-      permission: {
-        createdAt: Date;
-        name: string;
-        slug: string;
-        uuid: string;
-        updatedAt: Date;
-      }[];
-      createdAt: Date;
-      name: string;
-      slug: string;
-      uuid: string;
-      updatedAt: Date;
-    }[]
-  >({
+  const rolesQuery = useQuery<APIResponse.Roles["GET-/"]>({
     queryKey: ["roles"],
     queryFn: async () => {
       const res = await axiosInstance.get("/roles?page=0&limit=10");
@@ -62,17 +47,7 @@ export function ListRoles() {
     }
   }, [rolesQuery.error, rolesQuery.isError]);
 
-  const deleteRoleMutationQuery = useMutation<
-    {
-      createdAt: Date;
-      name: string;
-      slug: string;
-      uuid: string;
-      updatedAt: Date;
-    },
-    unknown,
-    { uuid: string }
-  >({
+  const deleteRoleMutationQuery = useMutation<APIResponse.Roles["DELETE-id"], unknown, { uuid: string }>({
     mutationFn: async (values) => {
       const res = await axiosInstance.delete(`/roles/${values.uuid}`);
       return res.data;
@@ -120,7 +95,7 @@ export function ListRoles() {
           </TableHeader>
           <TableBody>
             {rolesQuery.data &&
-              rolesQuery.data.map((role) => (
+              rolesQuery.data.roles.map((role) => (
                 <TableRow key={role.uuid}>
                   <TableCell className='capitalize'>{role.name}</TableCell>
                   <TableCell className='font-medium'>{role.slug}</TableCell>

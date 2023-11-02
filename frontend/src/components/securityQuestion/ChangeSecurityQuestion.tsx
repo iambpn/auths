@@ -5,6 +5,7 @@ import { DialogDescription } from "@radix-ui/react-dialog";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 import SettingHeader from "../settings/settingHeader";
@@ -13,7 +14,6 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Form, FormControl, FormField, FormItem, FormMessage } from "../ui/form";
 import { Input } from "../ui/input";
 import SecurityQuestionForm, { SecurityQuestionType } from "./securityQuestion.form";
-import { useNavigate } from "react-router-dom";
 
 const VerifyPasswordSchema = z.object({
   password: z
@@ -39,10 +39,7 @@ export default function ChangeSecurityQuestion() {
   const [QnA, setQnA] = useState<SecurityQuestionType>();
   const navigate = useNavigate();
 
-  const securityQuestionQuery = useQuery<{
-    question1s: string[];
-    question2s: string[];
-  }>({
+  const securityQuestionQuery = useQuery<APIResponse.CMS["GET-getSecurityQuestion"]>({
     queryKey: ["cms", "getSecurityQuestions"],
     queryFn: async () => {
       const res = await axiosInstance.get("/cms/getSecurityQuestions");
@@ -58,13 +55,7 @@ export default function ChangeSecurityQuestion() {
     }
   }, [securityQuestionQuery.error, securityQuestionQuery.isError]);
 
-  const updateQnAMutationQuery = useMutation<
-    {
-      message: string;
-    },
-    unknown,
-    SecurityQuestionType & { password: string }
-  >({
+  const updateQnAMutationQuery = useMutation<APIResponse.CMS["PUT-updateSecurityQuestion"], unknown, SecurityQuestionType & { password: string }>({
     mutationFn: async (values) => {
       const res = await axiosInstance.put("/cms/updateSecurityQuestions", {
         question1: values.question1Idx,

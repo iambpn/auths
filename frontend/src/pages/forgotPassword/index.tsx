@@ -39,15 +39,7 @@ export default function ForgotPassword() {
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
 
-  const verifyEmailMutationQuery = useMutation<
-    {
-      email: string;
-      question1: string;
-      question2: string;
-    },
-    unknown,
-    ValidationEmailType
-  >({
+  const verifyEmailMutationQuery = useMutation<APIResponse.CMS["POST-verifyEmail"], unknown, ValidationEmailType>({
     mutationFn: async (values) => {
       const res = await axiosInstance.post("cms/verifyEmail", {
         email: values.email,
@@ -61,15 +53,7 @@ export default function ForgotPassword() {
     },
   });
 
-  const forgotPasswordMutationQuery = useMutation<
-    {
-      token: string;
-      expiresAt: string;
-      email: string;
-    },
-    unknown,
-    SecurityQuestionType
-  >({
+  const forgotPasswordMutationQuery = useMutation<APIResponse.CMS["POST-forgotPassword"], unknown, SecurityQuestionType>({
     mutationFn: async (values: SecurityQuestionType) => {
       const res = await axiosInstance.post("cms/forgotPassword", {
         email: email,
