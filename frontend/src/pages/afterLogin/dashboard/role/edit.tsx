@@ -21,18 +21,6 @@ export function EditRole() {
     updateActiveNavLink(NavName.roles);
   }, []);
 
-  // const PermissionInfiniteQuery = useInfiniteQuery({
-  //   queryKey: ["permission", "infinite"],
-  //   getNextPageParam: (prevData) => {
-  //     // return page + 1;
-  //   },
-  //   queryFn: (ctx) => {
-  //     // // ctx.pageParam is provided by useInfiniteQuery
-  //     // // call api with page data
-  //     // return wait(2000).then(() => POSTS[ctx.pageParam ?? 1]);
-  //   },
-  // });
-
   const RoleByIdQuery = useQuery<APIResponse.Roles["GET-id"]>({
     queryKey: ["roles", params.id],
     queryFn: async () => {

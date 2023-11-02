@@ -13,6 +13,6 @@ export const PaginatedResponse = (totalCount: number, paginationQuery: ReturnTyp
     totalCount: totalCount,
     currentPage: skip / limit,
     pageSize: limit,
-    totalPage: totalPage,
+    totalPage: totalPage - 1,
   };
 };

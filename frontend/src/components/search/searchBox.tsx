@@ -1,6 +1,7 @@
 import { useIsScrolled } from "@/hooks/isScrolled";
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "../ui/command";
 import { Input } from "../ui/input";
+import { useState } from "react";
 
 type Props = {
   getSearchKeyword: (keyword: string) => void;
@@ -10,6 +11,7 @@ type Props = {
 };
 
 export function SearchBox(props: Props) {
+  const [isFocused, setIsFocused] = useState(false);
   const scrolled = useIsScrolled();
 
   return (
@@ -20,27 +22,31 @@ export function SearchBox(props: Props) {
           onChange={(e) => {
             props.getSearchKeyword(e.currentTarget.value);
           }}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
         />
       </div>
-      <div>
-        <Command className='rounded-lg border shadow-md'>
-          <CommandList
-            onScroll={(e) => {
-              if (scrolled.isScrolledToBottom(e)) {
-                props.onScrollBottom();
-              }
-            }}
-          >
-            <CommandEmpty>No results found.</CommandEmpty>
-            {props.items.length > 0 && (
-              <CommandGroup heading={props.headingText ?? ""}>
-                {props.items.map((item) => (
-                  <CommandItem>{item.value}</CommandItem>
-                ))}
-              </CommandGroup>
-            )}
-          </CommandList>
-        </Command>
+      <div className='relative'>
+        <div className='absolute w-full'>
+          {isFocused && (
+            <Command className='rounded-lg border shadow-md'>
+              <CommandList
+                onScroll={(e) => {
+                  if (scrolled.isScrolledToBottom(e)) {
+                    props.onScrollBottom();
+                  }
+                }}
+              >
+                <CommandGroup heading={props.items.length > 0 ? props.headingText : "No results found."}>
+                  {props.items.map((item) => (
+                    <CommandItem>{item.value}</CommandItem>
+                  ))}
+                </CommandGroup>
+                <CommandEmpty>No results found.</CommandEmpty>
+              </CommandList>
+            </Command>
+          )}
+        </div>
       </div>
     </>
   );

@@ -1,19 +1,32 @@
 import { eq, sql } from "drizzle-orm";
+import * as uuid from "uuid";
 import { db } from "../schema/drizzle-migrate";
 import { PermissionSchema, RolesPermissionsSchema, RolesSchema } from "../schema/drizzle-schema";
-import { PaginatedResponse, PaginationQuery } from "../utils/helper/parsePagination";
-import { CreatePermissionType } from "../utils/validation_schema/cms/createPermission.validation.schema";
-import * as uuid from "uuid";
 import { HttpError } from "../utils/helper/httpError";
+import { PaginatedResponse, PaginationQuery } from "../utils/helper/parsePagination";
 import { AssignRoleToPermissionType } from "../utils/validation_schema/cms/assignRoleToPermission.validation.schema";
+import { CreatePermissionType } from "../utils/validation_schema/cms/createPermission.validation.schema";
 
-export async function getAllPermission(paginationQuery: ReturnType<typeof PaginationQuery>) {
-  const permissions = await db.select().from(PermissionSchema).limit(paginationQuery.limit).offset(paginationQuery.skip);
-  const [count] = await db
+export async function getAllPermission(paginationQuery: ReturnType<typeof PaginationQuery>, searchKeyword?: string) {
+  const query = db.select().from(PermissionSchema);
+
+  if (searchKeyword) {
+    query.where(sql`lower(${PermissionSchema.name}) like ${searchKeyword.toLowerCase() + "%"}`);
+  }
+
+  const permissions = await query.limit(paginationQuery.limit).offset(paginationQuery.skip);
+
+  const countQuery = db
     .select({
       count: sql<number>`count(*)`,
     })
     .from(PermissionSchema);
+
+  if (searchKeyword) {
+    countQuery.where(sql`lower(${PermissionSchema.name}) like ${searchKeyword.toLowerCase() + "%"}`);
+  }
+
+  const [count] = await countQuery;
   return { permissions, ...PaginatedResponse(count.count, paginationQuery) };
 }
 
