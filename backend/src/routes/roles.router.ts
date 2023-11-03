@@ -7,18 +7,26 @@ import { PaginationType, paginationValidationSchema } from "../utils/validation_
 import { assignPermissionsToRole, createRole, deleteRole, getAllRoles, getRoleById, updateRole } from "../service/roles.service";
 import { PaginationQuery } from "../utils/helper/parsePagination";
 import { AssignPermissionToRoleType, assignPermissionToRoleValidationSchema } from "../utils/validation_schema/cms/assignPermissionToRole.validation.schema";
+import { SearchQueryType, SearchQueryValidationSchema } from "../utils/validation_schema/cms/queryParams.validation.schema";
 
 export const RolesRouter = Router();
 
-RolesRouter.get("/", isAuthenticated, isSuperAdmin, validate(paginationValidationSchema, "query"), async (req: Request<any, any, any, PaginationType>, res: Response, next: NextFunction) => {
-  try {
-    const query = req.query;
-    const result = await getAllRoles(PaginationQuery(query));
-    return res.status(200).json(result);
-  } catch (error: unknown) {
-    next(error);
+RolesRouter.get(
+  "/",
+  isAuthenticated,
+  isSuperAdmin,
+  validate(paginationValidationSchema, "query"),
+  validate(SearchQueryValidationSchema, "query"),
+  async (req: Request<any, any, any, PaginationType & SearchQueryType>, res: Response, next: NextFunction) => {
+    try {
+      const query = req.query;
+      const result = await getAllRoles(PaginationQuery(query), query.keyword);
+      return res.status(200).json(result);
+    } catch (error: unknown) {
+      next(error);
+    }
   }
-});
+);
 
 RolesRouter.get("/:id", isAuthenticated, isSuperAdmin, validate(getByIdValidationSchema, "params"), async (req: Request<GetByIdType>, res: Response, next: NextFunction) => {
   try {

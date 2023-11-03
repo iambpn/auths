@@ -58,7 +58,7 @@ export function EditPermission() {
       <div className='mb-3'>
         <h1 className='text-3xl font-bold tracking-tight'>Edit Permission</h1>
       </div>
-      {PermissionByIdQuery.data && <PermissionForm onSubmit={onFormSubmit} defaultValue={{ name: PermissionByIdQuery.data.name, slug: PermissionByIdQuery.data.slug }} />}
+      {PermissionByIdQuery.data && <PermissionForm onSubmit={onFormSubmit} defaultValue={{ name: PermissionByIdQuery.data.name, slug: PermissionByIdQuery.data.slug }} roles={}/>}
     </div>
   );
 }

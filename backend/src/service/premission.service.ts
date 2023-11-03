@@ -113,18 +113,19 @@ export async function assignRolesToPermission(id: string, data: AssignRoleToPerm
     })
     .filter(Boolean) as string[];
 
-  const insertedRolePermissionUuids = await db
-    .insert(RolesPermissionsSchema)
-    .values(
-      newRoleUuids.map((role) => ({
-        roleUuid: role,
-        permission: permissionById.uuid,
-        uuid: uuid.v4(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }))
-    )
-    .returning();
+  const insertableRoles = newRoleUuids.map((role): typeof RolesPermissionsSchema.$inferInsert => ({
+    roleUuid: role,
+    permissionUuid: permissionById.uuid,
+    uuid: uuid.v4(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }));
+
+  const insertedRolePermissionUuids: (typeof RolesPermissionsSchema.$inferSelect)[] = [];
+
+  if (insertableRoles.length > 0) {
+    insertedRolePermissionUuids.push(...(await db.insert(RolesPermissionsSchema).values(insertableRoles).returning()));
+  }
 
   const removedRolePermissionUuids = await db
     .delete(RolesPermissionsSchema)

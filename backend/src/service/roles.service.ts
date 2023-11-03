@@ -7,28 +7,48 @@ import { HttpError } from "../utils/helper/httpError";
 import { CreateRoleType } from "../utils/validation_schema/cms/createRole.validation.schema";
 import { AssignPermissionToRoleType } from "../utils/validation_schema/cms/assignPermissionToRole.validation.schema";
 
-export async function getAllRoles(paginationQuery: ReturnType<typeof PaginationQuery>) {
-  const roles = await db.select().from(RolesSchema).limit(paginationQuery.limit).offset(paginationQuery.skip);
+export async function getAllRoles(paginationQuery: ReturnType<typeof PaginationQuery>, searchKeyword?: string, returnPermission?: boolean) {
+  const query = db.select().from(RolesSchema);
 
-  const rolesResponse = await Promise.all(
-    roles.map(async (role) => {
-      const permission = await db
-        .select({
-          permission: PermissionSchema,
+  if (searchKeyword) {
+    query.where(sql`lower(${RolesSchema.name}) like ${searchKeyword.toLowerCase() + "%"}`);
+  }
+
+  const roles = await query.limit(paginationQuery.limit).offset(paginationQuery.skip);
+
+  const rolesResponse: (typeof RolesSchema.$inferSelect & { permission: (typeof PermissionSchema.$inferSelect)[] })[] = [];
+
+  if (returnPermission) {
+    rolesResponse.push(
+      ...(await Promise.all(
+        roles.map(async (role) => {
+          const permission = await db
+            .select({
+              permission: PermissionSchema,
+            })
+            .from(RolesPermissionsSchema)
+            .innerJoin(PermissionSchema, eq(PermissionSchema.uuid, RolesPermissionsSchema.permissionUuid))
+            .where(eq(RolesPermissionsSchema.roleUuid, role.uuid));
+
+          return { ...role, permission: permission.map((x) => x.permission) };
         })
-        .from(RolesPermissionsSchema)
-        .innerJoin(PermissionSchema, eq(PermissionSchema.uuid, RolesPermissionsSchema.permissionUuid))
-        .where(eq(RolesPermissionsSchema.roleUuid, role.uuid));
+      ))
+    );
+  } else {
+    rolesResponse.push(...roles.map((role) => ({ ...role, permission: [] })));
+  }
 
-      return { ...role, permission: permission.map((x) => x.permission) };
-    })
-  );
-
-  const [count] = await db
+  const countQuery = db
     .select({
       count: sql<number>`count(*)`,
     })
     .from(RolesSchema);
+
+  if (searchKeyword) {
+    countQuery.where(sql`lower(${RolesSchema.name}) like ${searchKeyword.toLowerCase() + "%"}`);
+  }
+
+  const [count] = await countQuery;
 
   return {
     roles: rolesResponse,

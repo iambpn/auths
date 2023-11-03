@@ -180,7 +180,7 @@ export function RoleForm(props: Props) {
                   allPermissionInfiniteQuery.fetchNextPage();
                 }
               }}
-              items={flattenPermission() ?? []}
+              searchItems={flattenPermission() ?? []}
               selectedItems={selectedItems}
               onItemSelect={onAssignedPermissionChanged}
               searchPlaceholder='Search Permission ... '

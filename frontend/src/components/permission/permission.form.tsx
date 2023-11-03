@@ -5,6 +5,14 @@ import { z } from "zod";
 import { Button } from "../ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "../ui/form";
 import { Input } from "../ui/input";
+import { SearchBox, SearchBoxItem } from "../search/searchBox";
+import { useEffect, useState } from "react";
+import { GrFormCheckmark } from "react-icons/gr";
+import { useDebouncedValue } from "@/hooks/debounce";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { axiosInstance } from "@/lib/axiosInstance";
+import { PAGE_LIMIT } from "@/lib/config";
+import { handleError } from "@/lib/handleError";
 
 const word_with_underscore_regex = /[^a-zA-Z0-9_]/;
 
@@ -30,6 +38,7 @@ const PermissionSchema = z.object({
     .refine((val) => !word_with_underscore_regex.test(val), {
       message: "Special characters are not allowed in slug",
     }),
+  selectedRoles: z.string().optional(),
 });
 
 export type PermissionType = z.infer<typeof PermissionSchema>;
@@ -37,17 +46,84 @@ export type PermissionType = z.infer<typeof PermissionSchema>;
 type Props = {
   defaultValue?: PermissionType;
   onSubmit: SubmitHandler<PermissionType>;
+  roles: APIResponse.Roles["GET-id"][];
 };
 
 export function PermissionForm(props: Props) {
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [selectedItems, setSelectedItems] = useState<SearchBoxItem[]>([]);
+  const debouncedKeyword = useDebouncedValue(searchKeyword, 300);
+
   const form = useForm<PermissionType>({
     resolver: zodResolver(PermissionSchema),
     defaultValues: {
       name: props.defaultValue ? props.defaultValue.name : "",
       slug: props.defaultValue ? props.defaultValue.slug : "",
+      selectedRoles: props.defaultValue?.selectedRoles ? props.defaultValue.selectedRoles : JSON.stringify(props.roles.map((x) => x.uuid)),
     },
     mode: "onChange",
   });
+
+  const allRoleInfiniteQuery = useInfiniteQuery<APIResponse.Roles["GET-/"]>({
+    queryKey: ["roles", "infinite", debouncedKeyword],
+    getNextPageParam: (prevData) => {
+      return prevData.currentPage < prevData.totalPage ? prevData.currentPage + 1 : null;
+    },
+    queryFn: async (ctx) => {
+      const res = await axiosInstance.get(`/permission`, {
+        params: {
+          page: ctx.pageParam ?? 0,
+          limit: PAGE_LIMIT,
+          keyword: debouncedKeyword,
+        },
+      });
+      return res.data;
+    },
+    enabled: true,
+  });
+
+  useEffect(() => {
+    if (allRoleInfiniteQuery.isError) {
+      handleError(allRoleInfiniteQuery.error);
+    }
+  }, [allRoleInfiniteQuery.error, allRoleInfiniteQuery.isError]);
+
+  const handleOnItemSelect = (item: SearchBoxItem, isSelected: boolean) => {
+    if (isSelected && !selectedItems.find((selectedItem) => selectedItem.id === item.id)) {
+      setSelectedItems((prev) => [
+        {
+          ...item,
+          value: (
+            <>
+              {item.value}
+              <GrFormCheckmark className={"ml-auto h-4 w-4 opacity-100"} />
+            </>
+          ),
+        },
+        ...prev,
+      ]);
+    } else if (!isSelected) {
+      setSelectedItems((prev) => prev.filter((selectedItem) => selectedItem.id !== item.id));
+    }
+  };
+
+  useEffect(() => {
+    setSelectedItems(
+      props.roles.map((role) => ({
+        id: role.uuid,
+        value: (
+          <>
+            <span className='capitalize'>{role.name}</span>
+            <GrFormCheckmark className={"ml-auto h-4 w-4 opacity-100"} />
+          </>
+        ),
+      }))
+    );
+  }, [props.roles]);
+
+  useEffect(() => {
+    form.setValue("selectedRoles", JSON.stringify(selectedItems.map((x) => x.id)));
+  }, [form, selectedItems]);
 
   return (
     <div>
@@ -79,6 +155,19 @@ export function PermissionForm(props: Props) {
               </FormItem>
             )}
           />
+          <div className='space-y-2'>
+            <Label>Assign Roles</Label>
+            <SearchBox
+              getSearchKeyword={(keyword) => setSearchKeyword(keyword)}
+              searchItems={[]}
+              onItemSelect={handleOnItemSelect}
+              onScrollBottom={() => {}}
+              selectedItems={selectedItems}
+              headingText='Search Result'
+              searchPlaceholder='Search Permission ... '
+            />
+            <input hidden {...form.register("selectedRoles")} />
+          </div>
           <div className='pt-2 flex justify-end'>
             <Button type='submit'>{props.defaultValue ? "Save" : "Create"}</Button>
           </div>

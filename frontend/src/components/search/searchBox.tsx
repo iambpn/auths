@@ -13,7 +13,7 @@ type Props = {
   onScrollBottom: () => void;
   headingText?: string;
   searchPlaceholder?: string;
-  items: SearchBoxItem[];
+  searchItems: SearchBoxItem[];
   selectedItems: SearchBoxItem[];
   onItemSelect: (item: SearchBoxItem, isSelected: boolean) => void;
 };
@@ -46,7 +46,7 @@ export function SearchBox(props: Props) {
                 }}
               >
                 <CommandGroup heading={props.headingText ?? "Search Result"}>
-                  {props.items.map((item) => (
+                  {props.searchItems.map((item) => (
                     <CommandItem onSelect={() => props.onItemSelect(item, true)} key={item.id} value={item.id}>
                       {item.value}
                     </CommandItem>
