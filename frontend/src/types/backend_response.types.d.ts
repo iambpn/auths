@@ -72,6 +72,10 @@ declare namespace APIResponse {
     "POST-/": Roles["GET-id"];
     "PUT-id": Roles["GET-id"];
     "DELETE-id": Roles["GET-id"];
+    "POST-assignPermission/id": {
+      removeUuid: string[];
+      insertedUuid: string[];
+    };
   };
 
   export type Users = {

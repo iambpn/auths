@@ -139,18 +139,19 @@ export async function assignPermissionsToRole(id: string, data: AssignPermission
     })
     .filter(Boolean) as string[];
 
-  const insertedRolePermissionUuids = await db
-    .insert(RolesPermissionsSchema)
-    .values(
-      newPermissionUuids.map((permission) => ({
-        roleUuid: roleById.uuid,
-        permission: permission,
-        uuid: uuid.v4(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }))
-    )
-    .returning();
+  const insertablePermissions = newPermissionUuids.map((permission): typeof RolesPermissionsSchema.$inferInsert => ({
+    roleUuid: roleById.uuid,
+    permissionUuid: permission,
+    uuid: uuid.v4(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }));
+
+  const insertedRolePermissionUuids: (typeof RolesPermissionsSchema.$inferSelect)[] = [];
+  if (insertablePermissions.length > 0) {
+    const returnedValue = await db.insert(RolesPermissionsSchema).values(insertablePermissions).returning();
+    insertedRolePermissionUuids.push(...returnedValue);
+  }
 
   const removedRolePermissionUuids = await db
     .delete(RolesPermissionsSchema)
@@ -158,8 +159,8 @@ export async function assignPermissionsToRole(id: string, data: AssignPermission
     .returning();
 
   return {
-    removeUuid: removedRolePermissionUuids.map((x) => x.permissionUuid),
-    insertedUuid: insertedRolePermissionUuids.map((x) => x.permissionUuid),
+    removeUuid: removedRolePermissionUuids.map((x) => x.permissionUuid).filter(Boolean) as string[],
+    insertedUuid: insertedRolePermissionUuids.map((x) => x.permissionUuid).filter(Boolean) as string[],
   };
 }
 

@@ -1,13 +1,21 @@
 import { useIsScrolled } from "@/hooks/isScrolled";
+import { useState } from "react";
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "../ui/command";
 import { Input } from "../ui/input";
-import { useState } from "react";
+
+export type SearchBoxItem = {
+  id: string;
+  value: React.ReactNode;
+};
 
 type Props = {
   getSearchKeyword: (keyword: string) => void;
   onScrollBottom: () => void;
   headingText?: string;
-  items: { id: string; value: React.ReactNode }[];
+  searchPlaceholder?: string;
+  items: SearchBoxItem[];
+  selectedItems: SearchBoxItem[];
+  onItemSelect: (item: SearchBoxItem, isSelected: boolean) => void;
 };
 
 export function SearchBox(props: Props) {
@@ -18,16 +26,16 @@ export function SearchBox(props: Props) {
     <>
       <div className='mb-1'>
         <Input
-          placeholder='Type a command or search...'
+          placeholder={props.searchPlaceholder ?? "Search ..."}
           onChange={(e) => {
             props.getSearchKeyword(e.currentTarget.value);
           }}
           onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          onBlur={() => setTimeout(() => setIsFocused(false), 200)}
         />
       </div>
       <div className='relative'>
-        <div className='absolute w-full'>
+        <div className='absolute w-full z-10'>
           {isFocused && (
             <Command className='rounded-lg border shadow-md'>
               <CommandList
@@ -37,9 +45,11 @@ export function SearchBox(props: Props) {
                   }
                 }}
               >
-                <CommandGroup heading={props.items.length > 0 ? props.headingText : "No results found."}>
+                <CommandGroup heading={props.headingText ?? "Search Result"}>
                   {props.items.map((item) => (
-                    <CommandItem>{item.value}</CommandItem>
+                    <CommandItem onSelect={() => props.onItemSelect(item, true)} key={item.id} value={item.id}>
+                      {item.value}
+                    </CommandItem>
                   ))}
                 </CommandGroup>
                 <CommandEmpty>No results found.</CommandEmpty>
@@ -47,6 +57,19 @@ export function SearchBox(props: Props) {
             </Command>
           )}
         </div>
+      </div>
+      <div>
+        <Command>
+          <CommandList>
+            <CommandGroup heading={"Selected Items :"}>
+              {props.selectedItems.map((item) => (
+                <CommandItem onSelect={() => props.onItemSelect(item, false)} key={item.id + "selected"} value={item.id + "selected"}>
+                  {item.value}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
       </div>
     </>
   );
