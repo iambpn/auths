@@ -30,6 +30,33 @@ export async function getAllPermission(paginationQuery: ReturnType<typeof Pagina
   return { permissions, ...PaginatedResponse(count.count, paginationQuery) };
 }
 
+export async function getRolesByPermission(id: string, paginationQuery: ReturnType<typeof PaginationQuery>) {
+  const query = db
+    .select({
+      roles: RolesSchema,
+    })
+    .from(RolesSchema)
+    .innerJoin(RolesPermissionsSchema, eq(RolesPermissionsSchema.roleUuid, RolesSchema.uuid))
+    .innerJoin(PermissionSchema, eq(PermissionSchema.uuid, RolesPermissionsSchema.permissionUuid))
+    .where(eq(PermissionSchema.uuid, id));
+
+  const roles = await query.limit(paginationQuery.limit).offset(paginationQuery.skip);
+
+  const [count] = await db
+    .select({
+      count: sql<number>`count(*)`,
+    })
+    .from(RolesSchema)
+    .innerJoin(RolesPermissionsSchema, eq(RolesPermissionsSchema.roleUuid, RolesSchema.uuid))
+    .innerJoin(PermissionSchema, eq(PermissionSchema.uuid, RolesPermissionsSchema.permissionUuid))
+    .where(eq(PermissionSchema.uuid, id));
+
+  return {
+    roles: roles.map((x) => x.roles),
+    ...PaginatedResponse(count.count, paginationQuery),
+  };
+}
+
 export async function getPermissionById(id: string) {
   const [permission] = await db.select().from(PermissionSchema).where(eq(PermissionSchema.uuid, id)).limit(1);
 
@@ -133,7 +160,7 @@ export async function assignRolesToPermission(id: string, data: AssignRoleToPerm
     .returning();
 
   return {
-    removeUuid: removedRolePermissionUuids.map((x) => x.roleUuid),
-    insertedUuid: insertedRolePermissionUuids.map((x) => x.roleUuid),
+    removeUuid: removedRolePermissionUuids.map((x) => x.roleUuid).filter(Boolean) as string[],
+    insertedUuid: insertedRolePermissionUuids.map((x) => x.roleUuid).filter(Boolean) as string[],
   };
 }

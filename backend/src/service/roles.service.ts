@@ -1,13 +1,13 @@
 import { eq, sql } from "drizzle-orm";
+import * as uuid from "uuid";
 import { db } from "../schema/drizzle-migrate";
 import { PermissionSchema, RolesPermissionsSchema, RolesSchema, UserSchema } from "../schema/drizzle-schema";
-import { PaginatedResponse, PaginationQuery } from "../utils/helper/parsePagination";
-import * as uuid from "uuid";
 import { HttpError } from "../utils/helper/httpError";
-import { CreateRoleType } from "../utils/validation_schema/cms/createRole.validation.schema";
+import { PaginatedResponse, PaginationQuery } from "../utils/helper/parsePagination";
 import { AssignPermissionToRoleType } from "../utils/validation_schema/cms/assignPermissionToRole.validation.schema";
+import { CreateRoleType } from "../utils/validation_schema/cms/createRole.validation.schema";
 
-export async function getAllRoles(paginationQuery: ReturnType<typeof PaginationQuery>, searchKeyword?: string, returnPermission?: boolean) {
+export async function getAllRoles(paginationQuery: ReturnType<typeof PaginationQuery>, searchKeyword?: string, withPermission?: string) {
   const query = db.select().from(RolesSchema);
 
   if (searchKeyword) {
@@ -18,7 +18,7 @@ export async function getAllRoles(paginationQuery: ReturnType<typeof PaginationQ
 
   const rolesResponse: (typeof RolesSchema.$inferSelect & { permission: (typeof PermissionSchema.$inferSelect)[] })[] = [];
 
-  if (returnPermission) {
+  if (withPermission === "true") {
     rolesResponse.push(
       ...(await Promise.all(
         roles.map(async (role) => {

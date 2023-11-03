@@ -10,7 +10,8 @@ export type SearchBoxItem = {
 
 type Props = {
   getSearchKeyword: (keyword: string) => void;
-  onScrollBottom: () => void;
+  onScrollBottomSearch: () => void;
+  onScrollBottomSelected?: () => void;
   headingText?: string;
   searchPlaceholder?: string;
   searchItems: SearchBoxItem[];
@@ -41,7 +42,7 @@ export function SearchBox(props: Props) {
               <CommandList
                 onScroll={(e) => {
                   if (scrolled.isScrolledToBottom(e)) {
-                    props.onScrollBottom();
+                    props.onScrollBottomSearch();
                   }
                 }}
               >
@@ -60,7 +61,13 @@ export function SearchBox(props: Props) {
       </div>
       <div>
         <Command>
-          <CommandList>
+          <CommandList
+            onScroll={(e) => {
+              if (props.onScrollBottomSelected && scrolled.isScrolledToBottom(e)) {
+                props.onScrollBottomSelected();
+              }
+            }}
+          >
             <CommandGroup heading={"Selected Items :"}>
               {props.selectedItems.map((item) => (
                 <CommandItem onSelect={() => props.onItemSelect(item, false)} key={item.id + "selected"} value={item.id + "selected"}>

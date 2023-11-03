@@ -16,7 +16,7 @@ import { Input } from "../ui/input";
 
 const word_with_underscore_regex = /[^a-zA-Z0-9_]/;
 
-const RoleSchema = z.object({
+const UpdateRoleSchema = z.object({
   name: z
     .string({
       required_error: "Role name is required",
@@ -41,21 +41,21 @@ const RoleSchema = z.object({
   selectedPermissions: z.string().optional(),
 });
 
-export type RoleType = z.infer<typeof RoleSchema>;
+export type UpdateRoleType = z.infer<typeof UpdateRoleSchema>;
 
 type Props = {
-  defaultValue?: RoleType;
-  onSubmit: SubmitHandler<RoleType>;
+  defaultValue?: UpdateRoleType;
+  onSubmit: SubmitHandler<UpdateRoleType>;
   permissions: APIResponse.Permission["GET-id"][];
 };
 
-export function RoleForm(props: Props) {
+export function UpdateRoleForm(props: Props) {
   const [selectedItems, setSelectedItems] = useState<SearchBoxItem[]>([]);
   const [searchKeyword, setSearchKeyword] = useState("");
   const debouncedKeyword = useDebouncedValue(searchKeyword, 300);
 
-  const form = useForm<RoleType>({
-    resolver: zodResolver(RoleSchema),
+  const form = useForm<UpdateRoleType>({
+    resolver: zodResolver(UpdateRoleSchema),
     defaultValues: {
       name: props.defaultValue ? props.defaultValue.name : "",
       slug: props.defaultValue ? props.defaultValue.slug : "",
@@ -175,7 +175,7 @@ export function RoleForm(props: Props) {
             <SearchBox
               headingText='Search Result'
               getSearchKeyword={(keyword) => setSearchKeyword(keyword)}
-              onScrollBottom={() => {
+              onScrollBottomSearch={() => {
                 if (allPermissionInfiniteQuery.hasNextPage) {
                   allPermissionInfiniteQuery.fetchNextPage();
                 }

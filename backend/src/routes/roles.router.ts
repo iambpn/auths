@@ -7,7 +7,7 @@ import { PaginationType, paginationValidationSchema } from "../utils/validation_
 import { assignPermissionsToRole, createRole, deleteRole, getAllRoles, getRoleById, updateRole } from "../service/roles.service";
 import { PaginationQuery } from "../utils/helper/parsePagination";
 import { AssignPermissionToRoleType, assignPermissionToRoleValidationSchema } from "../utils/validation_schema/cms/assignPermissionToRole.validation.schema";
-import { SearchQueryType, SearchQueryValidationSchema } from "../utils/validation_schema/cms/queryParams.validation.schema";
+import { SearchQueryType, SearchQueryValidationSchema, WithPermissionType, WithPermissionValidationSchema } from "../utils/validation_schema/cms/queryParams.validation.schema";
 
 export const RolesRouter = Router();
 
@@ -17,10 +17,11 @@ RolesRouter.get(
   isSuperAdmin,
   validate(paginationValidationSchema, "query"),
   validate(SearchQueryValidationSchema, "query"),
-  async (req: Request<any, any, any, PaginationType & SearchQueryType>, res: Response, next: NextFunction) => {
+  validate(WithPermissionValidationSchema, "query"),
+  async (req: Request<any, any, any, PaginationType & SearchQueryType & WithPermissionType>, res: Response, next: NextFunction) => {
     try {
       const query = req.query;
-      const result = await getAllRoles(PaginationQuery(query), query.keyword);
+      const result = await getAllRoles(PaginationQuery(query), query.keyword, query.withPermission ?? "true");
       return res.status(200).json(result);
     } catch (error: unknown) {
       next(error);

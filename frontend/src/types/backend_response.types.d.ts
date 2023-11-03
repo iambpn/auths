@@ -51,6 +51,19 @@ declare namespace APIResponse {
     "POST-/": Permission["GET-id"];
     "PUT-id": Permission["GET-id"];
     "DELETE-id": Permission["GET-id"];
+    "GET-id/roles": PaginatedResponse<{
+      roles: {
+        uuid: string;
+        name: string;
+        slug: string;
+        createdAt: Date;
+        updatedAt: Date;
+      }[];
+    }>;
+    "POST-assignRoles/id": {
+      removeUuid: string[];
+      insertedUuid: string[];
+    };
   };
 
   export type Roles = {

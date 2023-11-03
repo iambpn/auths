@@ -6,7 +6,7 @@ import { Button } from "../ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "../ui/form";
 import { Input } from "../ui/input";
 import { SearchBox, SearchBoxItem } from "../search/searchBox";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { GrFormCheckmark } from "react-icons/gr";
 import { useDebouncedValue } from "@/hooks/debounce";
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -16,7 +16,7 @@ import { handleError } from "@/lib/handleError";
 
 const word_with_underscore_regex = /[^a-zA-Z0-9_]/;
 
-const PermissionSchema = z.object({
+const UpdatePermissionSchema = z.object({
   name: z
     .string({
       required_error: "Permission name is required",
@@ -41,21 +41,22 @@ const PermissionSchema = z.object({
   selectedRoles: z.string().optional(),
 });
 
-export type PermissionType = z.infer<typeof PermissionSchema>;
+export type UpdatePermissionType = z.infer<typeof UpdatePermissionSchema>;
 
 type Props = {
-  defaultValue?: PermissionType;
-  onSubmit: SubmitHandler<PermissionType>;
-  roles: APIResponse.Roles["GET-id"][];
+  defaultValue?: UpdatePermissionType;
+  onSubmit: SubmitHandler<UpdatePermissionType>;
+  onScroll: () => void;
+  roles: Omit<APIResponse.Roles["GET-id"], "permissions">[];
 };
 
-export function PermissionForm(props: Props) {
+export function UpdatePermissionForm(props: Props) {
   const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedItems, setSelectedItems] = useState<SearchBoxItem[]>([]);
   const debouncedKeyword = useDebouncedValue(searchKeyword, 300);
 
-  const form = useForm<PermissionType>({
-    resolver: zodResolver(PermissionSchema),
+  const form = useForm<UpdatePermissionType>({
+    resolver: zodResolver(UpdatePermissionSchema),
     defaultValues: {
       name: props.defaultValue ? props.defaultValue.name : "",
       slug: props.defaultValue ? props.defaultValue.slug : "",
@@ -64,17 +65,18 @@ export function PermissionForm(props: Props) {
     mode: "onChange",
   });
 
-  const allRoleInfiniteQuery = useInfiniteQuery<APIResponse.Roles["GET-/"]>({
+  const allRoleInfiniteQuery = useInfiniteQuery<Omit<APIResponse.Roles["GET-/"], "permissions">>({
     queryKey: ["roles", "infinite", debouncedKeyword],
     getNextPageParam: (prevData) => {
       return prevData.currentPage < prevData.totalPage ? prevData.currentPage + 1 : null;
     },
     queryFn: async (ctx) => {
-      const res = await axiosInstance.get(`/permission`, {
+      const res = await axiosInstance.get(`/roles`, {
         params: {
           page: ctx.pageParam ?? 0,
           limit: PAGE_LIMIT,
           keyword: debouncedKeyword,
+          withPermission: false,
         },
       });
       return res.data;
@@ -87,6 +89,21 @@ export function PermissionForm(props: Props) {
       handleError(allRoleInfiniteQuery.error);
     }
   }, [allRoleInfiniteQuery.error, allRoleInfiniteQuery.isError]);
+
+  const flattenRoles = useCallback(() => {
+    return allRoleInfiniteQuery.data?.pages.flatMap((data) => {
+      return data.roles.map((roles) => {
+        return {
+          id: roles.uuid,
+          value: (
+            <>
+              <span className='capitalize'>{roles.name}</span>
+            </>
+          ),
+        };
+      });
+    });
+  }, [allRoleInfiniteQuery.data?.pages]);
 
   const handleOnItemSelect = (item: SearchBoxItem, isSelected: boolean) => {
     if (isSelected && !selectedItems.find((selectedItem) => selectedItem.id === item.id)) {
@@ -159,12 +176,17 @@ export function PermissionForm(props: Props) {
             <Label>Assign Roles</Label>
             <SearchBox
               getSearchKeyword={(keyword) => setSearchKeyword(keyword)}
-              searchItems={[]}
+              searchItems={flattenRoles() ?? []}
               onItemSelect={handleOnItemSelect}
-              onScrollBottom={() => {}}
+              onScrollBottomSearch={() => {
+                if (allRoleInfiniteQuery.hasNextPage) {
+                  allRoleInfiniteQuery.fetchNextPage();
+                }
+              }}
+              onScrollBottomSelected={props.onScroll}
               selectedItems={selectedItems}
               headingText='Search Result'
-              searchPlaceholder='Search Permission ... '
+              searchPlaceholder='Search Roles ... '
             />
             <input hidden {...form.register("selectedRoles")} />
           </div>

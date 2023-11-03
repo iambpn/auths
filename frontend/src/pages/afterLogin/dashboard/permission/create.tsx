@@ -1,4 +1,4 @@
-import { PermissionForm, PermissionType } from "@/components/permission/permission.form";
+import { CreatePermissionForm, CreatePermissionType } from "@/components/permission/createPermission.form";
 import { axiosInstance } from "@/lib/axiosInstance";
 import { handleError } from "@/lib/handleError";
 import { NavName } from "@/lib/navName";
@@ -19,7 +19,7 @@ export function CreatePermission() {
     updateActiveNavLink(NavName.permission);
   }, []);
 
-  const createPermissionMutationQuery = useMutation<APIResponse.Permission["POST-/"], unknown, PermissionType>({
+  const createPermissionMutationQuery = useMutation<APIResponse.Permission["POST-/"], unknown, CreatePermissionType>({
     mutationFn: async (values) => {
       const res = await axiosInstance.post("/permission", values);
       return res.data;
@@ -34,7 +34,7 @@ export function CreatePermission() {
     },
   });
 
-  const onFormSubmit: SubmitHandler<PermissionType> = (data) => {
+  const onFormSubmit: SubmitHandler<CreatePermissionType> = (data) => {
     createPermissionMutationQuery.mutate(data);
   };
 
@@ -43,7 +43,7 @@ export function CreatePermission() {
       <div className='mb-3'>
         <h1 className='text-3xl font-bold tracking-tight'>Add Permission</h1>
       </div>
-      <PermissionForm onSubmit={onFormSubmit} />
+      <CreatePermissionForm onSubmit={onFormSubmit} />
     </div>
   );
 }

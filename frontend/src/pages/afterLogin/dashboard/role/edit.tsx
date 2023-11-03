@@ -1,4 +1,4 @@
-import { RoleForm, RoleType } from "@/components/role/role.form";
+import { UpdateRoleForm, UpdateRoleType } from "@/components/role/updateRole.form";
 import { axiosInstance } from "@/lib/axiosInstance";
 import { handleError } from "@/lib/handleError";
 import { NavName } from "@/lib/navName";
@@ -34,7 +34,7 @@ export function EditRole() {
     }
   }, [RoleByIdQuery.error, RoleByIdQuery.isError]);
 
-  const rolesMutationQuery = useMutation<APIResponse.Roles["PUT-id"], unknown, RoleType>({
+  const rolesMutationQuery = useMutation<APIResponse.Roles["PUT-id"], unknown, UpdateRoleType>({
     mutationFn: async (values) => {
       const res = await axiosInstance.put(`/roles/${params.id}`, {
         name: values.name,
@@ -49,11 +49,10 @@ export function EditRole() {
     onSuccess() {
       toast.success("Role Edited");
       queryClient.invalidateQueries(["roles"]);
-      navigate("/roles");
     },
   });
 
-  const assignPermissionMutationQuery = useMutation<APIResponse.Roles["POST-assignPermission/id"], unknown, RoleType>({
+  const assignPermissionMutationQuery = useMutation<APIResponse.Roles["POST-assignPermission/id"], unknown, UpdateRoleType>({
     mutationFn: async (values) => {
       const res = await axiosInstance.post(`/roles/assignPermission/${params.id}`, {
         permissions: JSON.parse(values.selectedPermissions ?? "[]"),
@@ -66,13 +65,13 @@ export function EditRole() {
     onSuccess() {
       toast.success("Role Permission Updated");
       queryClient.invalidateQueries(["roles", params.id]);
-      navigate("/roles");
     },
   });
 
-  const onFormSubmit: SubmitHandler<RoleType> = (data) => {
-    rolesMutationQuery.mutate(data);
-    assignPermissionMutationQuery.mutate(data);
+  const onFormSubmit: SubmitHandler<UpdateRoleType> = async (data) => {
+    await rolesMutationQuery.mutateAsync(data);
+    await assignPermissionMutationQuery.mutateAsync(data);
+    navigate("/roles");
   };
 
   return (
@@ -80,7 +79,7 @@ export function EditRole() {
       <div className='mb-3'>
         <h1 className='text-3xl font-bold tracking-tight'>Edit Roles</h1>
       </div>
-      {RoleByIdQuery.data && <RoleForm onSubmit={onFormSubmit} defaultValue={{ name: RoleByIdQuery.data.name, slug: RoleByIdQuery.data.slug }} permissions={RoleByIdQuery.data.permissions} />}
+      {RoleByIdQuery.data && <UpdateRoleForm onSubmit={onFormSubmit} defaultValue={{ name: RoleByIdQuery.data.name, slug: RoleByIdQuery.data.slug }} permissions={RoleByIdQuery.data.permissions} />}
     </div>
   );
 }

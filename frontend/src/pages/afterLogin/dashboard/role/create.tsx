@@ -1,4 +1,4 @@
-import { RoleForm, RoleType } from "@/components/role/role.form";
+import { CreateRoleForm, CreateRoleType } from "@/components/role/createRole.form";
 import { axiosInstance } from "@/lib/axiosInstance";
 import { handleError } from "@/lib/handleError";
 import { NavName } from "@/lib/navName";
@@ -19,7 +19,7 @@ export function CreateRole() {
     updateActiveNavLink(NavName.roles);
   }, []);
 
-  const createRoleMutationQuery = useMutation<APIResponse.Roles["POST-/"], unknown, RoleType>({
+  const createRoleMutationQuery = useMutation<APIResponse.Roles["POST-/"], unknown, CreateRoleType>({
     mutationFn: async (values) => {
       const res = await axiosInstance.post("/roles", values);
       return res.data;
@@ -34,7 +34,7 @@ export function CreateRole() {
     },
   });
 
-  const onFormSubmit: SubmitHandler<RoleType> = (data) => {
+  const onFormSubmit: SubmitHandler<CreateRoleType> = (data) => {
     createRoleMutationQuery.mutate(data);
   };
 
@@ -43,7 +43,7 @@ export function CreateRole() {
       <div className='mb-3'>
         <h1 className='text-3xl font-bold tracking-tight'>Add Roles</h1>
       </div>
-      <RoleForm onSubmit={onFormSubmit} />
+      <CreateRoleForm onSubmit={onFormSubmit} />
     </div>
   );
 }
