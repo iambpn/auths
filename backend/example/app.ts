@@ -1,6 +1,6 @@
 import express, { type NextFunction, type Request, type Response } from "express";
 import * as path from "path";
-import { authsInit, initiateForgotPassword, isAuthenticated, login, signup } from "../src/main";
+import { authsInit, initiateForgotPassword, isAuthenticated, login, requiredPermissions, signup } from "../src/main";
 
 // adding env variable
 process.env["AUTHS_DB_URI"] = path.join(__dirname, "./dev.sqlite");
@@ -48,6 +48,10 @@ app.post("/forgetPassword", async (req: Request, res: Response, next: NextFuncti
 
 app.get("/", isAuthenticated, (req, res) => {
   res.json({ msg: (req as any).currentUser?.email });
+});
+
+app.get("/protected", isAuthenticated, requiredPermissions(["read"]), (req, res) => {
+  res.json({ msg: "protected" });
 });
 
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {

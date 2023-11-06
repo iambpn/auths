@@ -1,10 +1,11 @@
-import { type Request, type Response, type NextFunction } from "express";
-import { HttpError } from "../utils/helper/httpError";
+import { eq } from "drizzle-orm";
+import type { NextFunction, Request, Response } from "express";
 import * as jwt from "jsonwebtoken";
-import { ENV_VARS } from "../service/env.service";
 import { db } from "../schema/drizzle-migrate";
 import { RolesSchema } from "../schema/drizzle-schema";
-import { eq } from "drizzle-orm";
+import { ENV_VARS } from "../service/env.service";
+import { HttpError } from "../utils/helper/httpError";
+import { AuthsRequestUser } from "../utils/types/req.user.type";
 
 /**
  * Check if user is authenticated via bearer token.
@@ -49,4 +50,21 @@ export async function isSuperAdmin(req: Request, res: Response, next: NextFuncti
   } catch (error: unknown) {
     next(error);
   }
+}
+
+export function requiredPermissions(permission_slugs: string[]) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const currentUser = req.currentUser as AuthsRequestUser;
+      const isPermitted = currentUser.role.permissions.some((perm) => permission_slugs.includes(perm.slug));
+
+      if (!isPermitted) {
+        throw new HttpError("Insufficient permissions", 401);
+      }
+
+      next();
+    } catch (error: unknown) {
+      next(error);
+    }
+  };
 }

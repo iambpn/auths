@@ -81,4 +81,5 @@ export function authsInit(app: Express, permissionFile?: string) {
 }
 
 export { signUpFn as signup, loginFn as login, validateUser, initiateForgotPasswordFn as initiateForgotPassword } from "./service/auth.service";
-export { isAuthenticated } from "./middleware/auth.middleware";
+export { isAuthenticated, requiredPermissions } from "./middleware/auth.middleware";
+export type { AuthsRequestUser } from "./utils/types/req.user.type";

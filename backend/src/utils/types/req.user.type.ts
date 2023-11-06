@@ -16,3 +16,5 @@ export type CmsRequestUser = {
   email: string;
   uuid: string;
 };
+
+export type AuthsRequestUser<T = Record<string, any>> = CmsRequestUser & T;
