@@ -2,10 +2,14 @@
 
 Authentication System similar to Auth0
 
+**Links to Documentation: [Docs.md](/backend/Readme.md)**
+
 # Commands to setup the project for development.
 
 - `npm init -w <work-space-name>`: Create workspace folder
 - `npm run <script name> <npm-options> -w <workspace-name> -- <script options>` : Run script
+
+also read [contrib.md](/backend/contrib.md)
 
 # References
 
