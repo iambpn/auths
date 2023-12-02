@@ -62,6 +62,11 @@ async function seedSuperAdminRole() {
     uuid: UUID.v4(),
   });
 
+  await db.insert(PermissionSeedSchema).values({
+    hash: hash,
+    createdAt: new Date(),
+  });
+
   config.printFormattedLog("Super-admin role seeded successfully.");
 }
 

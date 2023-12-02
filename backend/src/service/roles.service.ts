@@ -6,6 +6,7 @@ import { HttpError } from "../utils/helper/httpError";
 import { PaginatedResponse, PaginationQuery } from "../utils/helper/parsePagination";
 import { AssignPermissionToRoleType } from "../utils/validation_schema/cms/assignPermissionToRole.validation.schema";
 import { CreateRoleType } from "../utils/validation_schema/cms/createRole.validation.schema";
+import { config } from "../utils/config/app-config";
 
 export async function getAllRoles(paginationQuery: ReturnType<typeof PaginationQuery>, searchKeyword?: string, withPermission?: string) {
   const query = db.select().from(RolesSchema);
@@ -185,6 +186,6 @@ export async function assignPermissionsToRole(id: string, data: AssignPermission
 }
 
 export async function getSuperAdminRole() {
-  const [superAdminRole] = await db.select().from(RolesSchema).where(eq(RolesSchema.slug, "superadmin")).limit(1);
+  const [superAdminRole] = await db.select().from(RolesSchema).where(eq(RolesSchema.slug, config.superAdminSlug)).limit(1);
   return superAdminRole;
 }
