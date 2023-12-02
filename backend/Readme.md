@@ -32,6 +32,8 @@ app.use(express.json());
 authsInit(app, path.join(__dirname, "permission.json"));
 ```
 
+Since seeding permission can be tedious, you can create a `permission.json` file in your project root and seed it automatically
+
 ```ts
 // File: permission.json
 {
@@ -50,6 +52,15 @@ authsInit(app, path.join(__dirname, "permission.json"));
   `<url>/auths` & default username and password: `admin@admin.com` and `admin123`
 
   Example: `http://localhost:8008/auths`
+
+- **_Auths Seeds:_**
+
+  By Default, on first boot-up auths will seed the following
+
+  - New user with super-admin role
+  - New super-admin role
+
+    `default super-admin role` has no permission and can do anything in `auths dashboard` but cannot access the client side resource. Todo so Admin needs, to manually add required permission to this `default super-admin role`.
 
 ### Deep Dive
 
@@ -104,7 +115,7 @@ GET {URL}/auths/currentUser HTTP/1.1
 Here are the list of function that can be used to interact with auths system from backend directly.
 
 ```ts
-function authsInit(app: Express, permissionFile?: string): void;
+function authsInit(app: Express, permissionFileUrl?: string): void;
 ```
 
 ```ts
@@ -166,7 +177,7 @@ function isAuthenticated(req: Request, res: Response, next: NextFunction): void;
 
 ```ts
 /**
- * Check if logged in user has the required permission.
+ * Check if user has required permission to access resources
  */
 function requiredPermissions(permission_slugs: string[]): (req: Request, res: Response, next: NextFunction) => void;
 ```

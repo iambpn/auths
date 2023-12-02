@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response, Router } from "express";
-import { isAuthenticated, isSuperAdmin } from "../middleware/auth.middleware";
+import { isAuthenticated, isDefaultSuperAdmin } from "../middleware/auth.middleware";
 import { validate } from "../utils/helper/validate";
 import { CreatePermissionType, createPermissionValidationSchema } from "../utils/validation_schema/cms/createPermission.validation.schema";
 import { GetByIdType, getByIdValidationSchema } from "../utils/validation_schema/cms/getById.validation.schema";
@@ -14,7 +14,7 @@ export const PermissionRouter = Router();
 PermissionRouter.get(
   "/",
   isAuthenticated,
-  isSuperAdmin,
+  isDefaultSuperAdmin,
   validate(paginationValidationSchema, "query"),
   validate(SearchQueryValidationSchema, "query"),
   async (req: Request<any, any, any, PaginationType & SearchQueryType>, res: Response, next: NextFunction) => {
@@ -31,7 +31,7 @@ PermissionRouter.get(
 PermissionRouter.get(
   "/:id/roles",
   isAuthenticated,
-  isSuperAdmin,
+  isDefaultSuperAdmin,
   validate(paginationValidationSchema, "query"),
   validate(getByIdValidationSchema, "params"),
   async (req: Request<any, any, any, PaginationType & GetByIdType>, res: Response, next: NextFunction) => {
@@ -46,7 +46,7 @@ PermissionRouter.get(
   }
 );
 
-PermissionRouter.get("/:id", isAuthenticated, isSuperAdmin, validate(getByIdValidationSchema, "params"), async (req: Request<GetByIdType>, res: Response, next: NextFunction) => {
+PermissionRouter.get("/:id", isAuthenticated, isDefaultSuperAdmin, validate(getByIdValidationSchema, "params"), async (req: Request<GetByIdType>, res: Response, next: NextFunction) => {
   try {
     const params = req.params;
     const result = await getPermissionById(params.id);
@@ -56,7 +56,7 @@ PermissionRouter.get("/:id", isAuthenticated, isSuperAdmin, validate(getByIdVali
   }
 });
 
-PermissionRouter.post("/", isAuthenticated, isSuperAdmin, validate(createPermissionValidationSchema), async (req: Request<any, any, CreatePermissionType>, res: Response, next: NextFunction) => {
+PermissionRouter.post("/", isAuthenticated, isDefaultSuperAdmin, validate(createPermissionValidationSchema), async (req: Request<any, any, CreatePermissionType>, res: Response, next: NextFunction) => {
   try {
     const body = req.body;
     const result = await createPermission(body);
@@ -69,7 +69,7 @@ PermissionRouter.post("/", isAuthenticated, isSuperAdmin, validate(createPermiss
 PermissionRouter.put(
   "/:id",
   isAuthenticated,
-  isSuperAdmin,
+  isDefaultSuperAdmin,
   validate(createPermissionValidationSchema),
   validate(getByIdValidationSchema, "params"),
   async (req: Request<GetByIdType, any, CreatePermissionType>, res: Response, next: NextFunction) => {
@@ -85,7 +85,7 @@ PermissionRouter.put(
   }
 );
 
-PermissionRouter.delete("/:id", isAuthenticated, isSuperAdmin, validate(getByIdValidationSchema, "params"), async (req: Request<GetByIdType>, res: Response, next: NextFunction) => {
+PermissionRouter.delete("/:id", isAuthenticated, isDefaultSuperAdmin, validate(getByIdValidationSchema, "params"), async (req: Request<GetByIdType>, res: Response, next: NextFunction) => {
   try {
     const params = req.params;
 
@@ -99,7 +99,7 @@ PermissionRouter.delete("/:id", isAuthenticated, isSuperAdmin, validate(getByIdV
 PermissionRouter.post(
   "/assignRoles/:id",
   isAuthenticated,
-  isSuperAdmin,
+  isDefaultSuperAdmin,
   validate(getByIdValidationSchema, "params"),
   validate(assignRoleToPermissionValidationSchema),
   async (req: Request<GetByIdType, any, AssignRoleToPermissionType>, res: Response, next: NextFunction) => {

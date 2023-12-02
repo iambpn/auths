@@ -9,7 +9,63 @@ import { config } from "../utils/config/app-config";
 import { permissionValidationSchema } from "../utils/validation_schema/auths/permission.validation.schema";
 import { signUpFn } from "./auth.service";
 
-export function seedPermission(filePath?: string) {
+export async function runSeed(PermissionFilePath?: string) {
+  await seedSuperAdminRole();
+  await seedSuperAdminUser();
+  await seedFilePermission(PermissionFilePath);
+}
+
+async function seedSuperAdminUser() {
+  const hashData = "Seeding SuperAdmin User";
+  const hash = createHash("sha256").update(hashData).digest("hex");
+
+  const [existingPermission] = await db
+    .select()
+    .from(PermissionSeedSchema)
+    .where(sql`${PermissionSeedSchema.hash} = ${hash}`)
+    .limit(1);
+
+  if (existingPermission && existingPermission.hash === hash) {
+    return false;
+  }
+
+  // insert super admin
+  await signUpFn("admin@admin.com", "admin123", config.superAdminSlug);
+
+  await db.insert(PermissionSeedSchema).values({
+    hash: hash,
+    createdAt: new Date(),
+  });
+
+  config.printFormattedLog("Super-admin user seeded successfully.");
+}
+
+async function seedSuperAdminRole() {
+  const hashData = "Seeding SuperAdmin Role";
+  const hash = createHash("sha256").update(hashData).digest("hex");
+
+  const [existingPermission] = await db
+    .select()
+    .from(PermissionSeedSchema)
+    .where(sql`${PermissionSeedSchema.hash} = ${hash}`)
+    .limit(1);
+
+  if (existingPermission && existingPermission.hash === hash) {
+    return false;
+  }
+
+  await db.insert(RolesSchema).values({
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    name: "Default SuperAdmin",
+    slug: config.superAdminSlug,
+    uuid: UUID.v4(),
+  });
+
+  config.printFormattedLog("Super-admin role seeded successfully.");
+}
+
+async function seedFilePermission(filePath?: string) {
   if (!filePath) {
     return false;
   }
@@ -19,43 +75,31 @@ export function seedPermission(filePath?: string) {
     throw Error("Invalid Permission file extension. File  must be of type JSON.");
   }
 
-  readFileAsync(filePath, "utf8")
-    .then(async (data) => {
-      const jsonData = JSON.parse(data);
+  try {
+    const data = await readFileAsync(filePath, "utf8");
+    const jsonData = JSON.parse(data);
 
-      if (jsonData.isSeeded) {
-        return false;
-      }
+    if (jsonData.isSeeded) {
+      return false;
+    }
 
-      /*
-      - modify: isSeeded Property to true.
-      - because to make PermissionSeedHash Consistent.
-      - just because isSeeded is false we do not need to re-run the seeding process.
-       */
-      jsonData.isSeeded = true;
+    /*
+    - modify: isSeeded Property to true.
+    - because to make PermissionSeedHash Consistent.
+    - just because isSeeded is false we do not need to re-run the seeding process.
+     */
+    jsonData.isSeeded = true;
 
-      await readFileCallback(null, JSON.stringify(jsonData));
+    await seedFilePermissionCallback(null, JSON.stringify(jsonData));
 
-      fs.writeFileSync(filePath, JSON.stringify(jsonData, null, 2));
-    })
-    .catch(async (err) => {
-      await readFileCallback(err, "");
-    });
+    // update file
+    fs.writeFileSync(filePath, JSON.stringify(jsonData, null, 2));
+  } catch (err) {
+    await seedFilePermissionCallback(err, "");
+  }
 }
 
-function readFileAsync(filename: string, encoding: BufferEncoding) {
-  return new Promise((resolve: (value: string) => void, reject: (reason: unknown) => void) => {
-    fs.readFile(filename, encoding, (err, data) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(data);
-      }
-    });
-  });
-}
-
-export async function readFileCallback(err: unknown, data: string) {
+async function seedFilePermissionCallback(err: unknown, data: string) {
   if (err) {
     throw err;
   }
@@ -63,6 +107,7 @@ export async function readFileCallback(err: unknown, data: string) {
   try {
     const hash = createHash("sha256").update(data).digest("hex");
 
+    // get last seed permission hash
     const [existingPermission] = await db.select().from(PermissionSeedSchema).orderBy(desc(PermissionSeedSchema.createdAt)).limit(1);
 
     if (existingPermission && existingPermission.hash === hash) {
@@ -113,56 +158,26 @@ export async function readFileCallback(err: unknown, data: string) {
         .where(sql`${PermissionSchema.slug} = ${permission.slug}`);
     });
 
-    //  update permission seed scheme
+    //  insert into permission seed scheme
     await db.insert(PermissionSeedSchema).values({
       hash: hash,
       createdAt: new Date(),
     });
 
-    // insert super admin role
-    const [superAdmin] = await db
-      .select()
-      .from(RolesSchema)
-      .where(sql`${RolesSchema.slug} = ${config.superAdminSlug}`);
-
-    if (!superAdmin) {
-      await db.insert(RolesSchema).values({
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        name: config.superAdminSlug,
-        slug: config.superAdminSlug,
-        uuid: UUID.v4(),
-      });
-    }
-
-    // add all permission to super admin
-    if (insertPermissions.length > 0) {
-      const insertPermissionSlugs = insertPermissions.map((x) => x.slug);
-      const permissions = await db
-        .select()
-        .from(PermissionSchema)
-        .where(sql`${PermissionSchema.slug} IN ${insertPermissionSlugs}`);
-
-      const [role] = await db
-        .select()
-        .from(RolesSchema)
-        .where(sql`${RolesSchema.slug} = ${config.superAdminSlug}`);
-
-      await db.insert(RolesPermissionsSchema).values(
-        permissions.map((permission) => ({
-          permissionUuid: permission.uuid,
-          roleUuid: role.uuid,
-          uuid: UUID.v4(),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }))
-      );
-    }
-
-    await signUpFn("admin@admin.com", "admin123", config.superAdminSlug);
-
-    console.log("** [AUTHS] Permission seeded successfully.");
+    config.printFormattedLog("Permission seeded successfully.");
   } catch (error: unknown) {
     throw error;
   }
+}
+
+function readFileAsync(filename: string, encoding: BufferEncoding) {
+  return new Promise((resolve: (value: string) => void, reject: (reason: unknown) => void) => {
+    fs.readFile(filename, encoding, (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(data);
+      }
+    });
+  });
 }

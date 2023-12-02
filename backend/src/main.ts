@@ -6,7 +6,7 @@ import { migrateDB } from "./schema/drizzle-migrate";
 import { HttpError } from "./utils/helper/httpError";
 import { ErrorResponse } from "./utils/types/errorResponse";
 import { ENV_VARS, validateEnv } from "./service/env.service";
-import { seedPermission } from "./service/seedPermission.service";
+import { runSeed } from "./service/seed.service";
 import { CmsAuthRouter } from "./routes/cms.auth.router";
 import { PermissionRouter } from "./routes/permission.router";
 import { RolesRouter } from "./routes/roles.router";
@@ -15,7 +15,7 @@ import { UsersRouter } from "./routes/users.router";
 
 const FRONTEND_PATH = path.join(__dirname, "..", "public", "frontend", "build");
 
-export function authsInit(app: Express, permissionFile?: string) {
+export function authsInit(app: Express, permissionFilePath?: string) {
   // validate Env
   validateEnv();
 
@@ -26,8 +26,8 @@ export function authsInit(app: Express, permissionFile?: string) {
   // Migrate and instantiate db
   migrateDB(ENV_VARS.AUTHS_DB_URI);
 
-  // Seed Permissions from file
-  seedPermission(permissionFile);
+  // Run default Seed
+  runSeed(permissionFilePath);
 
   // Adding Routes
   app.use("/auths/api", AuthsRouter);

@@ -1,6 +1,6 @@
 import { db } from "../schema/__mocks__/drizzle-migrate";
 import { createHash } from "crypto";
-import { readFileCallback, seedPermission } from "./seedPermission.service";
+import { readFileCallback, seedPermission } from "./seed.service";
 import { PermissionSchema, PermissionSeedSchema, RolesSchema } from "../schema/drizzle-schema";
 import { eq } from "drizzle-orm";
 import { config } from "../utils/config/app-config";

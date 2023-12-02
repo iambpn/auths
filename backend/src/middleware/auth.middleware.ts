@@ -35,7 +35,14 @@ export function isAuthenticated(req: Request, res: Response, next: NextFunction)
   }
 }
 
-export async function isSuperAdmin(req: Request, res: Response, next: NextFunction) {
+/**
+ * Only Checks if role slug matches default super-admin slug
+ * this wont check the permission in detail
+ * @param req
+ * @param res
+ * @param next
+ */
+export async function isDefaultSuperAdmin(req: Request, res: Response, next: NextFunction) {
   try {
     if (!req.currentUser) {
       throw new HttpError("Unauthorized Request", 401);
@@ -53,6 +60,11 @@ export async function isSuperAdmin(req: Request, res: Response, next: NextFuncti
   }
 }
 
+/**
+ * Check if user has required permission to access resources
+ * @param permission_slugs
+ * @returns
+ */
 export function requiredPermissions(permission_slugs: string[]) {
   return (req: Request, res: Response, next: NextFunction) => {
     try {

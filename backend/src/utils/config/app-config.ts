@@ -6,5 +6,8 @@ export const config = {
   loginTokenExpiration: () => +(ENV_VARS.AUTHS_LOGIN_TOKEN_EXPIRATION_TIME ?? minutesToMilliseconds(5)),
   jwtTokenExpiration: () => +(ENV_VARS.AUTHS_JWT_EXPIRATION_TIME ?? minutesToMilliseconds(60 * 24)) / 1000, // seconds
   resetPasswordExpiration: () => minutesToMilliseconds(5),
-  superAdminSlug: "superAdmin",
+  superAdminSlug: "superAdmin__default",
+  printFormattedLog: (message: string) => {
+    console.log(`** [AUTHS] ${message}`);
+  },
 };

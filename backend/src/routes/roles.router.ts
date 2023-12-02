@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response, Router } from "express";
-import { isAuthenticated, isSuperAdmin } from "../middleware/auth.middleware";
+import { isAuthenticated, isDefaultSuperAdmin } from "../middleware/auth.middleware";
 import { validate } from "../utils/helper/validate";
 import { GetByIdType, getByIdValidationSchema } from "../utils/validation_schema/cms/getById.validation.schema";
 import { CreateRoleType, createRoleValidationSchema } from "../utils/validation_schema/cms/createRole.validation.schema";
@@ -14,7 +14,7 @@ export const RolesRouter = Router();
 RolesRouter.get(
   "/",
   isAuthenticated,
-  isSuperAdmin,
+  isDefaultSuperAdmin,
   validate(paginationValidationSchema, "query"),
   validate(SearchQueryValidationSchema, "query"),
   validate(WithPermissionValidationSchema, "query"),
@@ -29,7 +29,7 @@ RolesRouter.get(
   }
 );
 
-RolesRouter.get("/:id", isAuthenticated, isSuperAdmin, validate(getByIdValidationSchema, "params"), async (req: Request<GetByIdType>, res: Response, next: NextFunction) => {
+RolesRouter.get("/:id", isAuthenticated, isDefaultSuperAdmin, validate(getByIdValidationSchema, "params"), async (req: Request<GetByIdType>, res: Response, next: NextFunction) => {
   try {
     const params = req.params;
     const result = await getRoleById(params.id);
@@ -39,7 +39,7 @@ RolesRouter.get("/:id", isAuthenticated, isSuperAdmin, validate(getByIdValidatio
   }
 });
 
-RolesRouter.post("/", isAuthenticated, isSuperAdmin, validate(createRoleValidationSchema), async (req: Request<any, any, CreateRoleType>, res: Response, next: NextFunction) => {
+RolesRouter.post("/", isAuthenticated, isDefaultSuperAdmin, validate(createRoleValidationSchema), async (req: Request<any, any, CreateRoleType>, res: Response, next: NextFunction) => {
   try {
     const body = req.body;
     const result = await createRole(body);
@@ -52,7 +52,7 @@ RolesRouter.post("/", isAuthenticated, isSuperAdmin, validate(createRoleValidati
 RolesRouter.put(
   "/:id",
   isAuthenticated,
-  isSuperAdmin,
+  isDefaultSuperAdmin,
   validate(createRoleValidationSchema),
   validate(getByIdValidationSchema, "params"),
   async (req: Request<GetByIdType, any, CreateRoleType>, res: Response, next: NextFunction) => {
@@ -68,7 +68,7 @@ RolesRouter.put(
   }
 );
 
-RolesRouter.delete("/:id", isAuthenticated, isSuperAdmin, validate(getByIdValidationSchema), async (req: Request<GetByIdType>, res: Response, next: NextFunction) => {
+RolesRouter.delete("/:id", isAuthenticated, isDefaultSuperAdmin, validate(getByIdValidationSchema), async (req: Request<GetByIdType>, res: Response, next: NextFunction) => {
   try {
     const params = req.params;
 
@@ -82,7 +82,7 @@ RolesRouter.delete("/:id", isAuthenticated, isSuperAdmin, validate(getByIdValida
 RolesRouter.post(
   "/assignPermission/:id",
   isAuthenticated,
-  isSuperAdmin,
+  isDefaultSuperAdmin,
   validate(getByIdValidationSchema, "params"),
   validate(assignPermissionToRoleValidationSchema),
   async (req: Request<GetByIdType, any, AssignPermissionToRoleType>, res: Response, next: NextFunction) => {
