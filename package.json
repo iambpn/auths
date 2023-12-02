@@ -1,13 +1,13 @@
 {
-  "name": "auths",
-  "version": "0.0.1",
+  "name": "@iambpn/auths-meta",
+  "version": "0.0.0",
   "description": "Authentication System similar to Auth0",
   "main": "./backend/dist/main.js",
   "scripts": {
     "dev": "npm run dev -w frontend & npm run dev -w backend",
     "build": "npm run build --workspaces",
     "test": "echo \"Error: no test specified ofr auths\" && exit 1",
-    "publish": ""
+    "publish": "npm run build && npm publish -w backend"
   },
   "repository": {
     "type": "git",
@@ -27,10 +27,6 @@
   "devDependencies": {
     "shx": "^0.3.4"
   },
-  "files": [
-    "./backend/dist/**/*",
-    "./backend/public/**/*"
-  ],
   "volta": {
     "node": "16.20.2"
   }

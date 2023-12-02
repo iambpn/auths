@@ -1,6 +1,6 @@
 {
-  "name": "backend",
-  "version": "1.0.0",
+  "name": "@iambpn/auths",
+  "version": "0.0.0",
   "description": "",
   "main": "dist/main.js",
   "scripts": {
@@ -19,7 +19,7 @@
     "type": "git",
     "url": "git+https://github.com/iambpn/auths.git"
   },
-  "author": "",
+  "author": "Bipin Maharjan",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/iambpn/auths/issues"
@@ -49,6 +49,11 @@
     "uuid": "^9.0.0",
     "zod": "^3.22.2"
   },
+  "files": [
+    "./dist/**/*",
+    "./public/**/*",
+    "./drizzle/**/*"
+  ],
   "volta": {
     "node": "16.20.2"
   }
