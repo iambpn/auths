@@ -1,6 +1,6 @@
 {
   "name": "auths",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Authentication System similar to Auth0",
   "scripts": {
     "dev": "npm run dev -w frontend & npm run dev -w backend",
