@@ -2,11 +2,9 @@
 
 Authentication System similar to Auth0
 
-# Documentation:
+## Documentation:
 
-## Getting Started
-
-- **setup your project**
+### Getting Started: **setting up your project**
 
 ```sh
 # File: .env
@@ -53,7 +51,7 @@ authsInit(app, path.join(__dirname, "permission.json"));
 
   Example: `http://localhost:8008/auths`
 
-## Deep Dive
+### Deep Dive
 
 - Workflow diagram of Sign-up
 
@@ -67,11 +65,11 @@ authsInit(app, path.join(__dirname, "permission.json"));
 
   ![Forgot Password](/workflow/Auths%20Forgot%20password%20and%20Reset%20Password.png)
 
-# API References
+## API References
 
-## Consumable REST APIs
+### Consumable REST APIs
 
-Here are the list of exposed apis.
+Here are the list of exposed apis users can consume.
 
 ```
 ### User Login
@@ -101,7 +99,7 @@ Content-Type: application/json
 GET {URL}/auths/currentUser HTTP/1.1
 ```
 
-## Exported Functions
+### Exported Functions
 
 Here are the list of function that can be used to interact with auths system from backend directly.
 
@@ -155,7 +153,9 @@ function initiateForgotPasswordFn(
 }>;
 ```
 
-## Middlewares
+### Middlewares
+
+Here are the list of middlewares that can be used inside of your express application.
 
 ```ts
 /**
@@ -171,8 +171,14 @@ function isAuthenticated(req: Request, res: Response, next: NextFunction): void;
 function requiredPermissions(permission_slugs: string[]): (req: Request, res: Response, next: NextFunction) => void;
 ```
 
-## Types
+### Types
+
+Here are the list of exposed Typescript Types
 
 ```ts
 type AuthsRequestUser<T = Record<string, any>>
 ```
+
+## Examples
+
+- [Project Setup Example](/backend/example/)
