@@ -8,7 +8,7 @@ Authentication System similar to Auth0
 
 ```sh
 # File: .env
-AUTHS_DB_URI: ""; # sqlite uri is supported
+AUTHS_DB_URI: ""; # sqlite uri is only supported
 AUTHS_SECRET: ""; # secret to use while issuing jwt token / other token
 AUTHS_JWT_EXPIRATION_TIME: string; # JWT token expiration time
 AUTHS_LOGIN_TOKEN_EXPIRATION_TIME: string; # Login token expiration time
@@ -189,6 +189,10 @@ Here are the list of exposed Typescript Types
 ```ts
 type AuthsRequestUser<T = Record<string, any>>
 ```
+
+## Limitation:
+
+- Currently only `sqlite` db is only supported. Planning to support `postgres` db too.
 
 ## Examples
 
