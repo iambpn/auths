@@ -1,7 +1,7 @@
 import express, { type NextFunction, type Request, type Response, type Express } from "express";
 import * as path from "path";
 import { z } from "zod";
-import { AuthsRouter } from "./routes/auth.router";
+import { AuthsRouter } from "./routes/exposed/auth.router";
 import { migrateDB } from "./schema/drizzle-migrate";
 import { HttpError } from "./utils/helper/httpError";
 import { ErrorResponse } from "./utils/types/errorResponse";

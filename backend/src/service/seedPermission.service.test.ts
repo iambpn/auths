@@ -3,6 +3,7 @@ import { createHash } from "crypto";
 import { readFileCallback, seedPermission } from "./seedPermission.service";
 import { PermissionSchema, PermissionSeedSchema, RolesSchema } from "../schema/drizzle-schema";
 import { eq } from "drizzle-orm";
+import { config } from "../utils/config/app-config";
 
 //  mocking drizzle instance using manual mocking
 jest.mock("../schema/drizzle-migrate");
@@ -141,7 +142,7 @@ describe("Testing Seed Permission service", () => {
       // seed all permission
       await readFileCallback(null, JSON.stringify(jsonData));
 
-      const [superAdminRole] = await db.select().from(RolesSchema).where(eq(RolesSchema.slug, "superadmin"));
+      const [superAdminRole] = await db.select().from(RolesSchema).where(eq(RolesSchema.slug, config.superAdminSlug));
       expect(superAdminRole).toBeDefined();
 
       //  get all permissions

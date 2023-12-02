@@ -1,9 +1,21 @@
 {
   "isSeeded": true,
   "permission": [
-    { "name": "create", "slug": "create" },
-    { "name": "read", "slug": "read" },
-    { "name": "update", "slug": "update" },
-    { "name": "delete", "slug": "delete" }
+    {
+      "name": "create",
+      "slug": "create"
+    },
+    {
+      "name": "read",
+      "slug": "read"
+    },
+    {
+      "name": "update",
+      "slug": "update"
+    },
+    {
+      "name": "delete",
+      "slug": "delete"
+    }
   ]
 }

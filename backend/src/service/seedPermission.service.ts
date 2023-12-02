@@ -5,7 +5,9 @@ import * as path from "path";
 import * as UUID from "uuid";
 import { db } from "../schema/drizzle-migrate";
 import { PermissionSchema, PermissionSeedSchema, RolesPermissionsSchema, RolesSchema } from "../schema/drizzle-schema";
+import { config } from "../utils/config/app-config";
 import { permissionValidationSchema } from "../utils/validation_schema/auths/permission.validation.schema";
+import { signUpFn } from "./auth.service";
 
 export function seedPermission(filePath?: string) {
   if (!filePath) {
@@ -25,10 +27,15 @@ export function seedPermission(filePath?: string) {
         return false;
       }
 
-      await readFileCallback(null, data);
-
-      // modify seed file
+      /*
+      - modify: isSeeded Property to true.
+      - because to make PermissionSeedHash Consistent.
+      - just because isSeeded is false we do not need to re-run the seeding process.
+       */
       jsonData.isSeeded = true;
+
+      await readFileCallback(null, JSON.stringify(jsonData));
+
       fs.writeFileSync(filePath, JSON.stringify(jsonData, null, 2));
     })
     .catch(async (err) => {
@@ -76,21 +83,27 @@ export async function readFileCallback(err: unknown, data: string) {
     const previousPermissions = await db.select().from(PermissionSchema);
 
     // delete previous permission
-    const deletePermissions = previousPermissions.filter((permission) => !newPermissions.find((newPermission) => permission.slug === newPermission.slug));
+    const deletePermissions = previousPermissions.filter(
+      (permission) => !newPermissions.find((newPermission) => permission.slug === newPermission.slug)
+    );
 
     if (deletePermissions.length > 0) {
       await db.delete(PermissionSchema).where(sql`${PermissionSchema.slug} IN ${deletePermissions.map((x) => x.slug)}`);
     }
 
     // insert permission to db
-    const insertPermissions = newPermissions.filter((newPermission) => !previousPermissions.find((permission) => permission.slug === newPermission.slug));
+    const insertPermissions = newPermissions.filter(
+      (newPermission) => !previousPermissions.find((permission) => permission.slug === newPermission.slug)
+    );
 
     if (insertPermissions.length > 0) {
       await db.insert(PermissionSchema).values(insertPermissions);
     }
 
     // update permission
-    const updatePermissions = newPermissions.filter((newPermission) => previousPermissions.find((permission) => permission.slug === newPermission.slug));
+    const updatePermissions = newPermissions.filter((newPermission) =>
+      previousPermissions.find((permission) => permission.slug === newPermission.slug)
+    );
 
     updatePermissions.map(async (permission) => {
       const { createdAt, uuid, ...updateData } = permission;
@@ -107,23 +120,20 @@ export async function readFileCallback(err: unknown, data: string) {
     });
 
     // insert super admin role
-    const SuperAdminSlug = "superadmin";
     const [superAdmin] = await db
       .select()
       .from(RolesSchema)
-      .where(sql`${RolesSchema.slug} = ${SuperAdminSlug}`);
+      .where(sql`${RolesSchema.slug} = ${config.superAdminSlug}`);
 
     if (!superAdmin) {
       await db.insert(RolesSchema).values({
         createdAt: new Date(),
         updatedAt: new Date(),
-        name: "Superadmin",
-        slug: SuperAdminSlug,
+        name: config.superAdminSlug,
+        slug: config.superAdminSlug,
         uuid: UUID.v4(),
       });
     }
-
-    // Todo: add super admin user
 
     // add all permission to super admin
     if (insertPermissions.length > 0) {
@@ -136,7 +146,7 @@ export async function readFileCallback(err: unknown, data: string) {
       const [role] = await db
         .select()
         .from(RolesSchema)
-        .where(sql`${RolesSchema.slug} = ${SuperAdminSlug}`);
+        .where(sql`${RolesSchema.slug} = ${config.superAdminSlug}`);
 
       await db.insert(RolesPermissionsSchema).values(
         permissions.map((permission) => ({
@@ -148,6 +158,8 @@ export async function readFileCallback(err: unknown, data: string) {
         }))
       );
     }
+
+    await signUpFn("admin@admin.com", "admin123", config.superAdminSlug);
 
     console.log("** [AUTHS] Permission seeded successfully.");
   } catch (error: unknown) {

@@ -120,7 +120,12 @@ export async function forgotPasswordService(data: ForgotPasswordType) {
   }
 
   // disable previous toke
-  const [prevToken] = await db.select().from(ResetPasswordToken).where(eq(ResetPasswordToken.userUuid, user.uuid)).orderBy(desc(ResetPasswordToken.createdAt)).limit(1);
+  const [prevToken] = await db
+    .select()
+    .from(ResetPasswordToken)
+    .where(eq(ResetPasswordToken.userUuid, user.uuid))
+    .orderBy(desc(ResetPasswordToken.createdAt))
+    .limit(1);
 
   if (prevToken) {
     await db

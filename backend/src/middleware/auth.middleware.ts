@@ -6,6 +6,7 @@ import { RolesSchema } from "../schema/drizzle-schema";
 import { ENV_VARS } from "../service/env.service";
 import { HttpError } from "../utils/helper/httpError";
 import { AuthsRequestUser } from "../utils/types/req.user.type";
+import { config } from "../utils/config/app-config";
 
 /**
  * Check if user is authenticated via bearer token.
@@ -40,7 +41,7 @@ export async function isSuperAdmin(req: Request, res: Response, next: NextFuncti
       throw new HttpError("Unauthorized Request", 401);
     }
 
-    const [role] = await db.select().from(RolesSchema).where(eq(RolesSchema.slug, "superadmin")).limit(1);
+    const [role] = await db.select().from(RolesSchema).where(eq(RolesSchema.slug, config.superAdminSlug)).limit(1);
 
     if (!role || role.uuid !== req.currentUser.role.uuid) {
       throw new HttpError("Insufficient role", 401);

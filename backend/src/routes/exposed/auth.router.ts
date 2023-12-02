@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response, Router } from "express";
-import { validate } from "../utils/helper/validate";
-import { LoginValidationSchema, LoginValidationType } from "../utils/validation_schema/auths/login.validation.schema";
-import { getLoginToken, resetPassword } from "../service/auth.service";
-import { ResetPasswordValidationSchema, ResetPasswordValidationType } from "../utils/validation_schema/auths/resetPassword.validation.schema";
-import { isAuthenticated } from "../middleware/auth.middleware";
+import { validate } from "../../utils/helper/validate";
+import { LoginValidationSchema, LoginValidationType } from "../../utils/validation_schema/auths/login.validation.schema";
+import { getLoginToken, resetPassword } from "../../service/auth.service";
+import { ResetPasswordValidationSchema, ResetPasswordValidationType } from "../../utils/validation_schema/auths/resetPassword.validation.schema";
+import { isAuthenticated } from "../../middleware/auth.middleware";
 
 export const AuthsRouter = Router();
 
