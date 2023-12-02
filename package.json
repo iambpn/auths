@@ -1,18 +1,20 @@
 {
   "name": "auths",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Authentication System similar to Auth0",
+  "main": "./backend/dist/main.js",
   "scripts": {
     "dev": "npm run dev -w frontend & npm run dev -w backend",
     "build": "npm run build --workspaces",
-    "test": "echo \"Error: no test specified ofr auths\" && exit 1"
+    "test": "echo \"Error: no test specified ofr auths\" && exit 1",
+    "publish": ""
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/iambpn/auths.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Bipin Maharjan",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/iambpn/auths/issues"
@@ -25,6 +27,10 @@
   "devDependencies": {
     "shx": "^0.3.4"
   },
+  "files": [
+    "./backend/dist/**/*",
+    "./backend/public/**/*"
+  ],
   "volta": {
     "node": "16.20.2"
   }
