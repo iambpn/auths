@@ -60,7 +60,7 @@ Since seeding permission can be tedious, you can create a `permission.json` file
   - New user with super-admin role
   - New super-admin role
 
-    `default super-admin role` has no permission and can do anything in `auths dashboard` but cannot access the client side resource. Todo so Admin needs, to manually add required permission to this `default super-admin role`.
+    `default super-admin role` has no permission and can do anything in `auths dashboard` but cannot access the client side resource. To access client side resource, Admin needs to manually add required permissions to `default super-admin role`.
 
 ### Deep Dive
 
