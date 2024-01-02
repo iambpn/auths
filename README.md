@@ -1,6 +1,6 @@
 # Auths
 
-Authentication System similar to Auth0
+Authentication System Inspired by Auth0
 
 **Links to Documentation: [Docs.md](/backend/Readme.md)**
 
