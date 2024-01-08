@@ -58,8 +58,8 @@ export function Users() {
       handleError(error);
     },
     onSuccess() {
-      toast.success("Permission Deleted");
-      queryClient.invalidateQueries(["permission"], { exact: true });
+      toast.success("User Deleted");
+      queryClient.invalidateQueries(["users"], { exact: true });
     },
   });
 
