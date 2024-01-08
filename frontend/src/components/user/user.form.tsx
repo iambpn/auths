@@ -14,7 +14,7 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from "../ui/form"
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 
-const CreateUserSchema = z
+const UserSchema = z
   .object({
     email: z
       .string({
@@ -50,12 +50,12 @@ const CreateUserSchema = z
     path: ["confirmPassword"], // specify where this error belongs to
   });
 
-export type CreateUserType = z.infer<typeof CreateUserSchema>;
+export type UserType = z.infer<typeof UserSchema>;
 
 type Props = {
-  defaultValue?: Omit<CreateUserType, "role" | "password" | "confirmPassword">;
+  defaultValue?: Omit<UserType, "role" | "password" | "confirmPassword">;
   role?: Omit<APIResponse.Roles["GET-id"], "permissions">;
-  onSubmit: SubmitHandler<CreateUserType>;
+  onSubmit: SubmitHandler<UserType>;
 };
 
 export function CreateUserFrom(props: Props) {
@@ -63,8 +63,8 @@ export function CreateUserFrom(props: Props) {
   const [role, setRole] = useState<SearchBoxItem | undefined>();
   const debouncedKeyword = useDebouncedValue(searchKeyword, 300);
 
-  const form = useForm<CreateUserType>({
-    resolver: zodResolver(CreateUserSchema),
+  const form = useForm<UserType>({
+    resolver: zodResolver(UserSchema),
     defaultValues: {
       email: props.defaultValue ? props.defaultValue.email : "",
       role: props.role?.uuid ?? "",
@@ -162,7 +162,7 @@ export function CreateUserFrom(props: Props) {
               <FormItem>
                 <Label>Email</Label>
                 <FormControl>
-                  <Input type='email' placeholder='mail@email.com' {...field} />
+                  <Input type='email' placeholder='Mail@email.com' {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

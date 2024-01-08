@@ -16,7 +16,7 @@ import { Input } from "../ui/input";
 
 const word_with_underscore_regex = /[^a-zA-Z0-9_]/;
 
-const UpdateRoleSchema = z.object({
+const RoleSchema = z.object({
   name: z
     .string({
       required_error: "Role name is required",
@@ -41,27 +41,25 @@ const UpdateRoleSchema = z.object({
   selectedPermissions: z.string().optional(),
 });
 
-export type UpdateRoleType = z.infer<typeof UpdateRoleSchema>;
+export type RoleType = z.infer<typeof RoleSchema>;
 
 type Props = {
-  defaultValue?: UpdateRoleType;
-  onSubmit: SubmitHandler<UpdateRoleType>;
-  permissions: APIResponse.Permission["GET-id"][];
+  defaultValue?: Omit<RoleType, "selectedPermissions">;
+  onSubmit: SubmitHandler<RoleType>;
+  permissions?: APIResponse.Permission["GET-id"][];
 };
 
-export function UpdateRoleForm(props: Props) {
+export function RoleForm(props: Props) {
   const [selectedItems, setSelectedItems] = useState<SearchBoxItem[]>([]);
   const [searchKeyword, setSearchKeyword] = useState("");
   const debouncedKeyword = useDebouncedValue(searchKeyword, 300);
 
-  const form = useForm<UpdateRoleType>({
-    resolver: zodResolver(UpdateRoleSchema),
+  const form = useForm<RoleType>({
+    resolver: zodResolver(RoleSchema),
     defaultValues: {
       name: props.defaultValue ? props.defaultValue.name : "",
       slug: props.defaultValue ? props.defaultValue.slug : "",
-      selectedPermissions: props.defaultValue?.selectedPermissions
-        ? props.defaultValue.selectedPermissions
-        : JSON.stringify(props.permissions.map((x) => x.uuid)),
+      selectedPermissions: props.permissions ? JSON.stringify(props.permissions.map((x) => x.uuid)) : "",
     },
     mode: "onChange",
   });
@@ -125,17 +123,19 @@ export function UpdateRoleForm(props: Props) {
   };
 
   useEffect(() => {
-    setSelectedItems(
-      props.permissions.map((perm) => ({
-        id: perm.uuid,
-        value: (
-          <>
-            <span className='capitalize'>{perm.name}</span>
-            <GrFormCheckmark className={"ml-auto h-4 w-4 opacity-100"} />
-          </>
-        ),
-      }))
-    );
+    if (props.permissions) {
+      setSelectedItems(
+        props.permissions.map((perm) => ({
+          id: perm.uuid,
+          value: (
+            <>
+              <span className='capitalize'>{perm.name}</span>
+              <GrFormCheckmark className={"ml-auto h-4 w-4 opacity-100"} />
+            </>
+          ),
+        }))
+      );
+    }
   }, [props.permissions]);
 
   useEffect(() => {

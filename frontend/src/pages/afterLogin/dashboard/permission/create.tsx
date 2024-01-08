@@ -1,4 +1,4 @@
-import { CreatePermissionForm, CreatePermissionType } from "@/components/permission/createPermission.form";
+import { PermissionForm, PermissionType } from "@/components/permission/permission.form";
 import { axiosInstance } from "@/lib/axiosInstance";
 import { handleError } from "@/lib/handleError";
 import { NavName } from "@/lib/navName";
@@ -19,7 +19,7 @@ export function CreatePermission() {
     updateActiveNavLink(NavName.permission);
   }, []);
 
-  const createPermissionMutationQuery = useMutation<APIResponse.Permission["POST-/"], unknown, CreatePermissionType>({
+  const createPermissionMutationQuery = useMutation<APIResponse.Permission["POST-/"], unknown, PermissionType>({
     mutationFn: async (values) => {
       const res = await axiosInstance.post("/permission", values);
       return res.data;
@@ -30,12 +30,29 @@ export function CreatePermission() {
     onSuccess() {
       toast.success("Permission Created");
       queryClient.invalidateQueries(["permission"], { exact: true });
-      navigate("/permission");
     },
   });
 
-  const onFormSubmit: SubmitHandler<CreatePermissionType> = (data) => {
-    createPermissionMutationQuery.mutate(data);
+  const assignRolesMutationQuery = useMutation<APIResponse.Permission["POST-assignRoles/id"], unknown, { data: PermissionType; id: string }>({
+    mutationFn: async (values) => {
+      const res = await axiosInstance.post(`/permission/assignRoles/${values.id}`, {
+        roles: JSON.parse(values.data.selectedRoles ?? "[]"),
+      });
+      return res.data;
+    },
+    onError(err) {
+      handleError(err);
+    },
+    onSuccess(data, values) {
+      toast.success("Permission Roles Updated");
+      queryClient.invalidateQueries(["permission", values.id]);
+    },
+  });
+
+  const onFormSubmit: SubmitHandler<PermissionType> = async (data) => {
+    const permission = await createPermissionMutationQuery.mutateAsync(data);
+    await assignRolesMutationQuery.mutateAsync({ data, id: permission.uuid });
+    navigate("/permission");
   };
 
   return (
@@ -43,7 +60,7 @@ export function CreatePermission() {
       <div className='mb-3'>
         <h1 className='text-3xl font-bold tracking-tight'>Add Permission</h1>
       </div>
-      <CreatePermissionForm onSubmit={onFormSubmit} />
+      <PermissionForm onSubmit={onFormSubmit} />
     </div>
   );
 }
