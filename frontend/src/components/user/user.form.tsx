@@ -46,7 +46,7 @@ const UserSchema = z
       }),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Confirm Password must be same as New Password",
+    message: "Confirm Password must be same as Password",
     path: ["confirmPassword"], // specify where this error belongs to
   });
 
