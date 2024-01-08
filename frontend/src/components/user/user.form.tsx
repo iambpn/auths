@@ -58,7 +58,7 @@ type Props = {
   onSubmit: SubmitHandler<UserType>;
 };
 
-export function CreateUserFrom(props: Props) {
+export function UserFrom(props: Props) {
   const [searchKeyword, setSearchKeyword] = useState("");
   const [role, setRole] = useState<SearchBoxItem | undefined>();
   const debouncedKeyword = useDebouncedValue(searchKeyword, 300);

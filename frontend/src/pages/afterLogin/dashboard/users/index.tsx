@@ -1,18 +1,36 @@
 import { AvatarComponent } from "@/components/avatar/avatar.component";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { axiosInstance } from "@/lib/axiosInstance";
 import { handleError } from "@/lib/handleError";
 import { NavName } from "@/lib/navName";
 import { useAppStore } from "@/store/useAppStore";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
+import { BiEditAlt } from "react-icons/bi";
 import { IoMdAdd } from "react-icons/io";
+import { MdDeleteOutline } from "react-icons/md";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
 export function Users() {
   // update Permission Nav Selection
   const updateActiveNavLink = useAppStore((state) => state.setActiveNav);
+
+  const queryClient = useQueryClient();
+
   useEffect(() => {
     updateActiveNavLink(NavName.users);
   }, []);
@@ -30,6 +48,24 @@ export function Users() {
       handleError(UsersQuery.error);
     }
   }, [UsersQuery.error, UsersQuery.isError]);
+
+  const deleteUserMutationQuery = useMutation<APIResponse.Users["DELETE-id"], unknown, { uuid: string }>({
+    mutationFn: async (values) => {
+      const res = await axiosInstance.delete(`/users/${values.uuid}`);
+      return res.data;
+    },
+    onError(error) {
+      handleError(error);
+    },
+    onSuccess() {
+      toast.success("Permission Deleted");
+      queryClient.invalidateQueries(["permission"], { exact: true });
+    },
+  });
+
+  const deleteUser = (uuid: string) => {
+    deleteUserMutationQuery.mutate({ uuid });
+  };
 
   return (
     <div className=''>
@@ -57,6 +93,7 @@ export function Users() {
               <TableHead>Role</TableHead>
               <TableHead>Updated At</TableHead>
               <TableHead>Created At</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -70,6 +107,52 @@ export function Users() {
                   <TableCell className='capitalize'>{user.role.name}</TableCell>
                   <TableCell>{new Date(user.updatedAt).toISOString()}</TableCell>
                   <TableCell>{new Date(user.createdAt).toISOString()}</TableCell>
+                  <TableCell>
+                    <div className='space-x-3'>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Link to={user.uuid} className='inline-block'>
+                              <Button variant={"outline"} size={"icon"}>
+                                <BiEditAlt className={"h-4 w-4"} />
+                              </Button>
+                            </Link>
+                          </TooltipTrigger>
+                          <TooltipContent align='center'>
+                            <p>Edit</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <TooltipTrigger asChild>
+                                <Button variant={"destructive"} size={"icon"}>
+                                  <MdDeleteOutline className='h-4 w-4' />
+                                </Button>
+                              </TooltipTrigger>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                  Are you sure, You want to delete <span className='capitalize'>`{user.email}`</span> user?
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This action cannot be undone. This will permanently delete selected permission from our database.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => deleteUser(user.uuid)}>Continue</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                          <TooltipContent>
+                            <p>Delete</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  </TableCell>
                 </TableRow>
               ))}
           </TableBody>

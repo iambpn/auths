@@ -1,12 +1,13 @@
 import { NextFunction, Request, Response, Router } from "express";
-import { isAuthenticated, isAdmin } from "../middleware/auth.middleware";
-import { getAllRoles, getRoleById } from "../service/roles.service";
+import { isAdmin, isAuthenticated } from "../middleware/auth.middleware";
+import { signUpFn } from "../service/auth.service";
+import { getRoleById } from "../service/roles.service";
+import { deleteUser, getAllUsers } from "../service/users.service";
 import { PaginationQuery } from "../utils/helper/parsePagination";
 import { validate } from "../utils/helper/validate";
-import { PaginationType, paginationValidationSchema } from "../utils/validation_schema/cms/pagination.validation.schema";
-import { getAllUsers } from "../service/users.service";
 import { CreateUserType, createUserValidationSchema } from "../utils/validation_schema/cms/createUser.validation.schema";
-import { signUpFn } from "../service/auth.service";
+import { GetByIdType, getByIdValidationSchema } from "../utils/validation_schema/cms/getById.validation.schema";
+import { PaginationType, paginationValidationSchema } from "../utils/validation_schema/cms/pagination.validation.schema";
 
 export const UsersRouter = Router();
 
@@ -44,5 +45,17 @@ UsersRouter.get(
     } catch (error: unknown) {
       next(error);
     }
+  }
+);
+
+UsersRouter.delete(
+  "/:id",
+  isAuthenticated,
+  isAdmin,
+  validate(getByIdValidationSchema, "params"),
+  async (req: Request<GetByIdType>, res: Response, next: NextFunction) => {
+    const params = req.params;
+    const result = await deleteUser(params.id);
+    return res.status(200).json(result);
   }
 );

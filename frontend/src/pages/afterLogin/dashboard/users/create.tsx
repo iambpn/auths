@@ -1,4 +1,4 @@
-import { CreateUserFrom, CreateUserType } from "@/components/user/createUser.form";
+import { UserFrom, UserType } from "@/components/user/user.form";
 import { axiosInstance } from "@/lib/axiosInstance";
 import { handleError } from "@/lib/handleError";
 import { NavName } from "@/lib/navName";
@@ -19,7 +19,7 @@ export function CreateUser() {
     updateActiveNavLink(NavName.users);
   }, []);
 
-  const createUserMutationQuery = useMutation<APIResponse.Users["POST-/"], unknown, CreateUserType>({
+  const createUserMutationQuery = useMutation<APIResponse.Users["POST-/"], unknown, UserType>({
     mutationFn: async (values) => {
       const res = await axiosInstance.post("/users/", values);
       return res.data;
@@ -34,7 +34,7 @@ export function CreateUser() {
     },
   });
 
-  const onSubmitHandler: SubmitHandler<CreateUserType> = (data) => {
+  const onSubmitHandler: SubmitHandler<UserType> = (data) => {
     createUserMutationQuery.mutate(data);
   };
 
@@ -43,7 +43,7 @@ export function CreateUser() {
       <div className='mb-3'>
         <h1 className='text-3xl font-bold tracking-tight'>Add User</h1>
       </div>
-      <CreateUserFrom onSubmit={onSubmitHandler} />
+      <UserFrom onSubmit={onSubmitHandler} />
     </div>
   );
 }
