@@ -37,12 +37,12 @@ export function isAuthenticated(req: Request, res: Response, next: NextFunction)
 
 /**
  * Only Checks if role slug matches default super-admin slug
- * this wont check the permission in detail
+ * this wont check the other permission
  * @param req
  * @param res
  * @param next
  */
-export async function isDefaultSuperAdmin(req: Request, res: Response, next: NextFunction) {
+export async function isAdmin(req: Request, res: Response, next: NextFunction) {
   try {
     if (!req.currentUser) {
       throw new HttpError("Unauthorized Request", 401);

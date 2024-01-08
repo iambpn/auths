@@ -57,7 +57,7 @@ async function seedSuperAdminRole() {
   await db.insert(RolesSchema).values({
     createdAt: new Date(),
     updatedAt: new Date(),
-    name: "Default SuperAdmin",
+    name: "SuperAdmin_Admin",
     slug: config.superAdminSlug,
     uuid: UUID.v4(),
   });

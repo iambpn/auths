@@ -44,7 +44,7 @@ const UpdatePermissionSchema = z.object({
 export type UpdatePermissionType = z.infer<typeof UpdatePermissionSchema>;
 
 type Props = {
-  defaultValue?: UpdatePermissionType;
+  defaultValue?: Omit<UpdatePermissionType, "selectedRoles">;
   onSubmit: SubmitHandler<UpdatePermissionType>;
   onScroll: () => void;
   roles: Omit<APIResponse.Roles["GET-id"], "permissions">[];
@@ -60,10 +60,25 @@ export function UpdatePermissionForm(props: Props) {
     defaultValues: {
       name: props.defaultValue ? props.defaultValue.name : "",
       slug: props.defaultValue ? props.defaultValue.slug : "",
-      selectedRoles: props.defaultValue?.selectedRoles ? props.defaultValue.selectedRoles : JSON.stringify(props.roles.map((x) => x.uuid)),
+      selectedRoles: JSON.stringify(props.roles.map((x) => x.uuid)),
     },
     mode: "onChange",
   });
+
+  // update Selected Items
+  useEffect(() => {
+    setSelectedItems(
+      props.roles.map((role) => ({
+        id: role.uuid,
+        value: (
+          <>
+            <span className='capitalize'>{role.name}</span>
+            <GrFormCheckmark className={"ml-auto h-4 w-4 opacity-100"} />
+          </>
+        ),
+      }))
+    );
+  }, [props.roles]);
 
   const allRoleInfiniteQuery = useInfiniteQuery<Omit<APIResponse.Roles["GET-/"], "permissions">>({
     queryKey: ["roles", "infinite", debouncedKeyword],
@@ -123,20 +138,6 @@ export function UpdatePermissionForm(props: Props) {
       setSelectedItems((prev) => prev.filter((selectedItem) => selectedItem.id !== item.id));
     }
   };
-
-  useEffect(() => {
-    setSelectedItems(
-      props.roles.map((role) => ({
-        id: role.uuid,
-        value: (
-          <>
-            <span className='capitalize'>{role.name}</span>
-            <GrFormCheckmark className={"ml-auto h-4 w-4 opacity-100"} />
-          </>
-        ),
-      }))
-    );
-  }, [props.roles]);
 
   useEffect(() => {
     form.setValue("selectedRoles", JSON.stringify(selectedItems.map((x) => x.id)));

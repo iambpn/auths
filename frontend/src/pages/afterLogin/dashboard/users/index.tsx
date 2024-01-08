@@ -1,4 +1,5 @@
 import { AvatarComponent } from "@/components/avatar/avatar.component";
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { axiosInstance } from "@/lib/axiosInstance";
 import { handleError } from "@/lib/handleError";
@@ -6,6 +7,8 @@ import { NavName } from "@/lib/navName";
 import { useAppStore } from "@/store/useAppStore";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
+import { IoMdAdd } from "react-icons/io";
+import { Link } from "react-router-dom";
 
 export function Users() {
   // update Permission Nav Selection
@@ -30,8 +33,20 @@ export function Users() {
 
   return (
     <div className=''>
-      <div className=''>
+      <div className='flex items-center justify-between'>
         <h1 className='text-3xl font-bold tracking-tight'>Users</h1>
+        <div>
+          <Link to={"create"} className='inline-block'>
+            <Button variant={"default"}>
+              <div className='flex items-center'>
+                <span className='mr-1'>
+                  <IoMdAdd className='h-5 w-5' />
+                </span>
+                <span>Add Users</span>
+              </div>
+            </Button>
+          </Link>
+        </div>
       </div>
       <div className='pt-2'>
         <Table>

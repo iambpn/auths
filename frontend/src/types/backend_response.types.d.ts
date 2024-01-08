@@ -107,6 +107,7 @@ declare namespace APIResponse {
       updatedAt: Date;
     };
     "GET-/": PaginatedResponse<{ users: Users["GET-id"][] }>;
+    "POST-/": Users["GET-id"];
   };
 
   export type Auths = {

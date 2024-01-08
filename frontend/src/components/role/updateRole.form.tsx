@@ -59,7 +59,9 @@ export function UpdateRoleForm(props: Props) {
     defaultValues: {
       name: props.defaultValue ? props.defaultValue.name : "",
       slug: props.defaultValue ? props.defaultValue.slug : "",
-      selectedPermissions: props.defaultValue?.selectedPermissions ? props.defaultValue.selectedPermissions : JSON.stringify(props.permissions.map((x) => x.uuid)),
+      selectedPermissions: props.defaultValue?.selectedPermissions
+        ? props.defaultValue.selectedPermissions
+        : JSON.stringify(props.permissions.map((x) => x.uuid)),
     },
     mode: "onChange",
   });
