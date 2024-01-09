@@ -14,41 +14,41 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from "../ui/form"
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 
-const UserSchema = z
-  .object({
-    email: z
-      .string({
-        required_error: "Email is required",
-      })
-      .email({
-        message: "Email must be a valid email address",
-      }),
-    password: z
-      .string({
-        required_error: "Password is required",
-      })
-      .min(8, {
-        message: "Password must be at least 8 characters",
-      }),
-    confirmPassword: z
-      .string({
-        required_error: "Confirm Password is required",
-      })
-      .min(8, {
-        message: "Password must be at least 8 characters",
-      }),
-    role: z
-      .string({
-        required_error: "Role is required",
-      })
-      .uuid({
-        message: "Role must be a valid UUID",
-      }),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Confirm Password must be same as Password",
-    path: ["confirmPassword"], // specify where this error belongs to
-  });
+const schema = z.object({
+  email: z
+    .string({
+      required_error: "Email is required",
+    })
+    .email({
+      message: "Email must be a valid email address",
+    }),
+  password: z
+    .string({
+      required_error: "Password is required",
+    })
+    .min(8, {
+      message: "Password must be at least 8 characters",
+    }),
+  confirmPassword: z
+    .string({
+      required_error: "Confirm Password is required",
+    })
+    .min(8, {
+      message: "Password must be at least 8 characters",
+    }),
+  role: z
+    .string({
+      required_error: "Role is required",
+    })
+    .uuid({
+      message: "Role must be a valid UUID",
+    }),
+});
+
+const UserSchema = schema.refine((data) => data.password === data.confirmPassword, {
+  message: "Confirm Password must be same as Password",
+  path: ["confirmPassword"], // specify where this error belongs to
+});
 
 export type UserType = z.infer<typeof UserSchema>;
 
@@ -64,7 +64,7 @@ export function UserFrom(props: Props) {
   const debouncedKeyword = useDebouncedValue(searchKeyword, 300);
 
   const form = useForm<UserType>({
-    resolver: zodResolver(UserSchema),
+    resolver: zodResolver(props.defaultValue ? schema.partial({ password: true, confirmPassword: true }) : UserSchema),
     defaultValues: {
       email: props.defaultValue ? props.defaultValue.email : "",
       role: props.role?.uuid ?? "",

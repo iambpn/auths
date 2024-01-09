@@ -1,4 +1,4 @@
-import { UserType } from "@/components/user/user.form";
+import { UserFrom, UserType } from "@/components/user/user.form";
 import { axiosInstance } from "@/lib/axiosInstance";
 import { handleError } from "@/lib/handleError";
 import { NavName } from "@/lib/navName";
@@ -37,7 +37,7 @@ export function EditUser() {
   const userMutationQuery = useMutation<APIResponse.Permission["PUT-id"], unknown, UserType>({
     mutationFn: async (values) => {
       const res = await axiosInstance.put(`/users/${params.id}`, {
-        //  todo
+        ...values,
       });
       return res.data;
     },
@@ -53,26 +53,15 @@ export function EditUser() {
 
   const onFormSubmit: SubmitHandler<UserType> = async (data) => {
     await userMutationQuery.mutateAsync(data);
-    navigate("/user");
+    navigate("/users");
   };
 
   return (
     <div>
       <div className='mb-3'>
-        <h1 className='text-3xl font-bold tracking-tight'>Edit Permission</h1>
+        <h1 className='text-3xl font-bold tracking-tight'>Edit User</h1>
       </div>
-      {userByIdQuery.data && (
-        <PermissionForm
-          onSubmit={onFormSubmit}
-          defaultValue={{ name: userByIdQuery.data.name, slug: userByIdQuery.data.slug }}
-          roles={RolesByPermissionInfiniteQuery?.data?.pages.flatMap((x) => x.roles) ?? []}
-          onScroll={() => {
-            if (RolesByPermissionInfiniteQuery.hasNextPage) {
-              RolesByPermissionInfiniteQuery.fetchNextPage();
-            }
-          }}
-        />
-      )}
+      {userByIdQuery.data && <UserFrom onSubmit={onFormSubmit} defaultValue={{ email: userByIdQuery.data.email }} role={userByIdQuery.data.role} />}
     </div>
   );
 }

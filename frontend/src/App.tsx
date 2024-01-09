@@ -18,6 +18,7 @@ import { RequireAuth } from "./components/requireAuth";
 import { BlockOnAuth } from "./components/blockOnAuth";
 import { ResetPassword } from "./pages/resetPassword";
 import { CreateUser } from "./pages/afterLogin/dashboard/users/create";
+import { EditUser } from "./pages/afterLogin/dashboard/users/edit";
 
 const browserRouter = createBrowserRouter(
   [
@@ -68,6 +69,10 @@ const browserRouter = createBrowserRouter(
                     {
                       path: "create",
                       element: <CreateUser />,
+                    },
+                    {
+                      path: ":id",
+                      element: <EditUser />,
                     },
                   ],
                 },

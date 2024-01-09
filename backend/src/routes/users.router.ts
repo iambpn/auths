@@ -2,12 +2,13 @@ import { NextFunction, Request, Response, Router } from "express";
 import { isAdmin, isAuthenticated } from "../middleware/auth.middleware";
 import { signUpFn } from "../service/auth.service";
 import { getRoleById } from "../service/roles.service";
-import { deleteUser, getAllUsers } from "../service/users.service";
+import { deleteUser, getAllUsers, getUserById, updateUser } from "../service/users.service";
 import { PaginationQuery } from "../utils/helper/parsePagination";
 import { validate } from "../utils/helper/validate";
 import { CreateUserType, createUserValidationSchema } from "../utils/validation_schema/cms/createUser.validation.schema";
 import { GetByIdType, getByIdValidationSchema } from "../utils/validation_schema/cms/getById.validation.schema";
 import { PaginationType, paginationValidationSchema } from "../utils/validation_schema/cms/pagination.validation.schema";
+import { UpdateUserType, updateUserValidationSchema } from "../utils/validation_schema/cms/updateUser.validation.schema";
 
 export const UsersRouter = Router();
 
@@ -45,6 +46,26 @@ UsersRouter.get(
     } catch (error: unknown) {
       next(error);
     }
+  }
+);
+
+UsersRouter.get("/:id", isAuthenticated, isAdmin, validate(getByIdValidationSchema, "params"), async (req: Request<GetByIdType>, res: Response) => {
+  const params = req.params;
+  const result = await getUserById(params.id);
+  return res.status(200).json(result);
+});
+
+UsersRouter.put(
+  "/:id",
+  isAuthenticated,
+  isAdmin,
+  validate(updateUserValidationSchema, "body"),
+  validate(getByIdValidationSchema, "params"),
+  async (req: Request<GetByIdType, any, UpdateUserType>, res: Response) => {
+    const body = req.body;
+    const params = req.params;
+    const result = await updateUser(body, params.id);
+    return res.status(200).json(result);
   }
 );
 

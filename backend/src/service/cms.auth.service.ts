@@ -37,7 +37,7 @@ export async function loginService(email: string, password: string) {
   const superAdminRole = await getSuperAdminRole();
 
   if (user.role !== superAdminRole.uuid) {
-    throw new HttpError("Unauthorized", 401);
+    throw new HttpError("Unauthorized - Insufficient role", 401);
   }
 
   if (!(await bcrypt.compare(password, user.password))) {
