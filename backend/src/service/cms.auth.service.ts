@@ -3,20 +3,20 @@ import { and, desc, eq, gte } from "drizzle-orm";
 import jwt from "jsonwebtoken";
 import * as uuid from "uuid";
 import { db } from "../schema/drizzle-migrate";
-import { ResetPasswordToken, RolesPermissionsSchema, RolesSchema, SecurityQuestionSchema, UserSchema } from "../schema/drizzle-schema";
+import { ResetPasswordToken, SecurityQuestionSchema, UserSchema } from "../schema/drizzle-schema";
 import { config } from "../utils/config/app-config";
+import { QuestionsType1, QuestionsType2 } from "../utils/config/securityQuestion.config";
 import { getRandomKey } from "../utils/helper/getRandomKey";
 import { HttpError } from "../utils/helper/httpError";
+import { CmsRequestUser } from "../utils/types/req.user.type";
 import { ForgotPasswordType } from "../utils/validation_schema/cms/forgotPassword.validation.schema";
 import { ResetPasswordValidationType } from "../utils/validation_schema/cms/resetPassword.validation.schema";
-import { ENV_VARS } from "./env.service";
 import { SetSecurityQnAType } from "../utils/validation_schema/cms/setSecurityQnA.validation.schema";
-import { CmsRequestUser } from "../utils/types/req.user.type";
-import { getRoleById, getSuperAdminRole } from "./roles.service";
-import { ValidateEmailType } from "../utils/validation_schema/cms/verifyEmail.validation.schema";
-import { QuestionsType1, QuestionsType2 } from "../utils/config/securityQuestion.config";
 import { UpdatePasswordValidationType } from "../utils/validation_schema/cms/updatePassword.validation.schema";
 import { UpdateSecurityQnAType } from "../utils/validation_schema/cms/updateSecurityQnA.validation.schema";
+import { ValidateEmailType } from "../utils/validation_schema/cms/verifyEmail.validation.schema";
+import { ENV_VARS } from "./env.service";
+import { getRoleById, getSuperAdminRole } from "./roles.service";
 
 export async function loginService(email: string, password: string) {
   const [user] = await db

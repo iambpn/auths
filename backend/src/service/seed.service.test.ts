@@ -26,7 +26,7 @@ describe("Testing Seed Permission service", () => {
 
     it("Should throw error if file extension is not JSON", async () => {
       try {
-        await seedFilePermission("file");
+        expect(await seedFilePermission("file")).toThrowError();
       } catch (error) {
         expect(error).toBeInstanceOf(Error);
       }
@@ -36,7 +36,7 @@ describe("Testing Seed Permission service", () => {
   describe("Testing seed file permission callback function", () => {
     it("Should throw error if error params is not empty", async () => {
       try {
-        await seedFilePermissionCallback(Error("Error test"), "");
+        expect(await seedFilePermissionCallback(Error("Error test"), "")).toThrowError();
       } catch (error) {
         expect(error).toBeDefined();
       }

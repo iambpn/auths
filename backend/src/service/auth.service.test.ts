@@ -50,7 +50,7 @@ describe("Integration Testing Auth service", () => {
   describe("Get Login Token", () => {
     it("should throw 404 error for invalid user error", async () => {
       try {
-        await getLoginToken(Email, Password);
+        expect(await getLoginToken(Email, Password)).toThrowError();
       } catch (error: unknown) {
         if (!(error instanceof HttpError)) {
           throw error;
@@ -61,9 +61,9 @@ describe("Integration Testing Auth service", () => {
     });
 
     it("Should throw 404 error for incorrect password error", async () => {
+      await insertUser(Email, Password);
       try {
-        await insertUser(Email, Password);
-        await getLoginToken(Email, "wrong password");
+        expect(await getLoginToken(Email, "wrong password")).toThrowError();
       } catch (error: unknown) {
         if (!(error instanceof HttpError)) {
           throw error;
@@ -117,7 +117,7 @@ describe("Integration Testing Auth service", () => {
       await insertUser(Email, Password);
 
       try {
-        await signUpFn(Email, Password, UserRole.slug);
+        expect(await signUpFn(Email, Password, UserRole.slug)).toThrowError();
       } catch (error: unknown) {
         if (!(error instanceof HttpError)) {
           throw error;
@@ -139,7 +139,7 @@ describe("Integration Testing Auth service", () => {
 
     it("Should throw 404 error on Role not found", async () => {
       try {
-        const user = await signUpFn(Email, Password, UserRole.slug);
+        expect(await signUpFn(Email, Password, UserRole.slug)).toThrowError();
       } catch (error) {
         if (!(error instanceof HttpError)) {
           throw error;
@@ -152,11 +152,10 @@ describe("Integration Testing Auth service", () => {
 
   describe("Login FN", () => {
     it("should throw 404 error on invalid login token", async () => {
+      await insertUser(Email, Password);
       try {
-        await insertUser(Email, Password);
-
         // login with invalid token
-        await loginFn("wrong token", "abc@gmail.com", {});
+        expect(await loginFn("wrong token", "abc@gmail.com", {})).toThrowError();
       } catch (error: unknown) {
         if (!(error instanceof HttpError)) {
           throw error;
@@ -169,7 +168,7 @@ describe("Integration Testing Auth service", () => {
     it("should throw 404 error on invalid email", async () => {
       try {
         // login with invalid token and invalid email
-        await loginFn("wrong token", "abc@gmail.com", {});
+        expect(await loginFn("wrong token", "abc@gmail.com", {})).toThrowError();
       } catch (error: unknown) {
         if (!(error instanceof HttpError)) {
           throw error;
@@ -240,7 +239,7 @@ describe("Integration Testing Auth service", () => {
     it("should throw 404 error on invalid email", async () => {
       const email = "abc@gmail.com";
       try {
-        await validateUser(email);
+        expect(await validateUser(email)).toThrowError();
       } catch (error: unknown) {
         if (!(error instanceof HttpError)) {
           throw error;
@@ -263,7 +262,7 @@ describe("Integration Testing Auth service", () => {
     it("should return 404 error on invalid email error", async () => {
       const email = "abc@gmail.com";
       try {
-        await initiateForgotPasswordFn(email);
+        expect(await initiateForgotPasswordFn(email)).toThrowError();
       } catch (error: unknown) {
         if (!(error instanceof HttpError)) {
           throw error;
@@ -317,7 +316,7 @@ describe("Integration Testing Auth service", () => {
       const token = "token";
 
       try {
-        await resetPassword(token, email, "password");
+        expect(await resetPassword(token, email, "password")).toThrowError();
       } catch (error) {
         if (!(error instanceof HttpError)) {
           throw error;
@@ -330,9 +329,9 @@ describe("Integration Testing Auth service", () => {
     it("should return 400 error on invalid token error", async () => {
       const token = "token";
 
+      await insertUser(Email, Password);
       try {
-        await insertUser(Email, Password);
-        await resetPassword(token, Email, "password");
+        expect(await resetPassword(token, Email, "password")).toThrowError();
       } catch (error: unknown) {
         if (!(error instanceof HttpError)) {
           throw error;

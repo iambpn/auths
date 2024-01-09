@@ -187,5 +187,10 @@ export async function assignPermissionsToRole(id: string, data: AssignPermission
 
 export async function getSuperAdminRole() {
   const [superAdminRole] = await db.select().from(RolesSchema).where(eq(RolesSchema.slug, config.superAdminSlug)).limit(1);
+
+  if (!superAdminRole) {
+    throw new HttpError("Role not found", 400);
+  }
+
   return superAdminRole;
 }
