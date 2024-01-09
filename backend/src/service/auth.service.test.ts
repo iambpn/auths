@@ -248,6 +248,7 @@ describe("Integration Testing Auth service", () => {
         expect(error.statusCode).toEqual(404);
       }
     });
+
     it("should return user object on success", async () => {
       await insertUser(Email, Password);
 

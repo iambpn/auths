@@ -115,11 +115,15 @@ export async function forgotPasswordService(data: ForgotPasswordType) {
 
   const [securityQuestion] = await db.select().from(SecurityQuestionSchema).where(eq(SecurityQuestionSchema.userUuid, user.uuid)).limit(1);
 
-  if (!(await bcrypt.compare(data.answer1, securityQuestion.answer1)) || !(await bcrypt.compare(data.answer2, securityQuestion.answer2))) {
-    throw new HttpError("Invalid Security Question or Answer", 404);
+  if (
+    !securityQuestion ||
+    !(await bcrypt.compare(data.answer1, securityQuestion.answer1)) ||
+    !(await bcrypt.compare(data.answer2, securityQuestion.answer2))
+  ) {
+    throw new HttpError("Invalid Security Question or Answer", 400);
   }
 
-  // disable previous toke
+  // disable previous token
   const [prevToken] = await db
     .select()
     .from(ResetPasswordToken)
@@ -165,7 +169,7 @@ export async function resetPassword(data: ResetPasswordValidationType) {
     .limit(1);
 
   if (!token) {
-    throw new HttpError("Invalid Reset Token", 404);
+    throw new HttpError("Invalid Reset Token", 400);
   }
 
   const [user] = await db.select().from(UserSchema).where(eq(UserSchema.uuid, token.userUuid)).limit(1);
