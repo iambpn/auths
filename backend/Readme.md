@@ -137,7 +137,7 @@ function signup(
 function loginFn(
   token: string,
   email: string,
-  additionalPayload?: Record<string, any>
+  additionalPayload?: Record<string, any> // additional payload to store in jwt
 ): Promise<{
   email: string;
   uuid: string;

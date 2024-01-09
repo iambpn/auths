@@ -1,6 +1,6 @@
 import { desc, eq } from "drizzle-orm";
 import { db } from "../schema/__mocks__/drizzle-migrate";
-import { ForgotPasswordSchema, LoginTokenSchema, UserSchema } from "../schema/drizzle-schema";
+import { ForgotPasswordSchema, LoginTokenSchema, RolesSchema, UserSchema } from "../schema/drizzle-schema";
 import { config } from "../utils/config/app-config";
 import { HttpError } from "../utils/helper/httpError";
 import { getLoginToken, initiateForgotPasswordFn, loginFn, resetPassword, signUpFn, validateUser } from "./auth.service";
@@ -8,20 +8,49 @@ import * as bcrypt from "bcrypt";
 import * as uuid from "uuid";
 import { getRandomKey } from "../utils/helper/getRandomKey";
 import { minutesToMilliseconds } from "../utils/helper/miliseconds";
+import * as jwt from "jsonwebtoken";
 
 //  mocking drizzle instance using manual mocking
 jest.mock("../schema/drizzle-migrate");
 
-const UserRole = uuid.v4();
+const UserRole = { uuid: uuid.v4(), slug: "test_role" };
+const Email = "abc@gmail.com";
+const Password = "password123";
+
+async function hashPassword(password: string) {
+  return await bcrypt.hash(password, config.hashRounds());
+}
+
+async function insertUser(email: string, password: string) {
+  await db.insert(UserSchema).values({
+    email,
+    role: UserRole.uuid,
+    password: await hashPassword(password),
+    uuid: uuid.v4(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+
+  const user = await db.select().from(UserSchema).where(eq(UserSchema.email, email)).limit(1);
+
+  return user[0];
+}
+
+async function insertRole() {
+  await db.insert(RolesSchema).values({
+    name: UserRole.slug,
+    slug: UserRole.slug,
+    uuid: UserRole.uuid,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+}
 
 describe("Integration Testing Auth service", () => {
   describe("Get Login Token", () => {
     it("should throw 404 error for invalid user error", async () => {
-      const email = "abc@gmail.com";
-      const password = "password123";
-
       try {
-        await getLoginToken(email, password);
+        await getLoginToken(Email, Password);
       } catch (error: unknown) {
         if (!(error instanceof HttpError)) {
           throw error;
@@ -32,19 +61,9 @@ describe("Integration Testing Auth service", () => {
     });
 
     it("Should throw 404 error for incorrect password error", async () => {
-      const email = "abc@gmail.com";
-      const password = "password123";
-
       try {
-        await db.insert(UserSchema).values({
-          email,
-          role: UserRole,
-          password: await bcrypt.hash(password, config.hashRounds()),
-          uuid: uuid.v4(),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
-        await getLoginToken(email, "wrong password");
+        await insertUser(Email, Password);
+        await getLoginToken(Email, "wrong password");
       } catch (error: unknown) {
         if (!(error instanceof HttpError)) {
           throw error;
@@ -55,57 +74,39 @@ describe("Integration Testing Auth service", () => {
     });
 
     it("Should return a success object", async () => {
-      const email = "abc@gmail.com";
-      const password = "password123";
+      await insertUser(Email, Password);
+      const data = await getLoginToken(Email, Password);
 
-      await db.insert(UserSchema).values({
-        email,
-        role: UserRole,
-        password: await bcrypt.hash(password, config.hashRounds()),
-        uuid: uuid.v4(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
-      const data = await getLoginToken(email, password);
-
-      expect(data.email).toEqual(email);
+      expect(data.email).toEqual(Email);
       expect(data.expiresAt).toBeDefined();
       expect(data.expiresAt.getTime()).toBeGreaterThan(Date.now());
       expect(data.token).toBeDefined();
     });
 
     it("Should invalidate the previous login token when issuing new token", async () => {
-      const email = "abc@gmail.com";
-      const password = "password123";
+      const user = await insertUser(Email, Password);
+      const data = await getLoginToken(Email, Password);
 
-      const [user] = await db
-        .insert(UserSchema)
-        .values({
-          email,
-          role: UserRole,
-          password: await bcrypt.hash(password, config.hashRounds()),
-          uuid: uuid.v4(),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        })
-        .returning();
-
-      const data = await getLoginToken(email, password);
-
-      expect(data.email).toEqual(email);
+      expect(data.email).toEqual(Email);
       expect(data.expiresAt).toBeDefined();
       expect(data.token).toBeDefined();
 
-      const data2 = await getLoginToken(email, password);
+      const data2 = await getLoginToken(Email, Password);
 
-      expect(data2.email).toEqual(email);
+      expect(data2.email).toEqual(Email);
       expect(data.expiresAt).toBeDefined();
       expect(data.token).toBeDefined();
 
       expect(data2.token).not.toEqual(data.token);
 
       // select second last token
-      const [loginToken] = await db.select().from(LoginTokenSchema).where(eq(LoginTokenSchema.userUuid, user.uuid)).orderBy(desc(LoginTokenSchema.createdAt)).limit(1).offset(1);
+      const [loginToken] = await db
+        .select()
+        .from(LoginTokenSchema)
+        .where(eq(LoginTokenSchema.userUuid, user.uuid))
+        .orderBy(desc(LoginTokenSchema.createdAt))
+        .limit(1)
+        .offset(1);
 
       expect(loginToken.expiresAt.getTime()).toBeLessThan(Date.now());
     });
@@ -113,23 +114,10 @@ describe("Integration Testing Auth service", () => {
 
   describe("Sign up FN", () => {
     it("should throw 409 error for email already exists", async () => {
-      const email = "abc@gmail.com";
-      const password = "password123";
-
-      const [user] = await db
-        .insert(UserSchema)
-        .values({
-          email,
-          role: UserRole,
-          password: await bcrypt.hash(password, config.hashRounds()),
-          uuid: uuid.v4(),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        })
-        .returning();
+      await insertUser(Email, Password);
 
       try {
-        await signUpFn(email, password, UserRole);
+        await signUpFn(Email, Password, UserRole.slug);
       } catch (error: unknown) {
         if (!(error instanceof HttpError)) {
           throw error;
@@ -139,32 +127,33 @@ describe("Integration Testing Auth service", () => {
       }
     });
 
-    it("should create a new user", async () => {
-      const email = "abc@gmail.com";
-      const password = "password123";
+    it("Should create a new user", async () => {
+      await insertRole();
+      const user = await signUpFn(Email, Password, UserRole.slug);
 
-      const user = await signUpFn(email, password, UserRole);
-
-      const [sameUser] = await db.select().from(UserSchema).where(eq(UserSchema.email, email)).limit(1);
+      const [sameUser] = await db.select().from(UserSchema).where(eq(UserSchema.email, Email)).limit(1);
 
       expect(user.uuid).toEqual(sameUser.uuid);
-      expect(user.role).toEqual(UserRole);
+      expect(user.role).toEqual(UserRole.uuid);
     });
 
-    it.todo("should verify the provided slug");
+    it("Should throw 404 error on Role not found", async () => {
+      try {
+        const user = await signUpFn(Email, Password, UserRole.slug);
+      } catch (error) {
+        if (!(error instanceof HttpError)) {
+          throw error;
+        }
+
+        expect(error.statusCode).toEqual(404);
+      }
+    });
   });
 
   describe("Login FN", () => {
     it("should throw 404 error on invalid login token", async () => {
       try {
-        await db.insert(UserSchema).values({
-          email: "abc@gmail.com",
-          role: UserRole,
-          password: "password123",
-          uuid: uuid.v4(),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
+        await insertUser(Email, Password);
 
         // login with invalid token
         await loginFn("wrong token", "abc@gmail.com", {});
@@ -176,6 +165,7 @@ describe("Integration Testing Auth service", () => {
         expect(error.statusCode).toEqual(404);
       }
     });
+
     it("should throw 404 error on invalid email", async () => {
       try {
         // login with invalid token and invalid email
@@ -188,20 +178,10 @@ describe("Integration Testing Auth service", () => {
         expect(error.statusCode).toEqual(404);
       }
     });
+
     it("should return success object and disable login token after using it", async () => {
-      const email = "abc@gmail.com";
-      const password = "password";
-      const [user] = await db
-        .insert(UserSchema)
-        .values({
-          email,
-          role: UserRole,
-          password,
-          uuid: uuid.v4(),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        })
-        .returning();
+      await insertRole();
+      const user = await insertUser(Email, Password);
 
       const token = getRandomKey(64);
       const [loginToken] = await db
@@ -216,9 +196,9 @@ describe("Integration Testing Auth service", () => {
         })
         .returning();
 
-      const loginParams = await loginFn(token, email, {});
+      const loginParams = await loginFn(token, Email, {});
 
-      expect(loginParams.email).toEqual(email);
+      expect(loginParams.email).toEqual(Email);
       expect(loginParams.uuid).toEqual(user.uuid);
       expect(loginParams.jwtToken).toBeDefined();
 
@@ -226,6 +206,33 @@ describe("Integration Testing Auth service", () => {
 
       expect(loginToken.token).toEqual(expiredToken.token);
       expect(expiredToken.expiresAt.getTime()).toBeLessThan(Date.now());
+    });
+
+    it("should include additional payload to the jtw token", async () => {
+      await insertRole();
+      const user = await insertUser(Email, Password);
+
+      const token = getRandomKey(64);
+      await db
+        .insert(LoginTokenSchema)
+        .values({
+          uuid: uuid.v4(),
+          userUuid: user.uuid,
+          token,
+          expiresAt: new Date(Date.now() + minutesToMilliseconds(5)),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .returning();
+
+      const loginParams = await loginFn(token, Email, { data: "data" });
+
+      expect(loginParams.email).toEqual(Email);
+      expect(loginParams.uuid).toEqual(user.uuid);
+      expect(loginParams.jwtToken).toBeDefined();
+
+      const payload = jwt.decode(loginParams.jwtToken) as Record<string, any>;
+      expect(payload.data).toEqual("data");
     });
   });
 
@@ -242,21 +249,12 @@ describe("Integration Testing Auth service", () => {
       }
     });
     it("should return user object on success", async () => {
-      const email = "abc@gmail.com";
-      const password = "password";
-      await db.insert(UserSchema).values({
-        email,
-        role: UserRole,
-        password: password,
-        uuid: uuid.v4(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
+      await insertUser(Email, Password);
 
-      const user = await validateUser(email);
+      const user = await validateUser(Email);
 
       expect(user).toBeDefined();
-      expect(user.email).toEqual(email);
+      expect(user.email).toEqual(Email);
     });
   });
 
@@ -273,61 +271,41 @@ describe("Integration Testing Auth service", () => {
         expect(error.statusCode).toEqual(404);
       }
     });
-    it("should expire previous token before on success and should return the success object", async () => {
-      const email = "abc@gmail.com";
-      const password = "password";
 
-      // create user
-      const [user] = await db
-        .insert(UserSchema)
-        .values({
-          email,
-          role: UserRole,
-          password: password,
-          uuid: uuid.v4(),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        })
-        .returning();
+    it("should invalidate previous token before assigning new one", async () => {
+      const user = await insertUser(Email, Password);
 
-      const forgotPasswordToken = await initiateForgotPasswordFn(email);
+      const forgotPasswordToken = await initiateForgotPasswordFn(Email);
 
-      const forgotPasswordToken2 = await initiateForgotPasswordFn(email);
+      const forgotPasswordToken2 = await initiateForgotPasswordFn(Email);
 
       expect(forgotPasswordToken2.email).toBeDefined();
       expect(forgotPasswordToken2.expires_at).toBeDefined();
       expect(forgotPasswordToken2.token).toBeDefined();
       expect(forgotPasswordToken2.expires_at.getTime()).toBeGreaterThan(Date.now());
 
-      const [prevToken] = await db.select().from(ForgotPasswordSchema).where(eq(ForgotPasswordSchema.userUuid, user.uuid)).orderBy(desc(ForgotPasswordSchema.createdAt)).limit(1).offset(1);
+      const [prevToken] = await db
+        .select()
+        .from(ForgotPasswordSchema)
+        .where(eq(ForgotPasswordSchema.userUuid, user.uuid))
+        .orderBy(desc(ForgotPasswordSchema.createdAt))
+        .limit(1)
+        .offset(1);
 
       expect(prevToken.token).toEqual(forgotPasswordToken.token);
       expect(prevToken.expiresAt.getTime()).toBeLessThan(Date.now());
     });
-    it("should return returnToken as forget password token if it is passed", async () => {
-      const email = "abc@gmail.com";
-      const password = "password";
+
+    it("should return 'returnToken' as forget password token", async () => {
       const token = "fptoken";
 
       // create user
-      const [user] = await db
-        .insert(UserSchema)
-        .values({
-          email,
-          role: UserRole,
-          password: password,
-          uuid: uuid.v4(),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        })
-        .returning();
+      await insertUser(Email, Password);
 
-      const forgotPasswordToken = await initiateForgotPasswordFn(email, token);
-
+      const forgotPasswordToken = await initiateForgotPasswordFn(Email, token);
       expect(forgotPasswordToken.token).toEqual(token);
 
       const [forgetPasswordToken2] = await db.select().from(ForgotPasswordSchema).where(eq(ForgotPasswordSchema.token, token)).limit(1);
-
       expect(forgotPasswordToken.token).toEqual(forgetPasswordToken2.token);
     });
   });
@@ -349,48 +327,26 @@ describe("Integration Testing Auth service", () => {
     });
 
     it("should return 400 error on invalid token error", async () => {
-      const email = "abc@gmail.com";
       const token = "token";
 
       try {
-        await db.insert(UserSchema).values({
-          email,
-          role: UserRole,
-          password: "password",
-          uuid: uuid.v4(),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
-
-        await resetPassword(token, email, "password");
+        await insertUser(Email, Password);
+        await resetPassword(token, Email, "password");
       } catch (error: unknown) {
         if (!(error instanceof HttpError)) {
           throw error;
         }
-
         expect(error.statusCode).toEqual(400);
       }
     });
 
     it("should update the user password and invalidate used token", async () => {
-      const email = "abc@gmail.com";
       const token = "token";
-      const password = "password";
       const newPassword = "new_password";
 
-      const [user] = await db
-        .insert(UserSchema)
-        .values({
-          email,
-          role: UserRole,
-          password,
-          uuid: uuid.v4(),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        })
-        .returning();
+      const user = await insertUser(Email, Password);
 
-      expect(user.password).toEqual(password);
+      expect(await bcrypt.compare(Password, user.password)).toEqual(true);
 
       const [returnForgotPasswordToken] = await db
         .insert(ForgotPasswordSchema)
@@ -403,12 +359,12 @@ describe("Integration Testing Auth service", () => {
         })
         .returning();
 
-      await resetPassword(token, email, newPassword);
+      await resetPassword(token, Email, newPassword);
 
       const [fpToken] = await db.select().from(ForgotPasswordSchema).where(eq(ForgotPasswordSchema.uuid, returnForgotPasswordToken.uuid)).limit(1);
       const [updatedUser] = await db.select().from(UserSchema).where(eq(UserSchema.uuid, user.uuid)).limit(1);
 
-      expect(updatedUser.password).not.toEqual(password);
+      expect(await bcrypt.compare(Password, updatedUser.password)).toEqual(false);
 
       expect(fpToken.token).toEqual(token);
       expect(fpToken.expiresAt.getTime()).toBeLessThan(Date.now());

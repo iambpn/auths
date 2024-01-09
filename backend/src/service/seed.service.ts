@@ -15,7 +15,7 @@ export async function runSeed(PermissionFilePath?: string) {
   await seedFilePermission(PermissionFilePath);
 }
 
-async function seedSuperAdminUser() {
+export async function seedSuperAdminUser() {
   const hashData = "Seeding SuperAdmin User";
   const hash = createHash("sha256").update(hashData).digest("hex");
 
@@ -40,7 +40,7 @@ async function seedSuperAdminUser() {
   config.printFormattedLog("Super-admin user seeded successfully.");
 }
 
-async function seedSuperAdminRole() {
+export async function seedSuperAdminRole() {
   const hashData = "Seeding SuperAdmin Role";
   const hash = createHash("sha256").update(hashData).digest("hex");
 
@@ -70,14 +70,14 @@ async function seedSuperAdminRole() {
   config.printFormattedLog("Super-admin role seeded successfully.");
 }
 
-async function seedFilePermission(filePath?: string) {
+export async function seedFilePermission(filePath?: string) {
   if (!filePath) {
     return false;
   }
 
   const fileExt = path.extname(filePath);
   if (fileExt !== ".json" && fileExt !== ".JSON") {
-    throw Error("Invalid Permission file extension. File  must be of type JSON.");
+    throw Error("Invalid Permission file extension. File must be of type JSON.");
   }
 
   try {
@@ -104,7 +104,7 @@ async function seedFilePermission(filePath?: string) {
   }
 }
 
-async function seedFilePermissionCallback(err: unknown, data: string) {
+export async function seedFilePermissionCallback(err: unknown, data: string) {
   if (err) {
     throw err;
   }
