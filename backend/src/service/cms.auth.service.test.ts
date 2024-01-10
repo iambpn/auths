@@ -4,12 +4,10 @@ import * as jwt from "jsonwebtoken";
 import * as uuid from "uuid";
 import { db } from "../schema/__mocks__/drizzle-migrate";
 import {
-  ForgotPasswordSchema,
-  LoginTokenSchema,
   ResetPasswordTokenSchema,
   RolesSchema,
   SecurityQuestionSchema,
-  UserSchema,
+  UserSchema
 } from "../schema/drizzle-schema";
 import { config } from "../utils/config/app-config";
 import { HttpError } from "../utils/helper/httpError";
