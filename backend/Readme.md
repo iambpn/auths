@@ -62,7 +62,7 @@ Since seeding permission can be tedious, you can create a `permission.json` file
 
     Default `superAdmin_admin role` has no permission and can do anything inside of `auths dashboard` but cannot access the client side resource. To access client side resource, Admin needs to manually add required permissions to default `superAdmin_admin role`. Only Users with default super admin role can access and use `auths dashboard`.
 
-    **_Note: Default super admin is identified by its slug so once you removed default super admin you can re-create it with `superAdmin__default` this slug._**
+    **_Note: Default super admin is identified by its slug `superAdmin__default` so default super admin is not deletable._**
 
 ### Deep Dive
 
