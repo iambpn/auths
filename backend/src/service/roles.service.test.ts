@@ -363,6 +363,42 @@ describe("Role Service Testing", () => {
       expect(linkedPermission).toHaveLength(1);
       expect(linkedPermission[0].permissionUuid).toBe(permissionUuid);
     });
+
+    it("Should remove previous permission and add new permission to role", async () => {
+      await insertRole(UserRole);
+
+      const permissionUuid = uuid.v4();
+      await db.insert(PermissionSchema).values({
+        name: "read",
+        slug: "read",
+        uuid: permissionUuid,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      //  insert one permission: this should be removed
+      await assignPermissionsToRole(UserRole.uuid, {
+        permissions: [permissionUuid],
+      });
+
+      const permissionUuid2 = uuid.v4();
+      await db.insert(PermissionSchema).values({
+        name: "write",
+        slug: "write",
+        uuid: permissionUuid2,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      await assignPermissionsToRole(UserRole.uuid, {
+        permissions: [permissionUuid2],
+      });
+
+      let linkedPermission = await db.select().from(RolesPermissionsSchema).where(eq(RolesPermissionsSchema.roleUuid, UserRole.uuid));
+
+      expect(linkedPermission).toHaveLength(1);
+      expect(linkedPermission[0].permissionUuid).toBe(permissionUuid2);
+    });
   });
 
   describe("Get Superadmin Role", () => {
