@@ -3,7 +3,7 @@ import { and, desc, eq, gte } from "drizzle-orm";
 import jwt from "jsonwebtoken";
 import * as uuid from "uuid";
 import { db } from "../schema/drizzle-migrate";
-import { ResetPasswordToken, SecurityQuestionSchema, UserSchema } from "../schema/drizzle-schema";
+import { ResetPasswordTokenSchema, SecurityQuestionSchema, UserSchema } from "../schema/drizzle-schema";
 import { config } from "../utils/config/app-config";
 import { QuestionsType1, QuestionsType2 } from "../utils/config/securityQuestion.config";
 import { getRandomKey } from "../utils/helper/getRandomKey";
@@ -56,7 +56,8 @@ export async function loginService(email: string, password: string) {
   };
 }
 
-export async function validateEmail(data: ValidateEmailType) {
+// verify email form forger password
+export async function validateSuperadminEmail(data: ValidateEmailType) {
   const [user] = await db
     .select({
       email: UserSchema.email,
@@ -126,24 +127,24 @@ export async function forgotPasswordService(data: ForgotPasswordType) {
   // disable previous token
   const [prevToken] = await db
     .select()
-    .from(ResetPasswordToken)
-    .where(eq(ResetPasswordToken.userUuid, user.uuid))
-    .orderBy(desc(ResetPasswordToken.createdAt))
+    .from(ResetPasswordTokenSchema)
+    .where(eq(ResetPasswordTokenSchema.userUuid, user.uuid))
+    .orderBy(desc(ResetPasswordTokenSchema.createdAt))
     .limit(1);
 
   if (prevToken) {
     await db
-      .update(ResetPasswordToken)
+      .update(ResetPasswordTokenSchema)
       .set({
         expiresAt: new Date(),
       })
-      .where(eq(ResetPasswordToken.uuid, prevToken.uuid));
+      .where(eq(ResetPasswordTokenSchema.uuid, prevToken.uuid));
   }
 
   // add new token
   const token = getRandomKey(16);
   const [resetToken] = await db
-    .insert(ResetPasswordToken)
+    .insert(ResetPasswordTokenSchema)
     .values({
       uuid: uuid.v4(),
       createdAt: new Date(),
@@ -163,9 +164,9 @@ export async function forgotPasswordService(data: ForgotPasswordType) {
 export async function resetPassword(data: ResetPasswordValidationType) {
   const [token] = await db
     .select()
-    .from(ResetPasswordToken)
-    .where(and(eq(ResetPasswordToken.token, data.token), gte(ResetPasswordToken.expiresAt, new Date())))
-    .orderBy(desc(ResetPasswordToken.createdAt))
+    .from(ResetPasswordTokenSchema)
+    .where(and(eq(ResetPasswordTokenSchema.token, data.token), gte(ResetPasswordTokenSchema.expiresAt, new Date())))
+    .orderBy(desc(ResetPasswordTokenSchema.createdAt))
     .limit(1);
 
   if (!token) {
@@ -180,11 +181,11 @@ export async function resetPassword(data: ResetPasswordValidationType) {
 
   // disable used token
   await db
-    .update(ResetPasswordToken)
+    .update(ResetPasswordTokenSchema)
     .set({
       expiresAt: new Date(),
     })
-    .where(eq(ResetPasswordToken.uuid, token.uuid));
+    .where(eq(ResetPasswordTokenSchema.uuid, token.uuid));
 
   // update password
   const newPasswordHash = await bcrypt.hash(data.newPassword, config.hashRounds());
@@ -258,25 +259,34 @@ export async function updateSecurityQuestion(data: UpdateSecurityQnAType, curren
   const encryptAnswer1 = await bcrypt.hash(data.answer1, config.hashRounds());
   const encryptAnswer2 = await bcrypt.hash(data.answer2, config.hashRounds());
 
-  await db.insert(SecurityQuestionSchema).values({
-    answer1: encryptAnswer1,
-    answer2: encryptAnswer2,
-    question1: data.question1,
-    question2: data.question2,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    userUuid: user.uuid,
-    uuid: uuid.v4(),
-  });
-
   if (!user.isRecoverable) {
+    await db.insert(SecurityQuestionSchema).values({
+      answer1: encryptAnswer1,
+      answer2: encryptAnswer2,
+      question1: data.question1,
+      question2: data.question2,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      userUuid: user.uuid,
+      uuid: uuid.v4(),
+    });
+
     await db
       .update(UserSchema)
       .set({
         isRecoverable: true,
       })
       .where(eq(UserSchema.uuid, user.uuid));
+
+    return {
+      message: "Security QnA added successfully",
+    };
   }
+
+  await db
+    .update(SecurityQuestionSchema)
+    .set({ answer1: encryptAnswer1, answer2: encryptAnswer2, question1: data.question1, question2: data.question2, updatedAt: new Date() })
+    .where(eq(SecurityQuestionSchema.userUuid, user.uuid));
 
   return {
     message: "Security QnA updated successfully",

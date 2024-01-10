@@ -8,7 +8,7 @@ import {
   setInitialSecurityQuestion,
   updatePassword,
   updateSecurityQuestion,
-  validateEmail,
+  validateSuperadminEmail,
 } from "../service/cms.auth.service";
 import { validate } from "../utils/helper/validate";
 import { LoginValidationSchema, LoginValidationType } from "../utils/validation_schema/auths/login.validation.schema";
@@ -35,13 +35,14 @@ CmsAuthRouter.post(
   }
 );
 
+// verify email form forger password
 CmsAuthRouter.post(
   "/verifyEmail",
   validate(validateEmailSchema),
   async (req: Request<any, any, ValidateEmailType>, res: Response, next: NextFunction) => {
     try {
       const body = req.body;
-      const response = await validateEmail(body);
+      const response = await validateSuperadminEmail(body);
       res.status(200).json(response);
     } catch (error: unknown) {
       next(error);
