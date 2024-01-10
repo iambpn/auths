@@ -4,7 +4,7 @@ import { validate } from "../utils/helper/validate";
 import { CreatePermissionType, createPermissionValidationSchema } from "../utils/validation_schema/cms/createPermission.validation.schema";
 import { GetByIdType, getByIdValidationSchema } from "../utils/validation_schema/cms/getById.validation.schema";
 import { PaginationType, paginationValidationSchema } from "../utils/validation_schema/cms/pagination.validation.schema";
-import { assignRolesToPermission, createPermission, deletePermission, getAllPermission, getPermissionById, getRolesByPermission, updatePermission } from "../service/premission.service";
+import { assignRolesToPermission, createPermission, deletePermission, getAllPermission, getPermissionById, getRolesByPermission, updatePermission } from "../service/permission.service";
 import { PaginationQuery } from "../utils/helper/parsePagination";
 import { AssignRoleToPermissionType, assignRoleToPermissionValidationSchema } from "../utils/validation_schema/cms/assignRoleToPermission.validation.schema";
 import { SearchQueryValidationSchema, SearchQueryType } from "../utils/validation_schema/cms/queryParams.validation.schema";
