@@ -1,4 +1,5 @@
-import { ZodError, z } from "zod";
+import { ZodError } from "zod";
+import { ENV_VARIABLE } from "../_app.type";
 import { ValidateEnvType, validateEnvSchema } from "../utils/validation_schema/auths/validateEnv.validation.schema";
 
 export let ENV_VARS: ValidateEnvType;
@@ -14,7 +15,8 @@ export function validateEnv() {
       AUTHS_JWT_EXPIRATION_TIME: process.env.AUTHS_JWT_EXPIRATION_TIME!,
       AUTHS_LOGIN_TOKEN_EXPIRATION_TIME: process.env.AUTHS_LOGIN_TOKEN_EXPIRATION_TIME!,
       AUTHS_HASH_SALT_ROUNDS: process.env.AUTHS_HASH_SALT_ROUNDS!,
-    } satisfies { [key in keyof ValidateEnvType]: any });
+      AUTHS_DB_DRIVER: process.env.AUTHS_DB_DRIVER!,
+    } satisfies { [key in keyof ValidateEnvType & keyof ENV_VARIABLE]: any });
   } catch (error) {
     if (error instanceof ZodError) {
       const errors = [];

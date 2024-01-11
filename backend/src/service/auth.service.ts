@@ -3,7 +3,7 @@ import { and, desc, eq, gte } from "drizzle-orm";
 import * as jwt from "jsonwebtoken";
 import * as uuid from "uuid";
 import { db } from "../schema/drizzle-migrate";
-import { ForgotPasswordSchema, LoginTokenSchema, UserSchema } from "../schema/drizzle-schema";
+import { schema } from "../schema/drizzle-schema";
 import { config } from "../utils/config/app-config";
 import { getRandomKey } from "../utils/helper/getRandomKey";
 import { HttpError } from "../utils/helper/httpError";
@@ -13,12 +13,12 @@ import { getRoleById, getRoleBySlug } from "./roles.service";
 export async function getLoginToken(email: string, password: string) {
   const [user] = await db
     .select({
-      email: UserSchema.email,
-      password: UserSchema.password,
-      uuid: UserSchema.uuid,
+      email: schema.UserSchema.email,
+      password: schema.UserSchema.password,
+      uuid: schema.UserSchema.uuid,
     })
-    .from(UserSchema)
-    .where(eq(UserSchema.email, email))
+    .from(schema.UserSchema)
+    .where(eq(schema.UserSchema.email, email))
     .limit(1);
 
   if (!user) {
@@ -32,22 +32,22 @@ export async function getLoginToken(email: string, password: string) {
   // release previous token
   const [prevToken] = await db
     .select()
-    .from(LoginTokenSchema)
-    .where(and(eq(LoginTokenSchema.userUuid, user.uuid), gte(LoginTokenSchema.expiresAt, new Date())))
-    .orderBy(desc(LoginTokenSchema.createdAt))
+    .from(schema.LoginTokenSchema)
+    .where(and(eq(schema.LoginTokenSchema.userUuid, user.uuid), gte(schema.LoginTokenSchema.expiresAt, new Date())))
+    .orderBy(desc(schema.LoginTokenSchema.createdAt))
     .limit(1);
 
   if (prevToken) {
     await db
-      .update(LoginTokenSchema)
+      .update(schema.LoginTokenSchema)
       .set({ expiresAt: new Date(Date.now()) })
-      .where(eq(LoginTokenSchema.uuid, prevToken.uuid));
+      .where(eq(schema.LoginTokenSchema.uuid, prevToken.uuid));
   }
 
   const token = getRandomKey(32);
   // save token to database
   const [loginToken] = await db
-    .insert(LoginTokenSchema)
+    .insert(schema.LoginTokenSchema)
     .values({
       token: token,
       userUuid: user.uuid,
@@ -72,10 +72,10 @@ export async function getLoginToken(email: string, password: string) {
 export async function signUpFn(email: string, password: string, roleSlug: string, others: Record<string, any> = {}) {
   const [user] = await db
     .select({
-      email: UserSchema.email,
+      email: schema.UserSchema.email,
     })
-    .from(UserSchema)
-    .where(eq(UserSchema.email, email));
+    .from(schema.UserSchema)
+    .where(eq(schema.UserSchema.email, email));
 
   if (user) {
     throw new HttpError("Email already exists. Please use different email", 409);
@@ -85,8 +85,16 @@ export async function signUpFn(email: string, password: string, roleSlug: string
 
   const hashedPassword = await bcrypt.hash(password, config.hashRounds());
   const [savedUser] = await db
-    .insert(UserSchema)
-    .values({ email, password: hashedPassword, uuid: uuid.v4(), others: JSON.stringify(others), role: role.uuid, createdAt: new Date(), updatedAt: new Date() })
+    .insert(schema.UserSchema)
+    .values({
+      email,
+      password: hashedPassword,
+      uuid: uuid.v4(),
+      others: JSON.stringify(others),
+      role: role.uuid,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })
     .returning();
 
   if (!savedUser) {
@@ -103,13 +111,13 @@ export async function signUpFn(email: string, password: string, roleSlug: string
 export async function loginFn(token: string, email: string, additionalPayload: Record<string, any> = {}) {
   const [user] = await db
     .select({
-      email: UserSchema.email,
-      password: UserSchema.password,
-      role: UserSchema.role,
-      uuid: UserSchema.uuid,
+      email: schema.UserSchema.email,
+      password: schema.UserSchema.password,
+      role: schema.UserSchema.role,
+      uuid: schema.UserSchema.uuid,
     })
-    .from(UserSchema)
-    .where(eq(UserSchema.email, email))
+    .from(schema.UserSchema)
+    .where(eq(schema.UserSchema.email, email))
     .limit(1);
 
   if (!user) {
@@ -118,10 +126,16 @@ export async function loginFn(token: string, email: string, additionalPayload: R
 
   const [loginToken] = await db
     .select()
-    .from(LoginTokenSchema)
-    .where(and(eq(LoginTokenSchema.token, token), eq(LoginTokenSchema.userUuid, user.uuid), gte(LoginTokenSchema.expiresAt, new Date())))
+    .from(schema.LoginTokenSchema)
+    .where(
+      and(
+        eq(schema.LoginTokenSchema.token, token),
+        eq(schema.LoginTokenSchema.userUuid, user.uuid),
+        gte(schema.LoginTokenSchema.expiresAt, new Date())
+      )
+    )
     .limit(1)
-    .orderBy(desc(LoginTokenSchema.createdAt));
+    .orderBy(desc(schema.LoginTokenSchema.createdAt));
 
   if (!loginToken) {
     throw new HttpError("Invalid token", 404);
@@ -136,9 +150,9 @@ export async function loginFn(token: string, email: string, additionalPayload: R
 
   // disable login token
   await db
-    .update(LoginTokenSchema)
+    .update(schema.LoginTokenSchema)
     .set({ expiresAt: new Date() })
-    .where(and(eq(LoginTokenSchema.token, token), eq(LoginTokenSchema.userUuid, user.uuid)));
+    .where(and(eq(schema.LoginTokenSchema.token, token), eq(schema.LoginTokenSchema.userUuid, user.uuid)));
 
   return {
     email: user.email,
@@ -157,14 +171,14 @@ export async function loginFn(token: string, email: string, additionalPayload: R
 export async function validateUser(email: string) {
   const [user] = await db
     .select({
-      uuid: UserSchema.uuid,
-      email: UserSchema.email,
-      others: UserSchema.others,
-      createdAt: UserSchema.createdAt,
-      updatedAt: UserSchema.updatedAt,
+      uuid: schema.UserSchema.uuid,
+      email: schema.UserSchema.email,
+      others: schema.UserSchema.others,
+      createdAt: schema.UserSchema.createdAt,
+      updatedAt: schema.UserSchema.updatedAt,
     })
-    .from(UserSchema)
-    .where(eq(UserSchema.email, email))
+    .from(schema.UserSchema)
+    .where(eq(schema.UserSchema.email, email))
     .limit(1);
 
   if (!user) {
@@ -180,23 +194,23 @@ export async function initiateForgotPasswordFn(email: string, returnToken?: stri
     forgetPasswordToken = getRandomKey(16);
   }
 
-  const [user] = await db.select().from(UserSchema).where(eq(UserSchema.email, email)).limit(1);
+  const [user] = await db.select().from(schema.UserSchema).where(eq(schema.UserSchema.email, email)).limit(1);
   if (!user) {
     throw new HttpError("User with provided email not found", 404);
   }
 
   const [prevToken] = await db
     .select()
-    .from(ForgotPasswordSchema)
-    .where(and(eq(ForgotPasswordSchema.userUuid, user.uuid), gte(ForgotPasswordSchema.expiresAt, new Date())))
-    .orderBy(desc(ForgotPasswordSchema.createdAt))
+    .from(schema.ForgotPasswordSchema)
+    .where(and(eq(schema.ForgotPasswordSchema.userUuid, user.uuid), gte(schema.ForgotPasswordSchema.expiresAt, new Date())))
+    .orderBy(desc(schema.ForgotPasswordSchema.createdAt))
     .limit(1);
   if (prevToken) {
-    await db.update(ForgotPasswordSchema).set({ expiresAt: new Date() }).where(eq(ForgotPasswordSchema.uuid, prevToken.uuid));
+    await db.update(schema.ForgotPasswordSchema).set({ expiresAt: new Date() }).where(eq(schema.ForgotPasswordSchema.uuid, prevToken.uuid));
   }
 
   const [forgetPassword] = await db
-    .insert(ForgotPasswordSchema)
+    .insert(schema.ForgotPasswordSchema)
     .values({
       uuid: uuid.v4(),
       userUuid: user.uuid,
@@ -214,7 +228,7 @@ export async function initiateForgotPasswordFn(email: string, returnToken?: stri
 }
 
 export async function resetPassword(token: string, email: string, newPassword: string) {
-  const [user] = await db.select().from(UserSchema).where(eq(UserSchema.email, email)).limit(1);
+  const [user] = await db.select().from(schema.UserSchema).where(eq(schema.UserSchema.email, email)).limit(1);
 
   if (!user) {
     throw new HttpError("User with provided email not found", 404);
@@ -222,9 +236,15 @@ export async function resetPassword(token: string, email: string, newPassword: s
 
   const [forgotPassword] = await db
     .select()
-    .from(ForgotPasswordSchema)
-    .where(and(eq(ForgotPasswordSchema.token, token), eq(ForgotPasswordSchema.userUuid, user.uuid), gte(ForgotPasswordSchema.expiresAt, new Date())))
-    .orderBy(desc(ForgotPasswordSchema.createdAt))
+    .from(schema.ForgotPasswordSchema)
+    .where(
+      and(
+        eq(schema.ForgotPasswordSchema.token, token),
+        eq(schema.ForgotPasswordSchema.userUuid, user.uuid),
+        gte(schema.ForgotPasswordSchema.expiresAt, new Date())
+      )
+    )
+    .orderBy(desc(schema.ForgotPasswordSchema.createdAt))
     .limit(1);
 
   if (!forgotPassword) {
@@ -232,11 +252,11 @@ export async function resetPassword(token: string, email: string, newPassword: s
   }
 
   // invalidate token
-  await db.update(ForgotPasswordSchema).set({ expiresAt: new Date() }).where(eq(ForgotPasswordSchema.uuid, forgotPassword.uuid));
+  await db.update(schema.ForgotPasswordSchema).set({ expiresAt: new Date() }).where(eq(schema.ForgotPasswordSchema.uuid, forgotPassword.uuid));
 
   const newPasswordHash = await bcrypt.hash(newPassword, config.hashRounds());
   // update password
-  await db.update(UserSchema).set({ password: newPasswordHash }).where(eq(UserSchema.uuid, user.uuid));
+  await db.update(schema.UserSchema).set({ password: newPasswordHash }).where(eq(schema.UserSchema.uuid, user.uuid));
 
   return {
     message: "Password changed successfully",

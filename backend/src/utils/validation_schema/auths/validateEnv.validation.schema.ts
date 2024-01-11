@@ -7,6 +7,7 @@ export const validateEnvSchema = z.object({
   AUTHS_JWT_EXPIRATION_TIME: z.string().optional(),
   AUTHS_LOGIN_TOKEN_EXPIRATION_TIME: z.string().optional(),
   AUTHS_HASH_SALT_ROUNDS: z.coerce.number().optional(),
+  AUTHS_DB_DRIVER: z.enum(["postgres", "sqlite", "mysql"]),
 } satisfies Record<keyof ENV_VARIABLE, any>);
 
 export type ValidateEnvType = z.infer<typeof validateEnvSchema>;

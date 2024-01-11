@@ -1,6 +1,9 @@
-import { db } from "../schema/__mocks__/drizzle-migrate";
-import { PermissionSchema, RolesPermissionsSchema, RolesSchema, UserSchema } from "../schema/drizzle-schema";
+import { eq } from "drizzle-orm";
 import * as uuid from "uuid";
+import { db } from "../schema/__mocks__/drizzle-migrate";
+import { schema } from "../schema/drizzle-schema";
+import { config } from "../utils/config/app-config";
+import { HttpError } from "../utils/helper/httpError";
 import {
   assignRolesToPermission,
   createPermission,
@@ -10,9 +13,6 @@ import {
   getRolesByPermission,
   updatePermission,
 } from "./permission.service";
-import { config } from "../utils/config/app-config";
-import { eq } from "drizzle-orm";
-import { HttpError } from "../utils/helper/httpError";
 
 //  mocking drizzle instance using manual mocking
 jest.mock("../schema/drizzle-migrate");
@@ -21,7 +21,7 @@ const UserRole = { uuid: uuid.v4(), slug: "test_role" };
 const DefaultPermission = { uuid: uuid.v4(), slug: "default_permission" };
 
 async function insertRole(role: typeof UserRole) {
-  await db.insert(RolesSchema).values({
+  await db.insert(schema.RolesSchema).values({
     name: role.slug,
     slug: role.slug,
     uuid: role.uuid,
@@ -31,7 +31,7 @@ async function insertRole(role: typeof UserRole) {
 }
 
 async function insertPermission(permission: typeof DefaultPermission) {
-  await db.insert(PermissionSchema).values({
+  await db.insert(schema.PermissionSchema).values({
     name: permission.slug,
     slug: permission.slug,
     uuid: permission.uuid,
@@ -49,7 +49,7 @@ describe("Permission Service Testing", () => {
         slug: "test_permission",
       });
 
-      const result = await db.select().from(PermissionSchema);
+      const result = await db.select().from(schema.PermissionSchema);
       expect(result.length).toBe(2);
 
       const permissions = await getAllPermission({
@@ -67,7 +67,7 @@ describe("Permission Service Testing", () => {
         slug: "test_permission",
       });
 
-      const result = await db.select().from(PermissionSchema);
+      const result = await db.select().from(schema.PermissionSchema);
       expect(result.length).toBe(2);
 
       const permissions = await getAllPermission({
@@ -86,7 +86,7 @@ describe("Permission Service Testing", () => {
         slug: "test_permission",
       });
 
-      const result = await db.select().from(PermissionSchema);
+      const result = await db.select().from(schema.PermissionSchema);
       expect(result.length).toBe(2);
 
       const allRoles = await getAllPermission({ limit: 1, skip: 0 }, "test");
@@ -259,7 +259,7 @@ describe("Permission Service Testing", () => {
 
       expect(result).toBeDefined();
 
-      const [permission] = await db.select().from(PermissionSchema).where(eq(PermissionSchema.uuid, DefaultPermission.uuid));
+      const [permission] = await db.select().from(schema.PermissionSchema).where(eq(schema.PermissionSchema.uuid, DefaultPermission.uuid));
 
       expect(permission).not.toBeDefined();
     });
@@ -274,7 +274,10 @@ describe("Permission Service Testing", () => {
         roles: [UserRole.uuid],
       });
 
-      let linkedRoles = await db.select().from(RolesPermissionsSchema).where(eq(RolesPermissionsSchema.permissionUuid, DefaultPermission.uuid));
+      let linkedRoles = await db
+        .select()
+        .from(schema.RolesPermissionsSchema)
+        .where(eq(schema.RolesPermissionsSchema.permissionUuid, DefaultPermission.uuid));
 
       expect(linkedRoles).toHaveLength(1);
       expect(linkedRoles[0].roleUuid).toBe(UserRole.uuid);
@@ -293,7 +296,10 @@ describe("Permission Service Testing", () => {
       // assign role
       await assignRolesToPermission(DefaultPermission.uuid, { roles: [superAdminId] });
 
-      const rolesPermission = await db.select().from(RolesPermissionsSchema).where(eq(RolesPermissionsSchema.permissionUuid, DefaultPermission.uuid));
+      const rolesPermission = await db
+        .select()
+        .from(schema.RolesPermissionsSchema)
+        .where(eq(schema.RolesPermissionsSchema.permissionUuid, DefaultPermission.uuid));
 
       expect(rolesPermission.length).toBe(1);
       expect(rolesPermission[0].roleUuid).toEqual(superAdminId);

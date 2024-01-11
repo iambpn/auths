@@ -5,6 +5,7 @@ import { authsInit, initiateForgotPassword, isAuthenticated, login, requiredPerm
 // adding env variable
 process.env["AUTHS_DB_URI"] = path.join(__dirname, "./dev.sqlite");
 process.env["AUTHS_SECRET"] = "secret_key";
+process.env["AUTHS_DB_DRIVER"] = "sqlite";
 
 const app = express();
 app.use(express.json());

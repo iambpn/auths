@@ -1,15 +1,15 @@
 import { NextFunction, Request, Response, Router } from "express";
-import { isAuthenticated, isAdmin } from "../middleware/auth.middleware";
-import { validate } from "../utils/helper/validate";
-import { GetByIdType, getByIdValidationSchema } from "../utils/validation_schema/cms/getById.validation.schema";
-import { CreateRoleType, createRoleValidationSchema } from "../utils/validation_schema/cms/createRole.validation.schema";
-import { PaginationType, paginationValidationSchema } from "../utils/validation_schema/cms/pagination.validation.schema";
+import { isAdmin, isAuthenticated } from "../middleware/auth.middleware";
 import { assignPermissionsToRole, createRole, deleteRole, getAllRoles, getRoleById, updateRole } from "../service/roles.service";
 import { PaginationQuery } from "../utils/helper/parsePagination";
+import { validate } from "../utils/helper/validate";
 import {
   AssignPermissionToRoleType,
   assignPermissionToRoleValidationSchema,
 } from "../utils/validation_schema/cms/assignPermissionToRole.validation.schema";
+import { CreateRoleType, createRoleValidationSchema } from "../utils/validation_schema/cms/createRole.validation.schema";
+import { GetByIdType, getByIdValidationSchema } from "../utils/validation_schema/cms/getById.validation.schema";
+import { PaginationType, paginationValidationSchema } from "../utils/validation_schema/cms/pagination.validation.schema";
 import {
   SearchQueryType,
   SearchQueryValidationSchema,

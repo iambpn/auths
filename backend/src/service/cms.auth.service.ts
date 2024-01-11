@@ -3,7 +3,7 @@ import { and, desc, eq, gte } from "drizzle-orm";
 import jwt from "jsonwebtoken";
 import * as uuid from "uuid";
 import { db } from "../schema/drizzle-migrate";
-import { ResetPasswordTokenSchema, SecurityQuestionSchema, UserSchema } from "../schema/drizzle-schema";
+import { schema } from "../schema/drizzle-schema";
 import { config } from "../utils/config/app-config";
 import { QuestionsType1, QuestionsType2 } from "../utils/config/securityQuestion.config";
 import { getRandomKey } from "../utils/helper/getRandomKey";
@@ -21,13 +21,13 @@ import { getRoleById, getSuperAdminRole } from "./roles.service";
 export async function loginService(email: string, password: string) {
   const [user] = await db
     .select({
-      email: UserSchema.email,
-      password: UserSchema.password,
-      uuid: UserSchema.uuid,
-      role: UserSchema.role,
+      email: schema.UserSchema.email,
+      password: schema.UserSchema.password,
+      uuid: schema.UserSchema.uuid,
+      role: schema.UserSchema.role,
     })
-    .from(UserSchema)
-    .where(eq(UserSchema.email, email))
+    .from(schema.UserSchema)
+    .where(eq(schema.UserSchema.email, email))
     .limit(1);
 
   if (!user) {
@@ -60,13 +60,13 @@ export async function loginService(email: string, password: string) {
 export async function validateSuperadminEmail(data: ValidateEmailType) {
   const [user] = await db
     .select({
-      email: UserSchema.email,
-      password: UserSchema.password,
-      uuid: UserSchema.uuid,
-      role: UserSchema.role,
+      email: schema.UserSchema.email,
+      password: schema.UserSchema.password,
+      uuid: schema.UserSchema.uuid,
+      role: schema.UserSchema.role,
     })
-    .from(UserSchema)
-    .where(eq(UserSchema.email, data.email))
+    .from(schema.UserSchema)
+    .where(eq(schema.UserSchema.email, data.email))
     .limit(1);
 
   if (!user) {
@@ -79,7 +79,11 @@ export async function validateSuperadminEmail(data: ValidateEmailType) {
     throw new HttpError("Unauthorized", 401);
   }
 
-  const [securityQuestion] = await db.select().from(SecurityQuestionSchema).where(eq(SecurityQuestionSchema.userUuid, user.uuid)).limit(1);
+  const [securityQuestion] = await db
+    .select()
+    .from(schema.SecurityQuestionSchema)
+    .where(eq(schema.SecurityQuestionSchema.userUuid, user.uuid))
+    .limit(1);
 
   if (!securityQuestion) {
     throw new HttpError("Security question is not configured", 400);
@@ -95,13 +99,13 @@ export async function validateSuperadminEmail(data: ValidateEmailType) {
 export async function forgotPasswordService(data: ForgotPasswordType) {
   const [user] = await db
     .select({
-      email: UserSchema.email,
-      password: UserSchema.password,
-      uuid: UserSchema.uuid,
-      role: UserSchema.role,
+      email: schema.UserSchema.email,
+      password: schema.UserSchema.password,
+      uuid: schema.UserSchema.uuid,
+      role: schema.UserSchema.role,
     })
-    .from(UserSchema)
-    .where(eq(UserSchema.email, data.email))
+    .from(schema.UserSchema)
+    .where(eq(schema.UserSchema.email, data.email))
     .limit(1);
 
   if (!user) {
@@ -114,7 +118,11 @@ export async function forgotPasswordService(data: ForgotPasswordType) {
     throw new HttpError("Unauthorized", 401);
   }
 
-  const [securityQuestion] = await db.select().from(SecurityQuestionSchema).where(eq(SecurityQuestionSchema.userUuid, user.uuid)).limit(1);
+  const [securityQuestion] = await db
+    .select()
+    .from(schema.SecurityQuestionSchema)
+    .where(eq(schema.SecurityQuestionSchema.userUuid, user.uuid))
+    .limit(1);
 
   if (
     !securityQuestion ||
@@ -127,24 +135,24 @@ export async function forgotPasswordService(data: ForgotPasswordType) {
   // disable previous token
   const [prevToken] = await db
     .select()
-    .from(ResetPasswordTokenSchema)
-    .where(eq(ResetPasswordTokenSchema.userUuid, user.uuid))
-    .orderBy(desc(ResetPasswordTokenSchema.createdAt))
+    .from(schema.ResetPasswordTokenSchema)
+    .where(eq(schema.ResetPasswordTokenSchema.userUuid, user.uuid))
+    .orderBy(desc(schema.ResetPasswordTokenSchema.createdAt))
     .limit(1);
 
   if (prevToken) {
     await db
-      .update(ResetPasswordTokenSchema)
+      .update(schema.ResetPasswordTokenSchema)
       .set({
         expiresAt: new Date(),
       })
-      .where(eq(ResetPasswordTokenSchema.uuid, prevToken.uuid));
+      .where(eq(schema.ResetPasswordTokenSchema.uuid, prevToken.uuid));
   }
 
   // add new token
   const token = getRandomKey(16);
   const [resetToken] = await db
-    .insert(ResetPasswordTokenSchema)
+    .insert(schema.ResetPasswordTokenSchema)
     .values({
       uuid: uuid.v4(),
       createdAt: new Date(),
@@ -164,16 +172,16 @@ export async function forgotPasswordService(data: ForgotPasswordType) {
 export async function resetPassword(data: ResetPasswordValidationType) {
   const [token] = await db
     .select()
-    .from(ResetPasswordTokenSchema)
-    .where(and(eq(ResetPasswordTokenSchema.token, data.token), gte(ResetPasswordTokenSchema.expiresAt, new Date())))
-    .orderBy(desc(ResetPasswordTokenSchema.createdAt))
+    .from(schema.ResetPasswordTokenSchema)
+    .where(and(eq(schema.ResetPasswordTokenSchema.token, data.token), gte(schema.ResetPasswordTokenSchema.expiresAt, new Date())))
+    .orderBy(desc(schema.ResetPasswordTokenSchema.createdAt))
     .limit(1);
 
   if (!token) {
     throw new HttpError("Invalid Reset Token", 400);
   }
 
-  const [user] = await db.select().from(UserSchema).where(eq(UserSchema.uuid, token.userUuid)).limit(1);
+  const [user] = await db.select().from(schema.UserSchema).where(eq(schema.UserSchema.uuid, token.userUuid)).limit(1);
 
   if (!user) {
     throw new HttpError("User not found", 404);
@@ -181,20 +189,20 @@ export async function resetPassword(data: ResetPasswordValidationType) {
 
   // disable used token
   await db
-    .update(ResetPasswordTokenSchema)
+    .update(schema.ResetPasswordTokenSchema)
     .set({
       expiresAt: new Date(),
     })
-    .where(eq(ResetPasswordTokenSchema.uuid, token.uuid));
+    .where(eq(schema.ResetPasswordTokenSchema.uuid, token.uuid));
 
   // update password
   const newPasswordHash = await bcrypt.hash(data.newPassword, config.hashRounds());
   await db
-    .update(UserSchema)
+    .update(schema.UserSchema)
     .set({
       password: newPasswordHash,
     })
-    .where(eq(UserSchema.uuid, user.uuid));
+    .where(eq(schema.UserSchema.uuid, user.uuid));
 
   return {
     message: "Password changed successfully",
@@ -209,7 +217,7 @@ export function getSecurityQuestions() {
 }
 
 export async function setInitialSecurityQuestion(data: SetSecurityQnAType, currentUser: CmsRequestUser) {
-  const [user] = await db.select().from(UserSchema).where(eq(UserSchema.uuid, currentUser.uuid)).limit(1);
+  const [user] = await db.select().from(schema.UserSchema).where(eq(schema.UserSchema.uuid, currentUser.uuid)).limit(1);
 
   if (!user) {
     throw new HttpError("User not found", 404);
@@ -222,7 +230,7 @@ export async function setInitialSecurityQuestion(data: SetSecurityQnAType, curre
   const encryptAnswer1 = await bcrypt.hash(data.answer1, config.hashRounds());
   const encryptAnswer2 = await bcrypt.hash(data.answer2, config.hashRounds());
 
-  await db.insert(SecurityQuestionSchema).values({
+  await db.insert(schema.SecurityQuestionSchema).values({
     answer1: encryptAnswer1,
     answer2: encryptAnswer2,
     question1: data.question1,
@@ -234,11 +242,11 @@ export async function setInitialSecurityQuestion(data: SetSecurityQnAType, curre
   });
 
   await db
-    .update(UserSchema)
+    .update(schema.UserSchema)
     .set({
       isRecoverable: true,
     })
-    .where(eq(UserSchema.uuid, user.uuid));
+    .where(eq(schema.UserSchema.uuid, user.uuid));
 
   return {
     message: "Security Question added successfully",
@@ -246,7 +254,7 @@ export async function setInitialSecurityQuestion(data: SetSecurityQnAType, curre
 }
 
 export async function updateSecurityQuestion(data: UpdateSecurityQnAType, currentUser: CmsRequestUser) {
-  const [user] = await db.select().from(UserSchema).where(eq(UserSchema.uuid, currentUser.uuid)).limit(1);
+  const [user] = await db.select().from(schema.UserSchema).where(eq(schema.UserSchema.uuid, currentUser.uuid)).limit(1);
 
   if (!user) {
     throw new HttpError("User not found", 404);
@@ -260,7 +268,7 @@ export async function updateSecurityQuestion(data: UpdateSecurityQnAType, curren
   const encryptAnswer2 = await bcrypt.hash(data.answer2, config.hashRounds());
 
   if (!user.isRecoverable) {
-    await db.insert(SecurityQuestionSchema).values({
+    await db.insert(schema.SecurityQuestionSchema).values({
       answer1: encryptAnswer1,
       answer2: encryptAnswer2,
       question1: data.question1,
@@ -272,11 +280,11 @@ export async function updateSecurityQuestion(data: UpdateSecurityQnAType, curren
     });
 
     await db
-      .update(UserSchema)
+      .update(schema.UserSchema)
       .set({
         isRecoverable: true,
       })
-      .where(eq(UserSchema.uuid, user.uuid));
+      .where(eq(schema.UserSchema.uuid, user.uuid));
 
     return {
       message: "Security QnA added successfully",
@@ -284,9 +292,9 @@ export async function updateSecurityQuestion(data: UpdateSecurityQnAType, curren
   }
 
   await db
-    .update(SecurityQuestionSchema)
+    .update(schema.SecurityQuestionSchema)
     .set({ answer1: encryptAnswer1, answer2: encryptAnswer2, question1: data.question1, question2: data.question2, updatedAt: new Date() })
-    .where(eq(SecurityQuestionSchema.userUuid, user.uuid));
+    .where(eq(schema.SecurityQuestionSchema.userUuid, user.uuid));
 
   return {
     message: "Security QnA updated successfully",
@@ -294,7 +302,7 @@ export async function updateSecurityQuestion(data: UpdateSecurityQnAType, curren
 }
 
 export async function updatePassword(data: UpdatePasswordValidationType, currentUser: CmsRequestUser) {
-  const [user] = await db.select().from(UserSchema).where(eq(UserSchema.uuid, currentUser.uuid)).limit(1);
+  const [user] = await db.select().from(schema.UserSchema).where(eq(schema.UserSchema.uuid, currentUser.uuid)).limit(1);
 
   if (!user) {
     throw new HttpError("User not found", 404);
@@ -306,11 +314,11 @@ export async function updatePassword(data: UpdatePasswordValidationType, current
 
   const encryptPassword = await bcrypt.hash(data.newPassword, config.hashRounds());
   await db
-    .update(UserSchema)
+    .update(schema.UserSchema)
     .set({
       password: encryptPassword,
     })
-    .where(eq(UserSchema.uuid, currentUser.uuid));
+    .where(eq(schema.UserSchema.uuid, currentUser.uuid));
 
   return {
     message: "Password updated successfully",

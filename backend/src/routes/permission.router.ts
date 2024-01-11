@@ -4,9 +4,20 @@ import { validate } from "../utils/helper/validate";
 import { CreatePermissionType, createPermissionValidationSchema } from "../utils/validation_schema/cms/createPermission.validation.schema";
 import { GetByIdType, getByIdValidationSchema } from "../utils/validation_schema/cms/getById.validation.schema";
 import { PaginationType, paginationValidationSchema } from "../utils/validation_schema/cms/pagination.validation.schema";
-import { assignRolesToPermission, createPermission, deletePermission, getAllPermission, getPermissionById, getRolesByPermission, updatePermission } from "../service/permission.service";
+import {
+  assignRolesToPermission,
+  createPermission,
+  deletePermission,
+  getAllPermission,
+  getPermissionById,
+  getRolesByPermission,
+  updatePermission,
+} from "../service/permission.service";
 import { PaginationQuery } from "../utils/helper/parsePagination";
-import { AssignRoleToPermissionType, assignRoleToPermissionValidationSchema } from "../utils/validation_schema/cms/assignRoleToPermission.validation.schema";
+import {
+  AssignRoleToPermissionType,
+  assignRoleToPermissionValidationSchema,
+} from "../utils/validation_schema/cms/assignRoleToPermission.validation.schema";
 import { SearchQueryValidationSchema, SearchQueryType } from "../utils/validation_schema/cms/queryParams.validation.schema";
 
 export const PermissionRouter = Router();
@@ -46,25 +57,37 @@ PermissionRouter.get(
   }
 );
 
-PermissionRouter.get("/:id", isAuthenticated, isAdmin, validate(getByIdValidationSchema, "params"), async (req: Request<GetByIdType>, res: Response, next: NextFunction) => {
-  try {
-    const params = req.params;
-    const result = await getPermissionById(params.id);
-    return res.status(200).json(result);
-  } catch (error: unknown) {
-    next(error);
+PermissionRouter.get(
+  "/:id",
+  isAuthenticated,
+  isAdmin,
+  validate(getByIdValidationSchema, "params"),
+  async (req: Request<GetByIdType>, res: Response, next: NextFunction) => {
+    try {
+      const params = req.params;
+      const result = await getPermissionById(params.id);
+      return res.status(200).json(result);
+    } catch (error: unknown) {
+      next(error);
+    }
   }
-});
+);
 
-PermissionRouter.post("/", isAuthenticated, isAdmin, validate(createPermissionValidationSchema), async (req: Request<any, any, CreatePermissionType>, res: Response, next: NextFunction) => {
-  try {
-    const body = req.body;
-    const result = await createPermission(body);
-    return res.status(201).json(result);
-  } catch (error: unknown) {
-    next(error);
+PermissionRouter.post(
+  "/",
+  isAuthenticated,
+  isAdmin,
+  validate(createPermissionValidationSchema),
+  async (req: Request<any, any, CreatePermissionType>, res: Response, next: NextFunction) => {
+    try {
+      const body = req.body;
+      const result = await createPermission(body);
+      return res.status(201).json(result);
+    } catch (error: unknown) {
+      next(error);
+    }
   }
-});
+);
 
 PermissionRouter.put(
   "/:id",
@@ -85,16 +108,22 @@ PermissionRouter.put(
   }
 );
 
-PermissionRouter.delete("/:id", isAuthenticated, isAdmin, validate(getByIdValidationSchema, "params"), async (req: Request<GetByIdType>, res: Response, next: NextFunction) => {
-  try {
-    const params = req.params;
+PermissionRouter.delete(
+  "/:id",
+  isAuthenticated,
+  isAdmin,
+  validate(getByIdValidationSchema, "params"),
+  async (req: Request<GetByIdType>, res: Response, next: NextFunction) => {
+    try {
+      const params = req.params;
 
-    const result = await deletePermission(params.id);
-    return res.status(200).json(result);
-  } catch (error) {
-    next(error);
+      const result = await deletePermission(params.id);
+      return res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 PermissionRouter.post(
   "/assignRoles/:id",

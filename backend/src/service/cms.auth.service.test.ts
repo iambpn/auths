@@ -3,12 +3,7 @@ import { eq } from "drizzle-orm";
 import * as jwt from "jsonwebtoken";
 import * as uuid from "uuid";
 import { db } from "../schema/__mocks__/drizzle-migrate";
-import {
-  ResetPasswordTokenSchema,
-  RolesSchema,
-  SecurityQuestionSchema,
-  UserSchema
-} from "../schema/drizzle-schema";
+import { schema } from "../schema/drizzle-schema";
 import { config } from "../utils/config/app-config";
 import { HttpError } from "../utils/helper/httpError";
 import {
@@ -33,7 +28,7 @@ async function hashPassword(password: string) {
 }
 
 async function insertUser(email: string, password: string, roleId?: string) {
-  await db.insert(UserSchema).values({
+  await db.insert(schema.UserSchema).values({
     email,
     role: roleId ?? uuid.v4(),
     password: await hashPassword(password),
@@ -42,13 +37,13 @@ async function insertUser(email: string, password: string, roleId?: string) {
     updatedAt: new Date(),
   });
 
-  const user = await db.select().from(UserSchema).where(eq(UserSchema.email, email)).limit(1);
+  const user = await db.select().from(schema.UserSchema).where(eq(schema.UserSchema.email, email)).limit(1);
 
   return user[0];
 }
 
 async function insertRole(role: typeof UserRole) {
-  await db.insert(RolesSchema).values({
+  await db.insert(schema.RolesSchema).values({
     name: role.slug,
     slug: role.slug,
     uuid: role.uuid,
@@ -301,13 +296,19 @@ describe("CMS Auth Service Testing", () => {
 
       const token = await forgotPasswordService({ email: Email, answer1: "name", answer2: "name" });
 
-      const lastResetPasswordToken = await db.select().from(ResetPasswordTokenSchema).where(eq(ResetPasswordTokenSchema.token, token.token));
+      const lastResetPasswordToken = await db
+        .select()
+        .from(schema.ResetPasswordTokenSchema)
+        .where(eq(schema.ResetPasswordTokenSchema.token, token.token));
 
       expect(token.expiresAt.getTime()).toBeGreaterThan(Date.now());
       expect(token.expiresAt).toEqual(lastResetPasswordToken[0].expiresAt);
 
       const token2 = await forgotPasswordService({ email: Email, answer1: "name", answer2: "name" });
-      const previousResetPasswordToken = await db.select().from(ResetPasswordTokenSchema).where(eq(ResetPasswordTokenSchema.token, token.token));
+      const previousResetPasswordToken = await db
+        .select()
+        .from(schema.ResetPasswordTokenSchema)
+        .where(eq(schema.ResetPasswordTokenSchema.token, token.token));
 
       expect(token2.expiresAt.getTime()).toBeGreaterThan(Date.now());
 
@@ -388,7 +389,7 @@ describe("CMS Auth Service Testing", () => {
         }
         expect(error.statusCode).toBe(400);
 
-        const token = await db.select().from(ResetPasswordTokenSchema).where(eq(ResetPasswordTokenSchema.userUuid, user.uuid));
+        const token = await db.select().from(schema.ResetPasswordTokenSchema).where(eq(schema.ResetPasswordTokenSchema.userUuid, user.uuid));
 
         expect(token[0].expiresAt.getTime()).toBeLessThan(Date.now());
       }
@@ -418,7 +419,7 @@ describe("CMS Auth Service Testing", () => {
       const token = await forgotPasswordService({ email: Email, answer1: "name", answer2: "name" });
       await resetPassword({ token: token.token, newPassword: newPassword });
 
-      const updatePasswordUser = await db.select().from(UserSchema).where(eq(UserSchema.uuid, user.uuid));
+      const updatePasswordUser = await db.select().from(schema.UserSchema).where(eq(schema.UserSchema.uuid, user.uuid));
 
       expect(updatePasswordUser[0].password).not.toEqual(user.password);
       expect(await bcrypt.compare(newPassword, updatePasswordUser[0].password)).toEqual(true);
@@ -503,7 +504,7 @@ describe("CMS Auth Service Testing", () => {
         { uuid: user.uuid } as any
       );
 
-      const questions = await db.select().from(SecurityQuestionSchema).where(eq(SecurityQuestionSchema.userUuid, user.uuid));
+      const questions = await db.select().from(schema.SecurityQuestionSchema).where(eq(schema.SecurityQuestionSchema.userUuid, user.uuid));
 
       expect(questions.length).toBe(1);
       expect(await bcrypt.compare("none", questions[0].answer1)).toEqual(true);
@@ -584,7 +585,7 @@ describe("CMS Auth Service Testing", () => {
         { uuid: user.uuid } as any
       );
 
-      const questions = await db.select().from(SecurityQuestionSchema).where(eq(SecurityQuestionSchema.userUuid, user.uuid));
+      const questions = await db.select().from(schema.SecurityQuestionSchema).where(eq(schema.SecurityQuestionSchema.userUuid, user.uuid));
 
       expect(questions.length).toBe(1);
       expect(await bcrypt.compare("none", questions[0].answer1)).toEqual(true);
@@ -620,7 +621,7 @@ describe("CMS Auth Service Testing", () => {
         { uuid: user.uuid } as any
       );
 
-      const questions = await db.select().from(SecurityQuestionSchema).where(eq(SecurityQuestionSchema.userUuid, user.uuid));
+      const questions = await db.select().from(schema.SecurityQuestionSchema).where(eq(schema.SecurityQuestionSchema.userUuid, user.uuid));
 
       expect(questions.length).toBe(1);
       expect(await bcrypt.compare("none", questions[0].answer1)).toEqual(true);
@@ -695,7 +696,7 @@ describe("CMS Auth Service Testing", () => {
         { uuid: user.uuid } as any
       );
 
-      const updatedUser = await db.select().from(UserSchema).where(eq(UserSchema.uuid, user.uuid));
+      const updatedUser = await db.select().from(schema.UserSchema).where(eq(schema.UserSchema.uuid, user.uuid));
 
       expect(await bcrypt.compare(Password, updatedUser[0].password)).toEqual(false);
     });

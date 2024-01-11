@@ -1,7 +1,9 @@
-import { db } from "../schema/__mocks__/drizzle-migrate";
+import { eq } from "drizzle-orm";
 import * as uuid from "uuid";
-import { PermissionSchema, RolesPermissionsSchema, RolesSchema, UserSchema } from "../schema/drizzle-schema";
+import { db } from "../schema/__mocks__/drizzle-migrate";
+import { schema } from "../schema/drizzle-schema";
 import { config } from "../utils/config/app-config";
+import { HttpError } from "../utils/helper/httpError";
 import {
   assignPermissionsToRole,
   createRole,
@@ -12,8 +14,6 @@ import {
   getSuperAdminRole,
   updateRole,
 } from "./roles.service";
-import { HttpError } from "../utils/helper/httpError";
-import { eq } from "drizzle-orm";
 
 //  mocking drizzle instance using manual mocking
 jest.mock("../schema/drizzle-migrate");
@@ -22,7 +22,7 @@ const UserRole = { uuid: uuid.v4(), slug: "test_role" };
 const DefaultPermission = { uuid: uuid.v4(), slug: "default_permission" };
 
 async function insertRole(role: typeof UserRole) {
-  await db.insert(RolesSchema).values({
+  await db.insert(schema.RolesSchema).values({
     name: role.slug,
     slug: role.slug,
     uuid: role.uuid,
@@ -32,7 +32,7 @@ async function insertRole(role: typeof UserRole) {
 }
 
 async function insertPermission(permission: typeof DefaultPermission) {
-  await db.insert(PermissionSchema).values({
+  await db.insert(schema.PermissionSchema).values({
     name: permission.slug,
     slug: permission.slug,
     uuid: permission.uuid,
@@ -50,7 +50,7 @@ describe("Role Service Testing", () => {
         uuid: uuid.v4(),
       });
 
-      const result = await db.select().from(RolesSchema);
+      const result = await db.select().from(schema.RolesSchema);
       expect(result.length).toBe(2);
 
       const allRoles = await getAllRoles({ limit: 1, skip: 0 });
@@ -65,7 +65,7 @@ describe("Role Service Testing", () => {
         uuid: uuid.v4(),
       });
 
-      const result = await db.select().from(RolesSchema);
+      const result = await db.select().from(schema.RolesSchema);
       expect(result.length).toBe(2);
 
       const allRoles = await getAllRoles({ limit: 1, skip: 1 });
@@ -81,7 +81,7 @@ describe("Role Service Testing", () => {
         uuid: uuid.v4(),
       });
 
-      const result = await db.select().from(RolesSchema);
+      const result = await db.select().from(schema.RolesSchema);
       expect(result.length).toBe(2);
 
       const allRoles = await getAllRoles({ limit: 1, skip: 0 }, "super");
@@ -101,7 +101,7 @@ describe("Role Service Testing", () => {
 
       await assignPermissionsToRole(UserRole.uuid, { permissions: [DefaultPermission.uuid] });
 
-      const result = await db.select().from(RolesSchema);
+      const result = await db.select().from(schema.RolesSchema);
       expect(result.length).toBe(2);
 
       const allRoles = await getAllRoles({ limit: 1, skip: 0 }, "test", "true");
@@ -281,7 +281,7 @@ describe("Role Service Testing", () => {
     it("Should not allow to delete role that are in use", async () => {
       await insertRole(UserRole);
 
-      await db.insert(UserSchema).values({
+      await db.insert(schema.UserSchema).values({
         password: "123456",
         email: "abc@gmail.com",
         role: UserRole.uuid,
@@ -307,7 +307,7 @@ describe("Role Service Testing", () => {
 
       expect(result).toBeDefined();
 
-      const [role] = await db.select().from(RolesSchema).where(eq(RolesSchema.uuid, UserRole.uuid));
+      const [role] = await db.select().from(schema.RolesSchema).where(eq(schema.RolesSchema.uuid, UserRole.uuid));
 
       expect(role).not.toBeDefined();
     });
@@ -316,7 +316,7 @@ describe("Role Service Testing", () => {
       await insertRole(UserRole);
 
       const permissionUuid = uuid.v4();
-      await db.insert(PermissionSchema).values({
+      await db.insert(schema.PermissionSchema).values({
         name: "read",
         slug: "read",
         uuid: permissionUuid,
@@ -328,14 +328,14 @@ describe("Role Service Testing", () => {
         permissions: [permissionUuid],
       });
 
-      let linkedPermission = await db.select().from(RolesPermissionsSchema).where(eq(RolesPermissionsSchema.roleUuid, UserRole.uuid));
+      let linkedPermission = await db.select().from(schema.RolesPermissionsSchema).where(eq(schema.RolesPermissionsSchema.roleUuid, UserRole.uuid));
 
       expect(linkedPermission).toHaveLength(1);
       expect(linkedPermission[0].permissionUuid).toBe(permissionUuid);
 
       await deleteRole(UserRole.uuid);
 
-      linkedPermission = await db.select().from(RolesPermissionsSchema).where(eq(RolesPermissionsSchema.roleUuid, UserRole.uuid));
+      linkedPermission = await db.select().from(schema.RolesPermissionsSchema).where(eq(schema.RolesPermissionsSchema.roleUuid, UserRole.uuid));
 
       expect(linkedPermission).toHaveLength(0);
     });
@@ -346,7 +346,7 @@ describe("Role Service Testing", () => {
       await insertRole(UserRole);
 
       const permissionUuid = uuid.v4();
-      await db.insert(PermissionSchema).values({
+      await db.insert(schema.PermissionSchema).values({
         name: "read",
         slug: "read",
         uuid: permissionUuid,
@@ -358,7 +358,7 @@ describe("Role Service Testing", () => {
         permissions: [permissionUuid],
       });
 
-      let linkedPermission = await db.select().from(RolesPermissionsSchema).where(eq(RolesPermissionsSchema.roleUuid, UserRole.uuid));
+      let linkedPermission = await db.select().from(schema.RolesPermissionsSchema).where(eq(schema.RolesPermissionsSchema.roleUuid, UserRole.uuid));
 
       expect(linkedPermission).toHaveLength(1);
       expect(linkedPermission[0].permissionUuid).toBe(permissionUuid);
@@ -368,7 +368,7 @@ describe("Role Service Testing", () => {
       await insertRole(UserRole);
 
       const permissionUuid = uuid.v4();
-      await db.insert(PermissionSchema).values({
+      await db.insert(schema.PermissionSchema).values({
         name: "read",
         slug: "read",
         uuid: permissionUuid,
@@ -382,7 +382,7 @@ describe("Role Service Testing", () => {
       });
 
       const permissionUuid2 = uuid.v4();
-      await db.insert(PermissionSchema).values({
+      await db.insert(schema.PermissionSchema).values({
         name: "write",
         slug: "write",
         uuid: permissionUuid2,
@@ -394,7 +394,7 @@ describe("Role Service Testing", () => {
         permissions: [permissionUuid2],
       });
 
-      let linkedPermission = await db.select().from(RolesPermissionsSchema).where(eq(RolesPermissionsSchema.roleUuid, UserRole.uuid));
+      let linkedPermission = await db.select().from(schema.RolesPermissionsSchema).where(eq(schema.RolesPermissionsSchema.roleUuid, UserRole.uuid));
 
       expect(linkedPermission).toHaveLength(1);
       expect(linkedPermission[0].permissionUuid).toBe(permissionUuid2);

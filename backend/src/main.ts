@@ -1,17 +1,18 @@
-import express, { type NextFunction, type Request, type Response, type Express } from "express";
+import express, { type Express, type NextFunction, type Request, type Response } from "express";
 import * as path from "path";
+import url from "url";
 import { z } from "zod";
-import { AuthsRouter } from "./routes/exposed/auth.router";
-import { migrateDB } from "./schema/drizzle-migrate";
-import { HttpError } from "./utils/helper/httpError";
-import { ErrorResponse } from "./utils/types/errorResponse";
-import { ENV_VARS, validateEnv } from "./service/env.service";
-import { runSeed } from "./service/seed.service";
 import { CmsAuthRouter } from "./routes/cms.auth.router";
+import { AuthsRouter } from "./routes/exposed/auth.router";
 import { PermissionRouter } from "./routes/permission.router";
 import { RolesRouter } from "./routes/roles.router";
-import url from "url";
 import { UsersRouter } from "./routes/users.router";
+import { migrateDB } from "./schema/drizzle-migrate";
+import { initializeSchema } from "./schema/drizzle-schema";
+import { ENV_VARS, validateEnv } from "./service/env.service";
+import { runSeed } from "./service/seed.service";
+import { HttpError } from "./utils/helper/httpError";
+import { ErrorResponse } from "./utils/types/errorResponse";
 
 const FRONTEND_PATH = path.join(__dirname, "..", "public", "frontend", "build");
 
@@ -22,6 +23,9 @@ export function authsInit(app: Express, permissionFilePath?: string) {
   // Body parser
   app.use(express.urlencoded({ extended: true, limit: 5 * 1024 }));
   app.use(express.json());
+
+  // Initialize Schema according to Driver
+  initializeSchema();
 
   // Migrate and instantiate db
   migrateDB(ENV_VARS.AUTHS_DB_URI);
@@ -80,6 +84,7 @@ export function authsInit(app: Express, permissionFilePath?: string) {
   });
 }
 
-export { signUpFn as signup, loginFn as login, validateUser, initiateForgotPasswordFn as initiateForgotPassword } from "./service/auth.service";
 export { isAuthenticated, requiredPermissions } from "./middleware/auth.middleware";
+export { initiateForgotPasswordFn as initiateForgotPassword, loginFn as login, signUpFn as signup, validateUser } from "./service/auth.service";
 export type { AuthsRequestUser } from "./utils/types/req.user.type";
+

@@ -16,7 +16,7 @@ import { handleError } from "@/lib/handleError";
 
 const word_with_underscore_regex = /[^a-zA-Z0-9_]/;
 
-const PermissionSchema = z.object({
+const schema.PermissionSchema = z.object({
   name: z
     .string({
       required_error: "Permission name is required",
@@ -41,7 +41,7 @@ const PermissionSchema = z.object({
   selectedRoles: z.string().optional(),
 });
 
-export type PermissionType = z.infer<typeof PermissionSchema>;
+export type PermissionType = z.infer<typeof schema.PermissionSchema>;
 
 type Props = {
   defaultValue?: Omit<PermissionType, "selectedRoles">;
@@ -56,7 +56,7 @@ export function PermissionForm(props: Props) {
   const debouncedKeyword = useDebouncedValue(searchKeyword, 300);
 
   const form = useForm<PermissionType>({
-    resolver: zodResolver(PermissionSchema),
+    resolver: zodResolver(schema.PermissionSchema),
     defaultValues: {
       name: props.defaultValue ? props.defaultValue.name : "",
       slug: props.defaultValue ? props.defaultValue.slug : "",
