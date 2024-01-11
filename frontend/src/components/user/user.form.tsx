@@ -64,7 +64,7 @@ export function UserFrom(props: Props) {
   const debouncedKeyword = useDebouncedValue(searchKeyword, 300);
 
   const form = useForm<UserType>({
-    resolver: zodResolver(props.defaultValue ? schema.partial({ password: true, confirmPassword: true }) : UserSchema),
+    resolver: zodResolver(props.defaultValue ? schema.omit({ password: true, confirmPassword: true }) : UserSchema),
     defaultValues: {
       email: props.defaultValue ? props.defaultValue.email : "",
       role: props.role?.uuid ?? "",
@@ -168,32 +168,36 @@ export function UserFrom(props: Props) {
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name='password'
-            render={({ field }) => (
-              <FormItem>
-                <Label>Password</Label>
-                <FormControl>
-                  <Input type='password' placeholder='********' {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name='confirmPassword'
-            render={({ field }) => (
-              <FormItem>
-                <Label>Confirm Password</Label>
-                <FormControl>
-                  <Input type='password' placeholder='********' {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {!props.defaultValue && (
+            <>
+              <FormField
+                control={form.control}
+                name='password'
+                render={({ field }) => (
+                  <FormItem>
+                    <Label>Password</Label>
+                    <FormControl>
+                      <Input type='password' placeholder='********' {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='confirmPassword'
+                render={({ field }) => (
+                  <FormItem>
+                    <Label>Confirm Password</Label>
+                    <FormControl>
+                      <Input type='password' placeholder='********' {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
+          )}
           <div className='space-y-2'>
             <Label>Assign Role</Label>
             <SearchBox
