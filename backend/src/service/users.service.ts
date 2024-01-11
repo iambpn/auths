@@ -36,7 +36,7 @@ export async function getAllUsers(paginationQuery: ReturnType<typeof PaginationQ
 }
 
 export async function getUserById(id: string) {
-  const user = await db
+  const [user] = await db
     .select({
       uuid: UserSchema.uuid,
       email: UserSchema.email,
@@ -53,20 +53,20 @@ export async function getUserById(id: string) {
     throw new HttpError("User Not found", 404);
   }
 
-  const role = await db.select().from(RolesSchema).where(eq(RolesSchema.uuid, user[0].role)).limit(1);
-  return { ...user[0], role: role[0] };
+  const [role] = await db.select().from(RolesSchema).where(eq(RolesSchema.uuid, user.role)).limit(1);
+  return { ...user, role: role };
 }
 
 export async function updateUser(userData: UpdateUserType, id: string) {
-  const user = await db.select().from(UserSchema).where(eq(UserSchema.uuid, id)).limit(1);
+  const [user] = await db.select().from(UserSchema).where(eq(UserSchema.uuid, id)).limit(1);
 
   if (!user) {
     throw new HttpError("User Not found", 404);
   }
 
-  const existingUser = await db.select({ uuid: UserSchema.uuid }).from(UserSchema).where(eq(UserSchema.email, userData.email)).limit(1);
+  const [existingUser] = await db.select({ uuid: UserSchema.uuid }).from(UserSchema).where(eq(UserSchema.email, userData.email)).limit(1);
 
-  if (existingUser && existingUser[0].uuid !== id) {
+  if (existingUser && existingUser.uuid !== id) {
     throw new HttpError("User with this email already exists", 400);
   }
 
@@ -77,12 +77,12 @@ export async function updateUser(userData: UpdateUserType, id: string) {
 
   await db.update(UserSchema).set(updateData).where(eq(UserSchema.uuid, id));
 
-  const updatedUser = await getUserById(user[0].uuid);
+  const updatedUser = await getUserById(user.uuid);
   return updatedUser;
 }
 
 export async function deleteUser(id: string) {
-  const user = await db
+  const [user] = await db
     .select({
       email: UserSchema.email,
       uuid: UserSchema.uuid,
