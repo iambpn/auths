@@ -4,8 +4,9 @@ import { closeDBConnection, migrateDB } from "../dbSchema/drizzle-migrate";
 import { initializeSchema } from "../dbSchema/drizzle-schema";
 import { ENV_VARS, validateEnv } from "../service/env.service";
 import { TEST_DB_CONFIG } from "./dbConfig";
+import { NodePgDatabase } from "drizzle-orm/node-postgres";
 
-export let db: BetterSQLite3Database;
+export let db: NodePgDatabase;
 
 declare global {
   namespace NodeJS {
@@ -45,7 +46,7 @@ beforeAll(() => {
 });
 
 beforeEach(async () => {
-  db = await migrateDB(ENV_VARS.AUTHS_DB_DRIVER, `drizzle/${ENV_VARS.AUTHS_DB_DRIVER}`);
+  db = await migrateDB(ENV_VARS.AUTHS_DB_DRIVER, `drizzle/${ENV_VARS.AUTHS_DB_DRIVER}`, false);
 });
 
 afterEach(async () => {

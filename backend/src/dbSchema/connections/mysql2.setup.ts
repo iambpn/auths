@@ -12,7 +12,8 @@ let client: Connection;
  */
 export async function migrateMysql2Connection(
   config: { host: string; port: number; user: string; password: string; dbName: string },
-  migration_folder_path: string
+  migration_folder_path: string,
+  logger = false
 ) {
   client = await mysql.createConnection({
     host: config.host,
@@ -23,7 +24,7 @@ export async function migrateMysql2Connection(
   });
 
   await client.connect();
-  const db = drizzle(client);
+  const db = drizzle(client, { logger: logger });
 
   await migrate(db, { migrationsFolder: migration_folder_path, migrationsTable: "drizzle_migrations" });
 

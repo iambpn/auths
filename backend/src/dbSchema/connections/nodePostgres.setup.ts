@@ -12,9 +12,10 @@ let client: Client;
  */
 export async function migrateNodePostgresConnection(
   config: { host: string; port: number; user: string; password: string; dbName: string },
-  migration_folder_path: string
+  migration_folder_path: string,
+  logger = false
 ) {
-  const client = new Client({
+  client = new Client({
     host: config.host,
     port: config.port,
     user: config.user,
@@ -23,7 +24,7 @@ export async function migrateNodePostgresConnection(
   });
 
   await client.connect();
-  const db = drizzle(client);
+  const db = drizzle(client, { logger: logger });
 
   await migrate(db, { migrationsFolder: migration_folder_path, migrationsTable: "drizzle_migrations" });
 
@@ -32,11 +33,9 @@ export async function migrateNodePostgresConnection(
 
 export async function closeNodePostgresConnection(truncateTable: Boolean = false) {
   if (client) {
-    await client.end();
-
     if (truncateTable) {
       const query = await client.query(
-        `SELECT 'TRUNCATE ' || input_table_name || ' CASCADE;' AS truncate_query FROM(SELECT table_schema || '.' || table_name AS input_table_name FROM information_schema.tables WHERE table_schema NOT IN ('pg_catalog', 'information_schema') AND table_schema NOT LIKE 'pg_toast%') AS information;`
+        `SELECT 'TRUNCATE ' || input_table_name || ' CASCADE;' AS truncate_query FROM(SELECT table_schema || '.' || '"' ||table_name || '"' AS input_table_name FROM information_schema.tables WHERE table_schema NOT IN ('pg_catalog', 'information_schema') AND table_schema NOT LIKE 'pg_toast%') AS information;`
       );
       await Promise.all(
         query.rows.map(async (row) => {
@@ -44,5 +43,7 @@ export async function closeNodePostgresConnection(truncateTable: Boolean = false
         })
       );
     }
+
+    await client.end();
   }
 }

@@ -5,9 +5,10 @@ import { ENV_VARS } from "../service/env.service";
 import { closeBetterSqLiteConnection, migrateBetterSqLiteConnection } from "./connections/betterSqlite.setup";
 import { closeMysql2Connection, migrateMysql2Connection } from "./connections/mysql2.setup";
 import { closeNodePostgresConnection, migrateNodePostgresConnection } from "./connections/nodePostgres.setup";
+import { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 // Forcing DB instance to be Sqlite because of ts lint issue
-export let db: BetterSQLite3Database;
+export let db: NodePgDatabase;
 
 /**
  * Instantiate and migrate db
@@ -15,7 +16,7 @@ export let db: BetterSQLite3Database;
  * @param migration_folder_path
  * @returns db instance
  */
-export async function migrateDB(driver: ArrayToIntersection<Auths_DB_Driver>, migration_folder_path: string) {
+export async function migrateDB(driver: ArrayToIntersection<Auths_DB_Driver>, migration_folder_path: string, logger = false) {
   console.log("\n** Migrating DB using Drizzle Kit.");
 
   const dbConfig = {
@@ -27,13 +28,14 @@ export async function migrateDB(driver: ArrayToIntersection<Auths_DB_Driver>, mi
   };
 
   if (driver === "better-sqlite") {
-    db = await migrateBetterSqLiteConnection(ENV_VARS.AUTHS_DB_URI!, migration_folder_path);
+    const betterSqliteDb = await migrateBetterSqLiteConnection(ENV_VARS.AUTHS_DB_URI!, migration_folder_path, logger);
+    db = betterSqliteDb as unknown as typeof db;
   } else if (driver === "node-postgres") {
-    const nodePostgresDb = await migrateNodePostgresConnection(dbConfig, migration_folder_path);
-    db = nodePostgresDb as unknown as BetterSQLite3Database;
+    const nodePostgresDb = await migrateNodePostgresConnection(dbConfig, migration_folder_path, logger);
+    db = nodePostgresDb as unknown as typeof db;
   } else {
-    const mySql2Db = await migrateMysql2Connection(dbConfig, migration_folder_path);
-    db = mySql2Db as unknown as BetterSQLite3Database;
+    const mySql2Db = await migrateMysql2Connection(dbConfig, migration_folder_path, logger);
+    db = mySql2Db as unknown as typeof db;
   }
 
   console.log("** Migration Completed.");

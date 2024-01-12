@@ -14,7 +14,7 @@ import {
   updatePassword,
   updateSecurityQuestion,
   validateSuperadminEmail,
-} from "./cms.auth.service";
+} from "./auth.cms.service";
 
 //  mocking drizzle instance using manual mocking
 jest.mock("../dbSchema/drizzle-migrate");

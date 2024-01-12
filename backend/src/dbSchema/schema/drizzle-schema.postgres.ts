@@ -1,4 +1,4 @@
-import { boolean, date, integer, pgTable, serial, text, varchar } from "drizzle-orm/pg-core";
+import { boolean, integer, pgTable, serial, text, varchar, timestamp } from "drizzle-orm/pg-core";
 
 export const UserSchema = pgTable("user", {
   uuid: varchar("uuid").primaryKey(),
@@ -7,8 +7,8 @@ export const UserSchema = pgTable("user", {
   others: text("others"),
   role: varchar("role_uuid").notNull(),
   isRecoverable: boolean("is_recoverable").default(false),
-  createdAt: date("created_at", { mode: "date" }).notNull(),
-  updatedAt: date("updated_at", { mode: "date" }).notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).notNull(),
 });
 
 export const LoginTokenSchema = pgTable("login_token", {
@@ -20,9 +20,9 @@ export const LoginTokenSchema = pgTable("login_token", {
       onUpdate: "cascade",
     }),
   token: varchar("token").notNull(),
-  expiresAt: date("expires_at", { mode: "date" }).notNull(),
-  createdAt: date("created_at", { mode: "date" }).notNull(),
-  updatedAt: date("updated_at", { mode: "date" }).notNull(),
+  expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).notNull(),
 });
 
 export const ForgotPasswordSchema = pgTable("forgot_password", {
@@ -34,24 +34,24 @@ export const ForgotPasswordSchema = pgTable("forgot_password", {
       onUpdate: "cascade",
     }),
   token: varchar("token").notNull(),
-  expiresAt: date("expires_at", { mode: "date" }).notNull(),
-  createdAt: date("created_at", { mode: "date" }).notNull(),
+  expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull(),
 });
 
 export const RolesSchema = pgTable("roles", {
   uuid: varchar("uuid").primaryKey(),
   name: varchar("name").notNull(),
   slug: varchar("slug").unique().notNull(),
-  createdAt: date("created_at", { mode: "date" }).notNull(),
-  updatedAt: date("updated_at", { mode: "date" }).notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).notNull(),
 });
 
 export const PermissionSchema = pgTable("permissions", {
   uuid: varchar("uuid").primaryKey(),
   name: varchar("name").notNull(),
   slug: varchar("slug").unique().notNull(),
-  createdAt: date("created_at", { mode: "date" }).notNull(),
-  updatedAt: date("updated_at", { mode: "date" }).notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).notNull(),
 });
 
 export const RolesPermissionsSchema = pgTable("rolesPermissions", {
@@ -64,14 +64,14 @@ export const RolesPermissionsSchema = pgTable("rolesPermissions", {
     onDelete: "cascade",
     onUpdate: "cascade",
   }),
-  createdAt: date("created_at", { mode: "date" }).notNull(),
-  updatedAt: date("updated_at", { mode: "date" }).notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).notNull(),
 });
 
 export const PermissionSeedSchema = pgTable("__permissionSeed", {
   id: serial("id").primaryKey(),
   hash: varchar("hash").notNull(),
-  createdAt: date("created_at", { mode: "date" }).notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull(),
 });
 
 export const SecurityQuestionSchema = pgTable("securityQuestion", {
@@ -86,8 +86,8 @@ export const SecurityQuestionSchema = pgTable("securityQuestion", {
   answer1: varchar("answer1").notNull(),
   question2: integer("question2").notNull(),
   answer2: varchar("answer2").notNull(),
-  createdAt: date("created_at", { mode: "date" }).notNull(),
-  updatedAt: date("updated_at", { mode: "date" }).notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).notNull(),
 });
 
 export const ResetPasswordTokenSchema = pgTable("resetPasswordToken", {
@@ -99,8 +99,8 @@ export const ResetPasswordTokenSchema = pgTable("resetPasswordToken", {
       onUpdate: "cascade",
     }),
   token: varchar("token").notNull(),
-  expiresAt: date("expires_at", { mode: "date" }).notNull(),
-  createdAt: date("created_at", { mode: "date" }).notNull(),
+  expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull(),
 });
 
 export const postgresDBSchema = {

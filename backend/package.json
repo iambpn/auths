@@ -14,8 +14,8 @@
     "drizzle:drop:postgres": "cross-env AUTHS_DB_DRIVER=node-postgres drizzle-kit drop --config=./drizzle.config.js",
     "drizzle:drop:mysql": "cross-env AUTHS_DB_DRIVER=mysql2 drizzle-kit drop --config=./drizzle.config.js",
     "test:sqlite": "cross-env TEST_DB_DRIVER=better-sqlite jest --watchAll --collectCoverage",
-    "test:postgres": "cross-env TEST_DB_DRIVER=node-postgres jest --watchAll --collectCoverage",
-    "test:mysql": "cross-env TEST_DB_DRIVER=mysql2 jest --watchAll --collectCoverage"
+    "test:postgres": "cross-env TEST_DB_DRIVER=node-postgres jest --watchAll --collectCoverage --maxWorkers=1",
+    "test:mysql": "cross-env TEST_DB_DRIVER=mysql2 jest --watchAll --collectCoverage --maxWorkers=1"
   },
   "repository": {
     "type": "git",

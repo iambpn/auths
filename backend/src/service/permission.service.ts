@@ -168,10 +168,13 @@ export async function assignRolesToPermission(id: string, data: AssignRoleToPerm
     insertedRolePermissionUuids.push(...(await db.insert(schema.RolesPermissionsSchema).values(insertableRoles).returning()));
   }
 
-  const removedRolePermissionUuids = await db
-    .delete(schema.RolesPermissionsSchema)
-    .where(sql`${schema.RolesPermissionsSchema.roleUuid} in ${removedRoleUuids}`)
-    .returning();
+  let removedRolePermissionUuids: (typeof schema.RolesPermissionsSchema.$inferSelect)[] = [];
+  if (removedRoleUuids.length > 0) {
+    removedRolePermissionUuids = await db
+      .delete(schema.RolesPermissionsSchema)
+      .where(sql`${schema.RolesPermissionsSchema.roleUuid} in ${removedRoleUuids}`)
+      .returning();
+  }
 
   return {
     removeUuid: removedRolePermissionUuids.map((x) => x.roleUuid).filter(Boolean) as string[],

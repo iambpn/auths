@@ -10,10 +10,10 @@ let client: Database;
  * @param migration_folder_path
  * @returns
  */
-export async function migrateBetterSqLiteConnection(DbUri: string, migration_folder_path: string) {
+export async function migrateBetterSqLiteConnection(DbUri: string, migration_folder_path: string, logger = false) {
   client = new SQLite(DbUri);
   client.pragma("foreign_keys = ON");
-  const db = drizzle(client);
+  const db = drizzle(client, { logger: logger });
 
   migrate(db, { migrationsFolder: migration_folder_path, migrationsTable: "drizzle_migrations" });
 

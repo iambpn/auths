@@ -192,10 +192,13 @@ export async function assignPermissionsToRole(id: string, data: AssignPermission
     insertedRolePermissionUuids.push(...returnedValue);
   }
 
-  const removedRolePermissionUuids = await db
-    .delete(schema.RolesPermissionsSchema)
-    .where(sql`${schema.RolesPermissionsSchema.permissionUuid} in ${removedPermissionUuids}`)
-    .returning();
+  let removedRolePermissionUuids: (typeof schema.RolesPermissionsSchema.$inferSelect)[] = [];
+  if (removedPermissionUuids.length > 0) {
+    removedRolePermissionUuids = await db
+      .delete(schema.RolesPermissionsSchema)
+      .where(sql`${schema.RolesPermissionsSchema.permissionUuid} in ${removedPermissionUuids}`)
+      .returning();
+  }
 
   return {
     removeUuid: removedRolePermissionUuids.map((x) => x.permissionUuid).filter(Boolean) as string[],

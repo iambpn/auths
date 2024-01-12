@@ -3,7 +3,7 @@ import { mysqlDBSchema } from "./schema/drizzle-schema.mysql";
 import { postgresDBSchema } from "./schema/drizzle-schema.postgres";
 import { sqLiteDBSchema } from "./schema/drizzle-schema.sqlite";
 
-export let schema: typeof sqLiteDBSchema;
+export let schema: typeof postgresDBSchema;
 
 /**
  * Initialize Schema according to Driver
@@ -12,5 +12,5 @@ export let schema: typeof sqLiteDBSchema;
 export function initializeSchema() {
   schema = (
     ENV_VARS.AUTHS_DB_DRIVER === "better-sqlite" ? sqLiteDBSchema : ENV_VARS.AUTHS_DB_DRIVER === "node-postgres" ? postgresDBSchema : mysqlDBSchema
-  ) as typeof sqLiteDBSchema;
+  ) as typeof schema;
 }
