@@ -2,13 +2,13 @@ import express, { type Express, type NextFunction, type Request, type Response }
 import * as path from "path";
 import url from "url";
 import { z } from "zod";
+import { migrateDB } from "./dbSchema/drizzle-migrate";
+import { initializeSchema } from "./dbSchema/drizzle-schema";
 import { CmsAuthRouter } from "./routes/cms.auth.router";
 import { AuthsRouter } from "./routes/exposed/auth.router";
 import { PermissionRouter } from "./routes/permission.router";
 import { RolesRouter } from "./routes/roles.router";
 import { UsersRouter } from "./routes/users.router";
-import { migrateDB } from "./schema/drizzle-migrate";
-import { initializeSchema } from "./schema/drizzle-schema";
 import { ENV_VARS, validateEnv } from "./service/env.service";
 import { runSeed } from "./service/seed.service";
 import { HttpError } from "./utils/helper/httpError";
@@ -28,7 +28,7 @@ export function authsInit(app: Express, permissionFilePath?: string) {
   initializeSchema();
 
   // Migrate and instantiate db
-  migrateDB(ENV_VARS.AUTHS_DB_URI);
+  migrateDB(ENV_VARS.AUTHS_DB_DRIVER, path.join(__dirname, "../drizzle"));
 
   // Run default Seed
   runSeed(permissionFilePath);

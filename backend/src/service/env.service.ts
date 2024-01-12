@@ -16,7 +16,12 @@ export function validateEnv() {
       AUTHS_LOGIN_TOKEN_EXPIRATION_TIME: process.env.AUTHS_LOGIN_TOKEN_EXPIRATION_TIME!,
       AUTHS_HASH_SALT_ROUNDS: process.env.AUTHS_HASH_SALT_ROUNDS!,
       AUTHS_DB_DRIVER: process.env.AUTHS_DB_DRIVER!,
-    } satisfies { [key in keyof ValidateEnvType & keyof ENV_VARIABLE]: any });
+      AUTHS_DB_HOST: process.env.AUTHS_DB_HOST!,
+      AUTHS_DB_PORT: process.env.AUTHS_DB_PORT!,
+      AUTHS_DB_USERNAME: process.env.AUTHS_DB_USERNAME!,
+      AUTHS_DB_PASSWORD: process.env.AUTHS_DB_PASSWORD!,
+      AUTHS_DB_NAME: process.env.AUTHS_DB_NAME!,
+    } satisfies { [key in keyof ValidateEnvType | keyof ENV_VARIABLE]: any });
   } catch (error) {
     if (error instanceof ZodError) {
       const errors = [];

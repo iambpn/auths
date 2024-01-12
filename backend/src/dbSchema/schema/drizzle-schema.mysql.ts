@@ -1,6 +1,6 @@
 import { boolean, date, int, mysqlTable, serial, text, varchar } from "drizzle-orm/mysql-core";
 
-export const UserSchema = mysqlTable("user", {
+const UserSchema = mysqlTable("user", {
   uuid: varchar("uuid", { length: 256 }).primaryKey(),
   email: varchar("email", { length: 256 }).notNull().unique(),
   password: varchar("password", { length: 256 }).notNull(),
@@ -11,7 +11,7 @@ export const UserSchema = mysqlTable("user", {
   updatedAt: date("updated_at").notNull(),
 });
 
-export const LoginTokenSchema = mysqlTable("login_token", {
+const LoginTokenSchema = mysqlTable("login_token", {
   uuid: varchar("uuid", { length: 256 }).primaryKey(),
   userUuid: varchar("user_uuid", { length: 256 })
     .notNull()
@@ -25,7 +25,7 @@ export const LoginTokenSchema = mysqlTable("login_token", {
   updatedAt: date("updated_at").notNull(),
 });
 
-export const ForgotPasswordSchema = mysqlTable("forgot_password", {
+const ForgotPasswordSchema = mysqlTable("forgot_password", {
   uuid: varchar("uuid", { length: 256 }).primaryKey(),
   userUuid: varchar("user_uuid", { length: 256 })
     .notNull()
@@ -38,7 +38,7 @@ export const ForgotPasswordSchema = mysqlTable("forgot_password", {
   createdAt: date("created_at").notNull(),
 });
 
-export const RolesSchema = mysqlTable("roles", {
+const RolesSchema = mysqlTable("roles", {
   uuid: varchar("uuid", { length: 256 }).primaryKey(),
   name: varchar("name", { length: 256 }).notNull(),
   slug: varchar("slug", { length: 256 }).unique().notNull(),
@@ -46,7 +46,7 @@ export const RolesSchema = mysqlTable("roles", {
   updatedAt: date("updated_at").notNull(),
 });
 
-export const PermissionSchema = mysqlTable("permissions", {
+const PermissionSchema = mysqlTable("permissions", {
   uuid: varchar("uuid", { length: 256 }).primaryKey(),
   name: varchar("name", { length: 256 }).notNull(),
   slug: varchar("slug", { length: 256 }).unique().notNull(),
@@ -54,7 +54,7 @@ export const PermissionSchema = mysqlTable("permissions", {
   updatedAt: date("updated_at").notNull(),
 });
 
-export const RolesPermissionsSchema = mysqlTable("rolesPermissions", {
+const RolesPermissionsSchema = mysqlTable("rolesPermissions", {
   uuid: varchar("uuid", { length: 256 }).primaryKey(),
   roleUuid: varchar("role_uuid", { length: 256 }).references(() => RolesSchema.uuid, {
     onDelete: "cascade",
@@ -68,13 +68,13 @@ export const RolesPermissionsSchema = mysqlTable("rolesPermissions", {
   updatedAt: date("updated_at").notNull(),
 });
 
-export const PermissionSeedSchema = mysqlTable("__permissionSeed", {
+const PermissionSeedSchema = mysqlTable("__permissionSeed", {
   id: serial("id").primaryKey(),
   hash: varchar("hash", { length: 256 }).notNull(),
   createdAt: date("created_at").notNull(),
 });
 
-export const SecurityQuestionSchema = mysqlTable("securityQuestion", {
+const SecurityQuestionSchema = mysqlTable("securityQuestion", {
   uuid: varchar("uuid", { length: 256 }).primaryKey(),
   userUuid: varchar("user_uuid", { length: 256 })
     .references(() => UserSchema.uuid, {
@@ -90,7 +90,7 @@ export const SecurityQuestionSchema = mysqlTable("securityQuestion", {
   updatedAt: date("updated_at").notNull(),
 });
 
-export const ResetPasswordTokenSchema = mysqlTable("resetPasswordToken", {
+const ResetPasswordTokenSchema = mysqlTable("resetPasswordToken", {
   uuid: varchar("uuid", { length: 256 }).primaryKey(),
   userUuid: varchar("user_uuid", { length: 256 })
     .notNull()
@@ -102,3 +102,15 @@ export const ResetPasswordTokenSchema = mysqlTable("resetPasswordToken", {
   expiresAt: date("expires_at").notNull(),
   createdAt: date("created_at").notNull(),
 });
+
+export const mysqlDBSchema = {
+  UserSchema,
+  LoginTokenSchema,
+  ForgotPasswordSchema,
+  RolesSchema,
+  PermissionSchema,
+  RolesPermissionsSchema,
+  PermissionSeedSchema,
+  SecurityQuestionSchema,
+  ResetPasswordTokenSchema,
+};

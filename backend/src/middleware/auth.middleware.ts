@@ -1,8 +1,8 @@
 import { eq } from "drizzle-orm";
 import type { NextFunction, Request, Response } from "express";
 import * as jwt from "jsonwebtoken";
-import { db } from "../schema/drizzle-migrate";
-import { schema } from "../schema/drizzle-schema";
+import { db } from "../dbSchema/drizzle-migrate";
+import { schema } from "../dbSchema/drizzle-schema";
 import { ENV_VARS } from "../service/env.service";
 import { HttpError } from "../utils/helper/httpError";
 import { AuthsRequestUser } from "../utils/types/req.user.type";

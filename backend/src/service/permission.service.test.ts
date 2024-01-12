@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import * as uuid from "uuid";
-import { db } from "../schema/__mocks__/drizzle-migrate";
-import { schema } from "../schema/drizzle-schema";
+import { db } from "../dbSchema/__mocks__/drizzle-migrate";
+import { schema } from "../dbSchema/drizzle-schema";
 import { config } from "../utils/config/app-config";
 import { HttpError } from "../utils/helper/httpError";
 import {
@@ -15,7 +15,7 @@ import {
 } from "./permission.service";
 
 //  mocking drizzle instance using manual mocking
-jest.mock("../schema/drizzle-migrate");
+jest.mock("../dbSchema/drizzle-migrate");
 
 const UserRole = { uuid: uuid.v4(), slug: "test_role" };
 const DefaultPermission = { uuid: uuid.v4(), slug: "default_permission" };

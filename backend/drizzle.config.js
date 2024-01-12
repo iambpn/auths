@@ -1,11 +1,57 @@
 const path = require("path");
+const dotEnv = require("dotenv");
+
+dotEnv.config({ path: path.resolve(__dirname, ".env") });
 
 /** @type { import("drizzle-kit").Config } */
-export default {
-  schema: "./src/schema/drizzle-schema.ts",
-  driver: "better-sqlite",
-  dbCredentials: {
-    url: process.env.AUTHS_DB_URI,
-  },
-  out: "./drizzle",
-};
+const config = {};
+
+if (process.env.AUTHS_DB_DRIVER === "better-sqlite") {
+  /** @type { import("drizzle-kit").Config } */
+  const localConfig = {
+    schema: "./src/dbSchema/schema/drizzle-schema.sqlite.ts",
+    driver: "better-sqlite",
+    dbCredentials: {
+      url: process.env.sqlite_uri,
+    },
+    out: `./drizzle/better-sqlite`,
+  };
+
+  Object.assign(config, localConfig);
+} else if (process.env.AUTHS_DB_DRIVER === "node-postgres") {
+  /** @type { import("drizzle-kit").Config } */
+  const localConfig = {
+    schema: "./src/dbSchema/schema/drizzle-schema.sqlite.ts",
+    driver: "pg",
+    dbCredentials: {
+      host: process.env.pg_host,
+      port: process.env.pg_port,
+      user: process.env.pg_user,
+      password: process.env.pg_password,
+      database: process.env.pg_db,
+    },
+    out: `./drizzle/pg`,
+  };
+
+  Object.assign(config, localConfig);
+} else if (process.env.AUTHS_DB_DRIVER === "mysql2") {
+  /** @type { import("drizzle-kit").Config } */
+  const localConfig = {
+    schema: "./src/dbSchema/schema/drizzle-schema.sqlite.ts",
+    driver: "mysql2",
+    dbCredentials: {
+      host: process.env.mysql_host,
+      port: process.env.mysql_port,
+      user: process.env.mysql_user,
+      password: process.env.mysql_password,
+      database: process.env.mysql_db,
+    },
+    out: `./drizzle/mysql2`,
+  };
+
+  Object.assign(config, localConfig);
+}
+
+console.log(config);
+
+export default config;

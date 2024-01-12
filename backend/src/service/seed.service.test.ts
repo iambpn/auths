@@ -1,12 +1,12 @@
 import { createHash } from "crypto";
 import { eq } from "drizzle-orm";
-import { db } from "../schema/__mocks__/drizzle-migrate";
-import { schema } from "../schema/drizzle-schema";
+import { db } from "../dbSchema/__mocks__/drizzle-migrate";
+import { schema } from "../dbSchema/drizzle-schema";
 import { config } from "../utils/config/app-config";
 import { seedFilePermission, seedFilePermissionCallback, seedSuperAdminRole, seedSuperAdminUser } from "./seed.service";
 
 //  mocking drizzle instance using manual mocking
-jest.mock("../schema/drizzle-migrate");
+jest.mock("../dbSchema/drizzle-migrate");
 
 const jsonData = {
   permission: [

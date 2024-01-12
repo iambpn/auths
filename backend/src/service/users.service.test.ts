@@ -1,14 +1,14 @@
 import * as bcrypt from "bcrypt";
 import { eq } from "drizzle-orm";
 import * as uuid from "uuid";
-import { db } from "../schema/__mocks__/drizzle-migrate";
-import { schema } from "../schema/drizzle-schema";
+import { db } from "../dbSchema/__mocks__/drizzle-migrate";
+import { schema } from "../dbSchema/drizzle-schema";
 import { config } from "../utils/config/app-config";
 import { HttpError } from "../utils/helper/httpError";
 import { deleteUser, getAllUsers, getUserById, updateUser } from "./users.service";
 
 //  mocking drizzle instance using manual mocking
-jest.mock("../schema/drizzle-migrate");
+jest.mock("../dbSchema/drizzle-migrate");
 
 const UserRole = { uuid: uuid.v4(), slug: "test_role" };
 const Email = "abc@gmail.com";

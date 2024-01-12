@@ -1,6 +1,6 @@
 import { boolean, date, integer, pgTable, serial, text, varchar } from "drizzle-orm/pg-core";
 
-export const UserSchema = pgTable("user", {
+const UserSchema = pgTable("user", {
   uuid: varchar("uuid").primaryKey(),
   email: varchar("email").notNull().unique(),
   password: varchar("password").notNull(),
@@ -11,7 +11,7 @@ export const UserSchema = pgTable("user", {
   updatedAt: date("updated_at", { mode: "date" }).notNull(),
 });
 
-export const LoginTokenSchema = pgTable("login_token", {
+const LoginTokenSchema = pgTable("login_token", {
   uuid: varchar("uuid").primaryKey(),
   userUuid: varchar("user_uuid")
     .notNull()
@@ -25,7 +25,7 @@ export const LoginTokenSchema = pgTable("login_token", {
   updatedAt: date("updated_at", { mode: "date" }).notNull(),
 });
 
-export const ForgotPasswordSchema = pgTable("forgot_password", {
+const ForgotPasswordSchema = pgTable("forgot_password", {
   uuid: varchar("uuid").primaryKey(),
   userUuid: varchar("user_uuid")
     .notNull()
@@ -38,7 +38,7 @@ export const ForgotPasswordSchema = pgTable("forgot_password", {
   createdAt: date("created_at", { mode: "date" }).notNull(),
 });
 
-export const RolesSchema = pgTable("roles", {
+const RolesSchema = pgTable("roles", {
   uuid: varchar("uuid").primaryKey(),
   name: varchar("name").notNull(),
   slug: varchar("slug").unique().notNull(),
@@ -46,7 +46,7 @@ export const RolesSchema = pgTable("roles", {
   updatedAt: date("updated_at", { mode: "date" }).notNull(),
 });
 
-export const PermissionSchema = pgTable("permissions", {
+const PermissionSchema = pgTable("permissions", {
   uuid: varchar("uuid").primaryKey(),
   name: varchar("name").notNull(),
   slug: varchar("slug").unique().notNull(),
@@ -54,7 +54,7 @@ export const PermissionSchema = pgTable("permissions", {
   updatedAt: date("updated_at", { mode: "date" }).notNull(),
 });
 
-export const RolesPermissionsSchema = pgTable("rolesPermissions", {
+const RolesPermissionsSchema = pgTable("rolesPermissions", {
   uuid: varchar("uuid").primaryKey(),
   roleUuid: varchar("role_uuid").references(() => RolesSchema.uuid, {
     onDelete: "cascade",
@@ -68,13 +68,13 @@ export const RolesPermissionsSchema = pgTable("rolesPermissions", {
   updatedAt: date("updated_at", { mode: "date" }).notNull(),
 });
 
-export const PermissionSeedSchema = pgTable("__permissionSeed", {
+const PermissionSeedSchema = pgTable("__permissionSeed", {
   id: serial("id").primaryKey(),
   hash: varchar("hash").notNull(),
   createdAt: date("created_at", { mode: "date" }).notNull(),
 });
 
-export const SecurityQuestionSchema = pgTable("securityQuestion", {
+const SecurityQuestionSchema = pgTable("securityQuestion", {
   uuid: varchar("uuid").primaryKey(),
   userUuid: varchar("user_uuid")
     .references(() => UserSchema.uuid, {
@@ -90,7 +90,7 @@ export const SecurityQuestionSchema = pgTable("securityQuestion", {
   updatedAt: date("updated_at", { mode: "date" }).notNull(),
 });
 
-export const ResetPasswordTokenSchema = pgTable("resetPasswordToken", {
+const ResetPasswordTokenSchema = pgTable("resetPasswordToken", {
   uuid: varchar("uuid").primaryKey(),
   userUuid: varchar("user_uuid")
     .notNull()
@@ -102,3 +102,15 @@ export const ResetPasswordTokenSchema = pgTable("resetPasswordToken", {
   expiresAt: date("expires_at", { mode: "date" }).notNull(),
   createdAt: date("created_at", { mode: "date" }).notNull(),
 });
+
+export const postgresDBSchema = {
+  UserSchema,
+  LoginTokenSchema,
+  ForgotPasswordSchema,
+  RolesSchema,
+  PermissionSchema,
+  RolesPermissionsSchema,
+  PermissionSeedSchema,
+  SecurityQuestionSchema,
+  ResetPasswordTokenSchema,
+};

@@ -1,7 +1,7 @@
 import { eq, sql } from "drizzle-orm";
 import * as uuid from "uuid";
-import { db } from "../schema/drizzle-migrate";
-import { schema } from "../schema/drizzle-schema";
+import { db } from "../dbSchema/drizzle-migrate";
+import { schema } from "../dbSchema/drizzle-schema";
 import { HttpError } from "../utils/helper/httpError";
 import { PaginatedResponse, PaginationQuery } from "../utils/helper/parsePagination";
 import { AssignRoleToPermissionType } from "../utils/validation_schema/cms/assignRoleToPermission.validation.schema";
