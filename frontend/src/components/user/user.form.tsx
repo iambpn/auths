@@ -45,12 +45,12 @@ const schema = z.object({
     }),
 });
 
-const schema.UserSchema = schema.refine((data) => data.password === data.confirmPassword, {
+const UserSchema = schema.refine((data) => data.password === data.confirmPassword, {
   message: "Confirm Password must be same as Password",
   path: ["confirmPassword"], // specify where this error belongs to
 });
 
-export type UserType = z.infer<typeof schema.UserSchema>;
+export type UserType = z.infer<typeof UserSchema>;
 
 type Props = {
   defaultValue?: Omit<UserType, "role" | "password" | "confirmPassword">;
@@ -64,7 +64,7 @@ export function UserFrom(props: Props) {
   const debouncedKeyword = useDebouncedValue(searchKeyword, 300);
 
   const form = useForm<UserType>({
-    resolver: zodResolver(props.defaultValue ? schema.omit({ password: true, confirmPassword: true }) : schema.UserSchema),
+    resolver: zodResolver(props.defaultValue ? schema.omit({ password: true, confirmPassword: true }) : UserSchema),
     defaultValues: {
       email: props.defaultValue ? props.defaultValue.email : "",
       role: props.role?.uuid ?? "",

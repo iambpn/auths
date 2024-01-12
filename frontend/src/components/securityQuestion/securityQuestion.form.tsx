@@ -7,7 +7,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Label } from "../ui/label";
 
-const schema.SecurityQuestionSchema = z.object({
+const SecurityQuestionSchema = z.object({
   question1Idx: z
     .string({
       required_error: "Question is required",
@@ -38,7 +38,7 @@ const schema.SecurityQuestionSchema = z.object({
     }),
 });
 
-export type SecurityQuestionType = z.infer<typeof schema.SecurityQuestionSchema>;
+export type SecurityQuestionType = z.infer<typeof SecurityQuestionSchema>;
 
 type Props = {
   question1s: string[];
@@ -51,7 +51,7 @@ type Props = {
 
 export default function SecurityQuestionForm(props: Props) {
   const form = useForm<SecurityQuestionType>({
-    resolver: zodResolver(schema.SecurityQuestionSchema),
+    resolver: zodResolver(SecurityQuestionSchema),
     defaultValues: {
       question1Idx: props.defaultValues ? props.defaultValues.question1Idx : "",
       answer1: "",
