@@ -1,4 +1,4 @@
-import { boolean, date, int, mysqlTable, serial, text, varchar } from "drizzle-orm/mysql-core";
+import { boolean, int, mysqlTable, serial, text, varchar, timestamp } from "drizzle-orm/mysql-core";
 
 export const UserSchema = mysqlTable("user", {
   uuid: varchar("uuid", { length: 256 }).primaryKey(),
@@ -7,8 +7,8 @@ export const UserSchema = mysqlTable("user", {
   others: text("others"),
   role: varchar("role_uuid", { length: 256 }).notNull(),
   isRecoverable: boolean("is_recoverable").default(false),
-  createdAt: date("created_at").notNull(),
-  updatedAt: date("updated_at").notNull(),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
 });
 
 export const LoginTokenSchema = mysqlTable("login_token", {
@@ -20,9 +20,9 @@ export const LoginTokenSchema = mysqlTable("login_token", {
       onUpdate: "cascade",
     }),
   token: varchar("token", { length: 256 }).notNull(),
-  expiresAt: date("expires_at").notNull(),
-  createdAt: date("created_at").notNull(),
-  updatedAt: date("updated_at").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
 });
 
 export const ForgotPasswordSchema = mysqlTable("forgot_password", {
@@ -34,24 +34,24 @@ export const ForgotPasswordSchema = mysqlTable("forgot_password", {
       onUpdate: "cascade",
     }),
   token: varchar("token", { length: 256 }).notNull(),
-  expiresAt: date("expires_at").notNull(),
-  createdAt: date("created_at").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").notNull(),
 });
 
 export const RolesSchema = mysqlTable("roles", {
   uuid: varchar("uuid", { length: 256 }).primaryKey(),
   name: varchar("name", { length: 256 }).notNull(),
   slug: varchar("slug", { length: 256 }).unique().notNull(),
-  createdAt: date("created_at").notNull(),
-  updatedAt: date("updated_at").notNull(),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
 });
 
 export const PermissionSchema = mysqlTable("permissions", {
   uuid: varchar("uuid", { length: 256 }).primaryKey(),
   name: varchar("name", { length: 256 }).notNull(),
   slug: varchar("slug", { length: 256 }).unique().notNull(),
-  createdAt: date("created_at").notNull(),
-  updatedAt: date("updated_at").notNull(),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
 });
 
 export const RolesPermissionsSchema = mysqlTable("rolesPermissions", {
@@ -64,14 +64,14 @@ export const RolesPermissionsSchema = mysqlTable("rolesPermissions", {
     onDelete: "cascade",
     onUpdate: "cascade",
   }),
-  createdAt: date("created_at").notNull(),
-  updatedAt: date("updated_at").notNull(),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
 });
 
 export const PermissionSeedSchema = mysqlTable("__permissionSeed", {
   id: serial("id").primaryKey(),
   hash: varchar("hash", { length: 256 }).notNull(),
-  createdAt: date("created_at").notNull(),
+  createdAt: timestamp("created_at").notNull(),
 });
 
 export const SecurityQuestionSchema = mysqlTable("securityQuestion", {
@@ -86,8 +86,8 @@ export const SecurityQuestionSchema = mysqlTable("securityQuestion", {
   answer1: varchar("answer1", { length: 256 }).notNull(),
   question2: int("question2").notNull(),
   answer2: varchar("answer2", { length: 256 }).notNull(),
-  createdAt: date("created_at").notNull(),
-  updatedAt: date("updated_at").notNull(),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
 });
 
 export const ResetPasswordTokenSchema = mysqlTable("resetPasswordToken", {
@@ -99,8 +99,8 @@ export const ResetPasswordTokenSchema = mysqlTable("resetPasswordToken", {
       onUpdate: "cascade",
     }),
   token: varchar("token", { length: 256 }).notNull(),
-  expiresAt: date("expires_at").notNull(),
-  createdAt: date("created_at").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").notNull(),
 });
 
 export const mysqlDBSchema = {
