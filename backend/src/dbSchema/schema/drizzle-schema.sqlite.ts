@@ -1,6 +1,6 @@
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
-const UserSchema = sqliteTable("user", {
+export const UserSchema = sqliteTable("user", {
   uuid: text("uuid").primaryKey(),
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
@@ -11,7 +11,7 @@ const UserSchema = sqliteTable("user", {
   updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
 });
 
-const LoginTokenSchema = sqliteTable("login_token", {
+export const LoginTokenSchema = sqliteTable("login_token", {
   uuid: text("uuid").primaryKey(),
   userUuid: text("user_uuid")
     .notNull()
@@ -25,7 +25,7 @@ const LoginTokenSchema = sqliteTable("login_token", {
   updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
 });
 
-const ForgotPasswordSchema = sqliteTable("forgot_password", {
+export const ForgotPasswordSchema = sqliteTable("forgot_password", {
   uuid: text("uuid").primaryKey(),
   userUuid: text("user_uuid")
     .notNull()
@@ -38,7 +38,7 @@ const ForgotPasswordSchema = sqliteTable("forgot_password", {
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
 });
 
-const RolesSchema = sqliteTable("roles", {
+export const RolesSchema = sqliteTable("roles", {
   uuid: text("uuid").primaryKey(),
   name: text("name").notNull(),
   slug: text("slug").unique().notNull(),
@@ -46,7 +46,7 @@ const RolesSchema = sqliteTable("roles", {
   updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
 });
 
-const PermissionSchema = sqliteTable("permissions", {
+export const PermissionSchema = sqliteTable("permissions", {
   uuid: text("uuid").primaryKey(),
   name: text("name").notNull(),
   slug: text("slug").unique().notNull(),
@@ -54,7 +54,7 @@ const PermissionSchema = sqliteTable("permissions", {
   updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
 });
 
-const RolesPermissionsSchema = sqliteTable("rolesPermissions", {
+export const RolesPermissionsSchema = sqliteTable("rolesPermissions", {
   uuid: text("uuid").primaryKey(),
   roleUuid: text("role_uuid").references(() => RolesSchema.uuid, {
     onDelete: "cascade",
@@ -68,13 +68,13 @@ const RolesPermissionsSchema = sqliteTable("rolesPermissions", {
   updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
 });
 
-const PermissionSeedSchema = sqliteTable("__permissionSeed", {
+export const PermissionSeedSchema = sqliteTable("__permissionSeed", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
   hash: text("hash").notNull(),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
 });
 
-const SecurityQuestionSchema = sqliteTable("securityQuestion", {
+export const SecurityQuestionSchema = sqliteTable("securityQuestion", {
   uuid: text("uuid").primaryKey(),
   userUuid: text("user_uuid")
     .references(() => UserSchema.uuid, {
@@ -90,7 +90,7 @@ const SecurityQuestionSchema = sqliteTable("securityQuestion", {
   updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
 });
 
-const ResetPasswordTokenSchema = sqliteTable("resetPasswordToken", {
+export const ResetPasswordTokenSchema = sqliteTable("resetPasswordToken", {
   uuid: text("uuid").primaryKey(),
   userUuid: text("user_uuid")
     .notNull()

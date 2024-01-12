@@ -14,7 +14,7 @@ if (process.env.AUTHS_DB_DRIVER === "better-sqlite") {
     dbCredentials: {
       url: process.env.sqlite_uri,
     },
-    out: `./drizzle/better-sqlite`,
+    out: `./drizzle/${process.env.AUTHS_DB_DRIVER}`,
   };
 
   Object.assign(config, localConfig);
@@ -30,7 +30,7 @@ if (process.env.AUTHS_DB_DRIVER === "better-sqlite") {
       password: process.env.pg_password,
       database: process.env.pg_db,
     },
-    out: `./drizzle/pg`,
+    out: `./drizzle/${process.env.AUTHS_DB_DRIVER}`,
   };
 
   Object.assign(config, localConfig);
@@ -46,7 +46,7 @@ if (process.env.AUTHS_DB_DRIVER === "better-sqlite") {
       password: process.env.mysql_password,
       database: process.env.mysql_db,
     },
-    out: `./drizzle/mysql2`,
+    out: `./drizzle/${process.env.AUTHS_DB_DRIVER}`,
   };
 
   Object.assign(config, localConfig);

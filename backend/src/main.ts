@@ -28,7 +28,7 @@ export function authsInit(app: Express, permissionFilePath?: string) {
   initializeSchema();
 
   // Migrate and instantiate db
-  migrateDB(ENV_VARS.AUTHS_DB_DRIVER, path.join(__dirname, "../drizzle"));
+  migrateDB(ENV_VARS.AUTHS_DB_DRIVER, path.join(__dirname, "../drizzle", ENV_VARS.AUTHS_DB_DRIVER));
 
   // Run default Seed
   runSeed(permissionFilePath);
@@ -87,4 +87,3 @@ export function authsInit(app: Express, permissionFilePath?: string) {
 export { isAuthenticated, requiredPermissions } from "./middleware/auth.middleware";
 export { initiateForgotPasswordFn as initiateForgotPassword, loginFn as login, signUpFn as signup, validateUser } from "./service/auth.service";
 export type { AuthsRequestUser } from "./utils/types/req.user.type";
-
