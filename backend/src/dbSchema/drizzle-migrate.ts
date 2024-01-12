@@ -44,12 +44,12 @@ export async function migrateDB(driver: ArrayToIntersection<Auths_DB_Driver>, mi
   return db;
 }
 
-export async function closeDBConnection(driver: ArrayToIntersection<Auths_DB_Driver>, truncateTable: boolean = false) {
+export async function closeDBConnection(driver: ArrayToIntersection<Auths_DB_Driver>, truncateTable: boolean = false, truncateDb: string) {
   if (driver === "better-sqlite") {
     closeBetterSqLiteConnection();
   } else if (driver === "node-postgres") {
     await closeNodePostgresConnection(truncateTable);
   } else if (driver === "mysql2") {
-    await closeMysql2Connection(truncateTable);
+    await closeMysql2Connection(truncateTable, truncateDb);
   }
 }

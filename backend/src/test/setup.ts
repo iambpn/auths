@@ -46,9 +46,9 @@ beforeAll(() => {
 });
 
 beforeEach(async () => {
-  db = await migrateDB(ENV_VARS.AUTHS_DB_DRIVER, `drizzle/${ENV_VARS.AUTHS_DB_DRIVER}`, false);
+  db = await migrateDB(ENV_VARS.AUTHS_DB_DRIVER, `drizzle/${ENV_VARS.AUTHS_DB_DRIVER}`, true);
 });
 
 afterEach(async () => {
-  await closeDBConnection(ENV_VARS.AUTHS_DB_DRIVER, true);
+  await closeDBConnection(ENV_VARS.AUTHS_DB_DRIVER, true, ENV_VARS.AUTHS_DB_NAME!);
 });

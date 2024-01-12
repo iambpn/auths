@@ -3,6 +3,7 @@ import mysql, { Connection } from "mysql2/promise";
 import { migrate } from "drizzle-orm/mysql2/migrator";
 
 let client: Connection;
+const migration_table = "drizzle_migrations";
 
 /**
  * Instantiate and migrate better Mysql db
@@ -26,13 +27,25 @@ export async function migrateMysql2Connection(
   await client.connect();
   const db = drizzle(client, { logger: logger });
 
-  await migrate(db, { migrationsFolder: migration_folder_path, migrationsTable: "drizzle_migrations" });
+  await migrate(db, { migrationsFolder: migration_folder_path, migrationsTable: migration_table });
 
   return db;
 }
 
-export async function closeMysql2Connection(truncateTable: Boolean = false) {
+export async function closeMysql2Connection(truncateTable: Boolean = false, truncateDb: string) {
   if (client) {
+    if (truncateTable) {
+      const results = await client.query(
+        `SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE table_schema IN ('${truncateDb}') and TABLE_NAME NOT IN ('${migration_table}');`
+      );
+
+      await Promise.all(
+        (results[0] as any[]).map(async (row) => {
+          await client.query(`DELETE FROM ${row.TABLE_NAME} WHERE 1;`);
+          await client.query(`ALTER TABLE ${row.TABLE_NAME} AUTO_INCREMENT = 1;`);
+        })
+      );
+    }
     await client.end();
   }
 }
