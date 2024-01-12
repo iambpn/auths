@@ -49,5 +49,5 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
-  await closeDBConnection(ENV_VARS.AUTHS_DB_DRIVER);
+  await closeDBConnection(ENV_VARS.AUTHS_DB_DRIVER, true);
 });

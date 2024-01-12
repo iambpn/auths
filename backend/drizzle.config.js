@@ -21,7 +21,7 @@ if (process.env.AUTHS_DB_DRIVER === "better-sqlite") {
 } else if (process.env.AUTHS_DB_DRIVER === "node-postgres") {
   /** @type { import("drizzle-kit").Config } */
   const localConfig = {
-    schema: "./src/dbSchema/schema/drizzle-schema.sqlite.ts",
+    schema: "./src/dbSchema/schema/drizzle-schema.postgres.ts",
     driver: "pg",
     dbCredentials: {
       host: process.env.pg_host,
@@ -37,7 +37,7 @@ if (process.env.AUTHS_DB_DRIVER === "better-sqlite") {
 } else if (process.env.AUTHS_DB_DRIVER === "mysql2") {
   /** @type { import("drizzle-kit").Config } */
   const localConfig = {
-    schema: "./src/dbSchema/schema/drizzle-schema.sqlite.ts",
+    schema: "./src/dbSchema/schema/drizzle-schema.mysql.ts",
     driver: "mysql2",
     dbCredentials: {
       host: process.env.mysql_host,

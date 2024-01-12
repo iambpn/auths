@@ -25,12 +25,12 @@ export async function migrateMysql2Connection(
   await client.connect();
   const db = drizzle(client);
 
-  migrate(db, { migrationsFolder: migration_folder_path, migrationsTable: "drizzle_migrations" });
+  await migrate(db, { migrationsFolder: migration_folder_path, migrationsTable: "drizzle_migrations" });
 
   return db;
 }
 
-export async function closeMysql2Connection() {
+export async function closeMysql2Connection(truncateTable: Boolean = false) {
   if (client) {
     await client.end();
   }

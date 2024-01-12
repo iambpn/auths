@@ -4,15 +4,16 @@ Authentication System similar to Auth0
 
 ## Documentation:
 
-### Getting Started: **setting up your project**
+### Getting Started: **setting up your project with sqlite db**
 
 ```sh
 # File: .env
-AUTHS_DB_URI: ""; # sqlite uri is only supported
-AUTHS_SECRET: ""; # secret to use while issuing jwt token / other token
-AUTHS_JWT_EXPIRATION_TIME: string; # JWT token expiration time
-AUTHS_LOGIN_TOKEN_EXPIRATION_TIME: string; # Login token expiration time
-AUTHS_HASH_SALT_ROUNDS: string; # number of rounds to use while hashing password
+AUTHS_DB_DRIVER=sqlite
+AUTHS_DB_URI=""; # sqlite uri is only supported
+AUTHS_SECRET=""; # secret to use while issuing jwt token / other token
+AUTHS_JWT_EXPIRATION_TIME=string; # JWT token expiration time
+AUTHS_LOGIN_TOKEN_EXPIRATION_TIME=string; # Login token expiration time
+AUTHS_HASH_SALT_ROUNDS=string; # number of rounds to use while hashing password
 ```
 
 ```ts
@@ -37,7 +38,7 @@ Since seeding permission can be tedious, you can create a `permission.json` file
 ```ts
 // File: permission.json
 {
-  "isSeeded": false, // boolean: "false" if you want to run the seed. This value will be automaticaly set to "true" after the first seed
+  "isSeeded": false, // boolean: "false" if you want to run the seed. This value will be automatically set to "true" after the first seed
 
   // default permissions
   "permission": [
@@ -77,6 +78,70 @@ Since seeding permission can be tedious, you can create a `permission.json` file
 - Workflow diagram of forgot password and reset password
 
   ![Forgot Password](/workflow/Auths%20Forgot%20password%20and%20Reset%20Password.png)
+
+## List of ENV Variables
+
+```ts
+/*
+  Secret key to encrypt auths jwt token.
+*/
+AUTHS_SECRET: string;
+
+/*
+  Auths Jwt token expiry time in Seconds
+*/
+AUTHS_JWT_EXPIRATION_TIME?: number;
+
+/*
+  Auths login token expiration time in MilliSeconds
+*/
+AUTHS_LOGIN_TOKEN_EXPIRATION_TIME?: number;
+
+/*
+  Number of salt rounds to use when encrypting password
+*/
+AUTHS_HASH_SALT_ROUNDS?: number;
+
+/*
+  Specifying Which Database Driver to Use
+
+  Possible values:
+    - 'better-sqlite'
+    - 'mysql2'
+    - 'node-postgres'
+*/
+AUTHS_DB_DRIVER: string;
+
+/*
+  Required if AUTHS_DB_DRIVER is 'better-sqlite'
+*/
+AUTHS_DB_URI?: string;
+
+/*
+  Required if AUTHS_DB_DRIVER is 'mysql2' or 'node-postgres'
+*/
+AUTHS_DB_HOST?: string;
+
+/*
+  Required if AUTHS_DB_DRIVER is 'mysql2' or 'node-postgres'
+*/
+AUTHS_DB_PORT?: number;
+
+/*
+  Required if AUTHS_DB_DRIVER is 'mysql2' or 'node-postgres'
+*/
+AUTHS_DB_USERNAME?: string;
+
+/*
+  Required if AUTHS_DB_DRIVER is 'mysql2' or 'node-postgres'
+*/
+AUTHS_DB_PASSWORD?: string;
+
+/*
+  Required if AUTHS_DB_DRIVER is 'mysql2' or 'node-postgres'
+*/
+AUTHS_DB_NAME?: string;
+```
 
 ## API References
 
@@ -194,7 +259,7 @@ type AuthsRequestUser<T = Record<string, any>>
 
 ## Limitation:
 
-- Currently only `sqlite` db is only supported. Planning to support `postgres` db too.
+- Currently only `better-sqlite3`, `node-postgres` and `mysql2` db are only supported.
 
 ## Examples
 

@@ -16,7 +16,7 @@ import { ErrorResponse } from "./utils/types/errorResponse";
 
 const FRONTEND_PATH = path.join(__dirname, "..", "public", "frontend", "build");
 
-export function authsInit(app: Express, permissionFilePath?: string) {
+export async function authsInit(app: Express, permissionFilePath?: string) {
   // validate Env
   validateEnv();
 
@@ -28,7 +28,7 @@ export function authsInit(app: Express, permissionFilePath?: string) {
   initializeSchema();
 
   // Migrate and instantiate db
-  migrateDB(ENV_VARS.AUTHS_DB_DRIVER, path.join(__dirname, "../drizzle", ENV_VARS.AUTHS_DB_DRIVER));
+  await migrateDB(ENV_VARS.AUTHS_DB_DRIVER, path.join(__dirname, "../drizzle", ENV_VARS.AUTHS_DB_DRIVER));
 
   // Run default Seed
   runSeed(permissionFilePath);

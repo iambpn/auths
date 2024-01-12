@@ -36,18 +36,18 @@ export async function migrateDB(driver: ArrayToIntersection<Auths_DB_Driver>, mi
     db = mySql2Db as unknown as BetterSQLite3Database;
   }
 
-  console.log("** Migration Completed.\n");
+  console.log("** Migration Completed.");
   console.log("** DB Connection Initialized.\n");
 
   return db;
 }
 
-export async function closeDBConnection(driver: ArrayToIntersection<Auths_DB_Driver>) {
+export async function closeDBConnection(driver: ArrayToIntersection<Auths_DB_Driver>, truncateTable: boolean = false) {
   if (driver === "better-sqlite") {
     closeBetterSqLiteConnection();
   } else if (driver === "node-postgres") {
-    await closeNodePostgresConnection();
+    await closeNodePostgresConnection(truncateTable);
   } else if (driver === "mysql2") {
-    await closeMysql2Connection();
+    await closeMysql2Connection(truncateTable);
   }
 }
