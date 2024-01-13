@@ -8,6 +8,13 @@
       "when": 1705078591494,
       "tag": "0000_smart_terror",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1705168866187,
+      "tag": "0001_far_secret_warriors",
+      "breakpoints": true
     }
   ]
 }
