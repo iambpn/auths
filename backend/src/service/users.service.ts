@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { asc, eq, sql } from "drizzle-orm";
 import { db } from "../dbSchema/drizzle-migrate";
 import { schema } from "../dbSchema/drizzle-schema";
 import { HttpError } from "../utils/helper/httpError";
@@ -16,6 +16,7 @@ export async function getAllUsers(paginationQuery: ReturnType<typeof PaginationQ
       updatedAt: schema.UserSchema.updatedAt,
     })
     .from(schema.UserSchema)
+    .orderBy(asc(schema.UserSchema.updatedAt))
     .limit(paginationQuery.limit)
     .offset(paginationQuery.skip);
 

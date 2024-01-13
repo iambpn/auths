@@ -46,17 +46,16 @@ export async function getLoginToken(email: string, password: string) {
 
   const token = getRandomKey(32);
   // save token to database
-  const [loginToken] = await db
-    .insert(schema.LoginTokenSchema)
-    .values({
-      token: token,
-      userUuid: user.uuid,
-      uuid: uuid.v4(),
-      expiresAt: new Date(Date.now() + config.loginTokenExpiration()),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    })
-    .returning();
+  await db.insert(schema.LoginTokenSchema).values({
+    token: token,
+    userUuid: user.uuid,
+    uuid: uuid.v4(),
+    expiresAt: new Date(Date.now() + config.loginTokenExpiration()),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+
+  const [loginToken] = await db.select().from(schema.LoginTokenSchema).where(eq(schema.LoginTokenSchema.token, token)).limit(1);
 
   if (!loginToken) {
     throw new HttpError("Error while logging you in. Please try again later.", 404);
@@ -75,7 +74,8 @@ export async function signUpFn(email: string, password: string, roleSlug: string
       email: schema.UserSchema.email,
     })
     .from(schema.UserSchema)
-    .where(eq(schema.UserSchema.email, email));
+    .where(eq(schema.UserSchema.email, email))
+    .limit(1);
 
   if (user) {
     throw new HttpError("Email already exists. Please use different email", 409);
@@ -84,18 +84,17 @@ export async function signUpFn(email: string, password: string, roleSlug: string
   const role = await getRoleBySlug(roleSlug);
 
   const hashedPassword = await bcrypt.hash(password, config.hashRounds());
-  const [savedUser] = await db
-    .insert(schema.UserSchema)
-    .values({
-      email,
-      password: hashedPassword,
-      uuid: uuid.v4(),
-      others: JSON.stringify(others),
-      role: role.uuid,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    })
-    .returning();
+  await db.insert(schema.UserSchema).values({
+    email,
+    password: hashedPassword,
+    uuid: uuid.v4(),
+    others: JSON.stringify(others),
+    role: role.uuid,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+
+  const [savedUser] = await db.select().from(schema.UserSchema).where(eq(schema.UserSchema.email, email)).limit(1);
 
   if (!savedUser) {
     throw new HttpError("Error while creating user. Please try again later", 404);
@@ -209,16 +208,19 @@ export async function initiateForgotPasswordFn(email: string, returnToken?: stri
     await db.update(schema.ForgotPasswordSchema).set({ expiresAt: new Date() }).where(eq(schema.ForgotPasswordSchema.uuid, prevToken.uuid));
   }
 
+  await db.insert(schema.ForgotPasswordSchema).values({
+    uuid: uuid.v4(),
+    userUuid: user.uuid,
+    token: forgetPasswordToken,
+    expiresAt: new Date(Date.now() + config.loginTokenExpiration()),
+    createdAt: new Date(),
+  });
+
   const [forgetPassword] = await db
-    .insert(schema.ForgotPasswordSchema)
-    .values({
-      uuid: uuid.v4(),
-      userUuid: user.uuid,
-      token: forgetPasswordToken,
-      expiresAt: new Date(Date.now() + config.loginTokenExpiration()),
-      createdAt: new Date(),
-    })
-    .returning();
+    .select()
+    .from(schema.ForgotPasswordSchema)
+    .where(eq(schema.ForgotPasswordSchema.token, forgetPasswordToken))
+    .limit(1);
 
   return {
     email,

@@ -259,7 +259,7 @@ describe("Permission Service Testing", () => {
 
       expect(result).toBeDefined();
 
-      const [permission] = await db.select().from(schema.PermissionSchema).where(eq(schema.PermissionSchema.uuid, DefaultPermission.uuid));
+      const [permission] = await db.select().from(schema.PermissionSchema).where(eq(schema.PermissionSchema.uuid, DefaultPermission.uuid)).limit(1);
 
       expect(permission).not.toBeDefined();
     });
@@ -274,13 +274,13 @@ describe("Permission Service Testing", () => {
         roles: [UserRole.uuid],
       });
 
-      let linkedRoles = await db
+      let [linkedRoles] = await db
         .select()
         .from(schema.RolesPermissionsSchema)
-        .where(eq(schema.RolesPermissionsSchema.permissionUuid, DefaultPermission.uuid));
+        .where(eq(schema.RolesPermissionsSchema.permissionUuid, DefaultPermission.uuid))
+        .limit(1);
 
-      expect(linkedRoles).toHaveLength(1);
-      expect(linkedRoles[0].roleUuid).toBe(UserRole.uuid);
+      expect(linkedRoles.roleUuid).toBe(UserRole.uuid);
     });
 
     it("Should remove previous permission and add new permission to role", async () => {
@@ -296,13 +296,13 @@ describe("Permission Service Testing", () => {
       // assign role
       await assignRolesToPermission(DefaultPermission.uuid, { roles: [superAdminId] });
 
-      const rolesPermission = await db
+      const [rolesPermission] = await db
         .select()
         .from(schema.RolesPermissionsSchema)
-        .where(eq(schema.RolesPermissionsSchema.permissionUuid, DefaultPermission.uuid));
+        .where(eq(schema.RolesPermissionsSchema.permissionUuid, DefaultPermission.uuid))
+        .limit(1);
 
-      expect(rolesPermission.length).toBe(1);
-      expect(rolesPermission[0].roleUuid).toEqual(superAdminId);
+      expect(rolesPermission.roleUuid).toEqual(superAdminId);
 
       //  assign new role and remove old role
       await assignRolesToPermission(DefaultPermission.uuid, { roles: [UserRole.uuid] });

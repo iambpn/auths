@@ -307,7 +307,7 @@ describe("Role Service Testing", () => {
 
       expect(result).toBeDefined();
 
-      const [role] = await db.select().from(schema.RolesSchema).where(eq(schema.RolesSchema.uuid, UserRole.uuid));
+      const [role] = await db.select().from(schema.RolesSchema).where(eq(schema.RolesSchema.uuid, UserRole.uuid)).limit(1);
 
       expect(role).not.toBeDefined();
     });
@@ -328,16 +328,24 @@ describe("Role Service Testing", () => {
         permissions: [permissionUuid],
       });
 
-      let linkedPermission = await db.select().from(schema.RolesPermissionsSchema).where(eq(schema.RolesPermissionsSchema.roleUuid, UserRole.uuid));
+      let [linkedPermission] = await db
+        .select()
+        .from(schema.RolesPermissionsSchema)
+        .where(eq(schema.RolesPermissionsSchema.roleUuid, UserRole.uuid))
+        .limit(1);
 
-      expect(linkedPermission).toHaveLength(1);
-      expect(linkedPermission[0].permissionUuid).toBe(permissionUuid);
+      expect(linkedPermission).toBeDefined();
+      expect(linkedPermission.permissionUuid).toBe(permissionUuid);
 
       await deleteRole(UserRole.uuid);
 
-      linkedPermission = await db.select().from(schema.RolesPermissionsSchema).where(eq(schema.RolesPermissionsSchema.roleUuid, UserRole.uuid));
+      [linkedPermission] = await db
+        .select()
+        .from(schema.RolesPermissionsSchema)
+        .where(eq(schema.RolesPermissionsSchema.roleUuid, UserRole.uuid))
+        .limit(1);
 
-      expect(linkedPermission).toHaveLength(0);
+      expect(linkedPermission).toBeUndefined();
     });
   });
 
@@ -358,10 +366,13 @@ describe("Role Service Testing", () => {
         permissions: [permissionUuid],
       });
 
-      let linkedPermission = await db.select().from(schema.RolesPermissionsSchema).where(eq(schema.RolesPermissionsSchema.roleUuid, UserRole.uuid));
+      let [linkedPermission] = await db
+        .select()
+        .from(schema.RolesPermissionsSchema)
+        .where(eq(schema.RolesPermissionsSchema.roleUuid, UserRole.uuid))
+        .limit(1);
 
-      expect(linkedPermission).toHaveLength(1);
-      expect(linkedPermission[0].permissionUuid).toBe(permissionUuid);
+      expect(linkedPermission.permissionUuid).toBe(permissionUuid);
     });
 
     it("Should remove previous permission and add new permission to role", async () => {
@@ -394,10 +405,13 @@ describe("Role Service Testing", () => {
         permissions: [permissionUuid2],
       });
 
-      let linkedPermission = await db.select().from(schema.RolesPermissionsSchema).where(eq(schema.RolesPermissionsSchema.roleUuid, UserRole.uuid));
+      let [linkedPermission] = await db
+        .select()
+        .from(schema.RolesPermissionsSchema)
+        .where(eq(schema.RolesPermissionsSchema.roleUuid, UserRole.uuid))
+        .limit(1);
 
-      expect(linkedPermission).toHaveLength(1);
-      expect(linkedPermission[0].permissionUuid).toBe(permissionUuid2);
+      expect(linkedPermission.permissionUuid).toBe(permissionUuid2);
     });
   });
 

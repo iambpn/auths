@@ -151,16 +151,14 @@ export async function forgotPasswordService(data: ForgotPasswordType) {
 
   // add new token
   const token = getRandomKey(16);
-  const [resetToken] = await db
-    .insert(schema.ResetPasswordTokenSchema)
-    .values({
-      uuid: uuid.v4(),
-      createdAt: new Date(),
-      expiresAt: new Date(Date.now() + config.resetPasswordExpiration()),
-      token: token,
-      userUuid: user.uuid,
-    })
-    .returning();
+  await db.insert(schema.ResetPasswordTokenSchema).values({
+    uuid: uuid.v4(),
+    createdAt: new Date(),
+    expiresAt: new Date(Date.now() + config.resetPasswordExpiration()),
+    token: token,
+    userUuid: user.uuid,
+  });
+  const [resetToken] = await db.select().from(schema.ResetPasswordTokenSchema).where(eq(schema.ResetPasswordTokenSchema.token, token)).limit(1);
 
   return {
     token: resetToken.token,

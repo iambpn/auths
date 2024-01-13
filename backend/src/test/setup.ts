@@ -46,7 +46,7 @@ beforeAll(() => {
 });
 
 beforeEach(async () => {
-  db = await migrateDB(ENV_VARS.AUTHS_DB_DRIVER, `drizzle/${ENV_VARS.AUTHS_DB_DRIVER}`, true);
+  db = await migrateDB(ENV_VARS.AUTHS_DB_DRIVER, `drizzle/${ENV_VARS.AUTHS_DB_DRIVER}`, false);
 });
 
 afterEach(async () => {

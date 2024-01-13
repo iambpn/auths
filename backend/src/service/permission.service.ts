@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { asc, desc, eq, sql } from "drizzle-orm";
 import * as uuid from "uuid";
 import { db } from "../dbSchema/drizzle-migrate";
 import { schema } from "../dbSchema/drizzle-schema";
@@ -14,7 +14,7 @@ export async function getAllPermission(paginationQuery: ReturnType<typeof Pagina
     query.where(sql`lower(${schema.PermissionSchema.name}) like ${searchKeyword.toLowerCase() + "%"}`);
   }
 
-  const permissions = await query.limit(paginationQuery.limit).offset(paginationQuery.skip);
+  const permissions = await query.limit(paginationQuery.limit).offset(paginationQuery.skip).orderBy(asc(schema.PermissionSchema.updatedAt));
 
   const countQuery = db
     .select({
@@ -38,7 +38,8 @@ export async function getRolesByPermission(id: string, paginationQuery: ReturnTy
     .from(schema.RolesSchema)
     .innerJoin(schema.RolesPermissionsSchema, eq(schema.RolesPermissionsSchema.roleUuid, schema.RolesSchema.uuid))
     .innerJoin(schema.PermissionSchema, eq(schema.PermissionSchema.uuid, schema.RolesPermissionsSchema.permissionUuid))
-    .where(eq(schema.PermissionSchema.uuid, id));
+    .where(eq(schema.PermissionSchema.uuid, id))
+    .orderBy(asc(schema.RolesSchema.updatedAt));
 
   const roles = await query.limit(paginationQuery.limit).offset(paginationQuery.skip);
 
@@ -75,16 +76,15 @@ export async function createPermission(permissionData: CreatePermissionType) {
     throw new HttpError("Permission with the same slug already exists.", 409);
   }
 
-  const [permission] = await db
-    .insert(schema.PermissionSchema)
-    .values({
-      name: permissionData.name,
-      slug: permissionData.slug,
-      uuid: uuid.v4(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    })
-    .returning();
+  await db.insert(schema.PermissionSchema).values({
+    name: permissionData.name,
+    slug: permissionData.slug,
+    uuid: uuid.v4(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+
+  const [permission] = await db.select().from(schema.PermissionSchema).where(eq(schema.PermissionSchema.slug, permissionData.slug)).limit(1);
 
   return permission;
 }
@@ -99,37 +99,37 @@ export async function updatePermission(id: string, permissionData: CreatePermiss
     throw new HttpError("Permission with the same slug already exists.", 409);
   }
 
-  const [permission] = await db
+  await db
     .update(schema.PermissionSchema)
     .set({
       name: permissionData.name,
       slug: permissionData.slug,
       updatedAt: new Date(),
     })
-    .where(eq(schema.PermissionSchema.uuid, permissionById.uuid))
-    .returning();
+    .where(eq(schema.PermissionSchema.uuid, permissionById.uuid));
 
-  return permission;
+  const [updatedPermission] = await db.select().from(schema.PermissionSchema).where(eq(schema.PermissionSchema.uuid, permissionById.uuid)).limit(1);
+
+  return updatedPermission;
 }
 
 export async function deletePermission(id: string) {
   const permissionById = await getPermissionById(id);
 
-  const roles = await db
+  const [rolesCount] = await db
     .select({
-      uuid: schema.RolesPermissionsSchema.uuid,
-      roleUUid: schema.RolesPermissionsSchema.roleUuid,
+      count: sql<number>`count(*)`,
     })
     .from(schema.RolesPermissionsSchema)
     .innerJoin(schema.RolesSchema, eq(schema.RolesPermissionsSchema.roleUuid, schema.RolesSchema.uuid));
 
-  if (roles.length > 0) {
+  if (rolesCount.count > 0) {
     throw new HttpError("Permission in use, cannot delete.", 400);
   }
 
-  const [permission] = await db.delete(schema.PermissionSchema).where(eq(schema.PermissionSchema.uuid, permissionById.uuid)).returning();
+  await db.delete(schema.PermissionSchema).where(eq(schema.PermissionSchema.uuid, permissionById.uuid));
 
-  return permission;
+  return permissionById;
 }
 
 export async function assignRolesToPermission(id: string, data: AssignRoleToPermissionType) {
@@ -140,7 +140,8 @@ export async function assignRolesToPermission(id: string, data: AssignRoleToPerm
       rolesUuid: schema.RolesPermissionsSchema.roleUuid,
     })
     .from(schema.RolesPermissionsSchema)
-    .where(eq(schema.RolesPermissionsSchema.permissionUuid, permissionById.uuid));
+    .where(eq(schema.RolesPermissionsSchema.permissionUuid, permissionById.uuid))
+    .orderBy(asc(schema.RolesPermissionsSchema.updatedAt));
 
   const newRoleUuids = data.roles
     .map((newRoleUuid) => {
@@ -162,22 +163,16 @@ export async function assignRolesToPermission(id: string, data: AssignRoleToPerm
     updatedAt: new Date(),
   }));
 
-  const insertedRolePermissionUuids: (typeof schema.RolesPermissionsSchema.$inferSelect)[] = [];
-
   if (insertableRoles.length > 0) {
-    insertedRolePermissionUuids.push(...(await db.insert(schema.RolesPermissionsSchema).values(insertableRoles).returning()));
+    await db.insert(schema.RolesPermissionsSchema).values(insertableRoles);
   }
 
-  let removedRolePermissionUuids: (typeof schema.RolesPermissionsSchema.$inferSelect)[] = [];
   if (removedRoleUuids.length > 0) {
-    removedRolePermissionUuids = await db
-      .delete(schema.RolesPermissionsSchema)
-      .where(sql`${schema.RolesPermissionsSchema.roleUuid} in ${removedRoleUuids}`)
-      .returning();
+    await db.delete(schema.RolesPermissionsSchema).where(sql`${schema.RolesPermissionsSchema.roleUuid} in ${removedRoleUuids}`);
   }
 
   return {
-    removeUuid: removedRolePermissionUuids.map((x) => x.roleUuid).filter(Boolean) as string[],
-    insertedUuid: insertedRolePermissionUuids.map((x) => x.roleUuid).filter(Boolean) as string[],
+    removeUuid: insertableRoles.flatMap((x) => (x.roleUuid ? [x.roleUuid] : [])),
+    insertedUuid: removedRoleUuids.flatMap((x) => (x ? [x] : [])),
   };
 }

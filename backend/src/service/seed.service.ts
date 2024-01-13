@@ -1,5 +1,5 @@
 import { createHash } from "crypto";
-import { desc, sql } from "drizzle-orm";
+import { asc, desc, sql } from "drizzle-orm";
 import * as fs from "fs";
 import * as path from "path";
 import * as UUID from "uuid";
@@ -130,7 +130,7 @@ export async function seedFilePermissionCallback(err: unknown, data: string) {
       updatedAt: new Date(),
     }));
 
-    const previousPermissions = await db.select().from(schema.PermissionSchema);
+    const previousPermissions = await db.select().from(schema.PermissionSchema).orderBy(asc(schema.PermissionSchema.updatedAt));
 
     // delete previous permission
     const deletePermissions = previousPermissions.filter(

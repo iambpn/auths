@@ -31,9 +31,9 @@ async function insertUser(email: string, password: string) {
     updatedAt: new Date(),
   });
 
-  const user = await db.select().from(schema.UserSchema).where(eq(schema.UserSchema.email, email)).limit(1);
+  const [user] = await db.select().from(schema.UserSchema).where(eq(schema.UserSchema.email, email)).limit(1);
 
-  return user[0];
+  return user;
 }
 
 async function insertRole() {
@@ -183,17 +183,17 @@ describe("Integration Testing Auth service", () => {
       const user = await insertUser(Email, Password);
 
       const token = getRandomKey(64);
-      const [loginToken] = await db
-        .insert(schema.LoginTokenSchema)
-        .values({
-          uuid: uuid.v4(),
-          userUuid: user.uuid,
-          token,
-          expiresAt: new Date(Date.now() + minutesToMilliseconds(5)),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        })
-        .returning();
+      const loginTokenUuid = uuid.v4();
+      await db.insert(schema.LoginTokenSchema).values({
+        uuid: loginTokenUuid,
+        userUuid: user.uuid,
+        token,
+        expiresAt: new Date(Date.now() + minutesToMilliseconds(5)),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      const [loginToken] = await db.select().from(schema.LoginTokenSchema).where(eq(schema.LoginTokenSchema.uuid, loginTokenUuid)).limit(1);
 
       const loginParams = await loginFn(token, Email, {});
 
@@ -201,7 +201,7 @@ describe("Integration Testing Auth service", () => {
       expect(loginParams.uuid).toEqual(user.uuid);
       expect(loginParams.jwtToken).toBeDefined();
 
-      const [expiredToken] = await db.select().from(schema.LoginTokenSchema).where(eq(schema.LoginTokenSchema.uuid, loginToken.uuid));
+      const [expiredToken] = await db.select().from(schema.LoginTokenSchema).where(eq(schema.LoginTokenSchema.uuid, loginToken.uuid)).limit(1);
 
       expect(loginToken.token).toEqual(expiredToken.token);
       expect(expiredToken.expiresAt.getTime()).toBeLessThan(Date.now());
@@ -212,17 +212,15 @@ describe("Integration Testing Auth service", () => {
       const user = await insertUser(Email, Password);
 
       const token = getRandomKey(64);
-      await db
-        .insert(schema.LoginTokenSchema)
-        .values({
-          uuid: uuid.v4(),
-          userUuid: user.uuid,
-          token,
-          expiresAt: new Date(Date.now() + minutesToMilliseconds(5)),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        })
-        .returning();
+      const loginTokenUuid = uuid.v4();
+      await db.insert(schema.LoginTokenSchema).values({
+        uuid: loginTokenUuid,
+        userUuid: user.uuid,
+        token,
+        expiresAt: new Date(Date.now() + minutesToMilliseconds(5)),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
 
       const loginParams = await loginFn(token, Email, { data: "data" });
 
@@ -348,16 +346,20 @@ describe("Integration Testing Auth service", () => {
 
       expect(await bcrypt.compare(Password, user.password)).toEqual(true);
 
+      const forgotPasswordUuid = uuid.v4();
+      await db.insert(schema.ForgotPasswordSchema).values({
+        userUuid: user.uuid,
+        token,
+        uuid: forgotPasswordUuid,
+        expiresAt: new Date(Date.now() + 1000 * 60 * 5),
+        createdAt: new Date(),
+      });
+
       const [returnForgotPasswordToken] = await db
-        .insert(schema.ForgotPasswordSchema)
-        .values({
-          userUuid: user.uuid,
-          token,
-          uuid: uuid.v4(),
-          expiresAt: new Date(Date.now() + 1000 * 60 * 5),
-          createdAt: new Date(),
-        })
-        .returning();
+        .select()
+        .from(schema.ForgotPasswordSchema)
+        .where(eq(schema.ForgotPasswordSchema.uuid, forgotPasswordUuid))
+        .limit(1);
 
       await resetPassword(token, Email, newPassword);
 

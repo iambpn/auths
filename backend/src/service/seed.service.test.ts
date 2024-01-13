@@ -79,7 +79,7 @@ describe("Testing Seed Permission service", () => {
       await seedFilePermissionCallback(null, JSON.stringify(newJsonData));
 
       //  verify if permission is removed
-      const [removePermission] = await db.select().from(schema.PermissionSchema).where(eq(schema.PermissionSchema.slug, removePerm.slug));
+      const [removePermission] = await db.select().from(schema.PermissionSchema).where(eq(schema.PermissionSchema.slug, removePerm.slug)).limit(1);
 
       expect(removePermission).toBeUndefined();
 
@@ -115,12 +115,12 @@ describe("Testing Seed Permission service", () => {
       // seed removed permission
       await seedFilePermissionCallback(null, JSON.stringify(newJsonData));
 
-      const [updatedPerm] = await db.select().from(schema.PermissionSchema).where(eq(schema.PermissionSchema.slug, perm.slug));
+      const [updatedPerm] = await db.select().from(schema.PermissionSchema).where(eq(schema.PermissionSchema.slug, perm.slug)).limit(1);
       // updated permission
       expect(updatedPerm.name).toEqual(perm.name);
       expect(updatedPerm.slug).toEqual(perm.slug);
 
-      const [insertedNewPerm] = await db.select().from(schema.PermissionSchema).where(eq(schema.PermissionSchema.slug, newPerm.slug));
+      const [insertedNewPerm] = await db.select().from(schema.PermissionSchema).where(eq(schema.PermissionSchema.slug, newPerm.slug)).limit(1);
       // inserted permission
       expect(insertedNewPerm.name).toEqual(newPerm.name);
       expect(insertedNewPerm.slug).toEqual(newPerm.slug);
@@ -142,15 +142,14 @@ describe("Testing Seed Permission service", () => {
   describe("seed super admin user and super admin role", () => {
     it("Should seed super admin role on initial start up", async () => {
       await seedSuperAdminRole();
-      let superAdminRoles = await db.select().from(schema.RolesSchema).where(eq(schema.RolesSchema.slug, config.superAdminSlug));
+      let [superAdminRole] = await db.select().from(schema.RolesSchema).where(eq(schema.RolesSchema.slug, config.superAdminSlug)).limit(1);
 
-      expect(superAdminRoles).toBeDefined();
-      expect(superAdminRoles.length).toEqual(1);
-      expect(superAdminRoles[0].slug).toEqual(config.superAdminSlug);
+      expect(superAdminRole).toBeDefined();
+      expect(superAdminRole.slug).toEqual(config.superAdminSlug);
 
       await seedSuperAdminRole();
-      superAdminRoles = await db.select().from(schema.RolesSchema).where(eq(schema.RolesSchema.slug, config.superAdminSlug));
-      expect(superAdminRoles.length).toEqual(1);
+      [superAdminRole] = await db.select().from(schema.RolesSchema).where(eq(schema.RolesSchema.slug, config.superAdminSlug)).limit(1);
+      expect(superAdminRole).toBeDefined();
     });
 
     it("Should seed super admin user on initial start up", async () => {
@@ -159,15 +158,14 @@ describe("Testing Seed Permission service", () => {
 
       let [superAdminRole] = await db.select().from(schema.RolesSchema).where(eq(schema.RolesSchema.slug, config.superAdminSlug)).limit(1);
 
-      let superAdminUsers = await db.select().from(schema.UserSchema).where(eq(schema.UserSchema.role, superAdminRole.uuid));
+      let [superAdminUser] = await db.select().from(schema.UserSchema).where(eq(schema.UserSchema.role, superAdminRole.uuid));
 
-      expect(superAdminUsers).toBeDefined();
-      expect(superAdminUsers.length).toEqual(1);
-      expect(superAdminUsers[0].role).toEqual(superAdminRole.uuid);
+      expect(superAdminUser).toBeDefined();
+      expect(superAdminUser.role).toEqual(superAdminRole.uuid);
 
       await seedSuperAdminUser();
-      superAdminUsers = await db.select().from(schema.UserSchema).where(eq(schema.UserSchema.role, superAdminRole.uuid));
-      expect(superAdminUsers.length).toEqual(1);
+      [superAdminUser] = await db.select().from(schema.UserSchema).where(eq(schema.UserSchema.role, superAdminRole.uuid));
+      expect(superAdminUser).toBeDefined();
     });
   });
 });

@@ -28,9 +28,9 @@ async function insertUser(email: string, password: string, roleId?: string) {
     updatedAt: new Date(),
   });
 
-  const user = await db.select().from(schema.UserSchema).where(eq(schema.UserSchema.email, email)).limit(1);
+  const [user] = await db.select().from(schema.UserSchema).where(eq(schema.UserSchema.email, email)).limit(1);
 
-  return user[0];
+  return user;
 }
 
 async function insertRole(role: typeof UserRole) {
@@ -146,7 +146,7 @@ describe("Users Service Testing", () => {
 
       await deleteUser(user.uuid);
 
-      const [emptyUser] = await db.select().from(schema.UserSchema).where(eq(schema.UserSchema.email, user.email));
+      const [emptyUser] = await db.select().from(schema.UserSchema).where(eq(schema.UserSchema.email, user.email)).limit(1);
 
       expect(emptyUser).toBeUndefined();
     });
