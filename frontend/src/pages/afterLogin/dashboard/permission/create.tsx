@@ -43,7 +43,7 @@ export function CreatePermission() {
     onError(err) {
       handleError(err);
     },
-    onSuccess(data, values) {
+    onSuccess(_, values) {
       toast.success("Permission Roles Updated");
       queryClient.invalidateQueries(["permission", values.id]);
     },
