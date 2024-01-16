@@ -17,6 +17,8 @@ import { InitialLayout } from "./pages/layout";
 import { RequireAuth } from "./components/requireAuth";
 import { BlockOnAuth } from "./components/blockOnAuth";
 import { ResetPassword } from "./pages/resetPassword";
+import { CreateUser } from "./pages/afterLogin/dashboard/users/create";
+import { EditUser } from "./pages/afterLogin/dashboard/users/edit";
 
 const browserRouter = createBrowserRouter(
   [
@@ -26,7 +28,6 @@ const browserRouter = createBrowserRouter(
       element: <InitialLayout />,
       children: [
         {
-          path: "/",
           element: (
             <BlockOnAuth>
               <Outlet />
@@ -38,17 +39,16 @@ const browserRouter = createBrowserRouter(
               index: true,
             },
             {
-              path: "/forgotpassword",
+              path: "forgotpassword",
               element: <ForgotPassword />,
             },
             {
-              path: "/resetpassword",
+              path: "resetpassword",
               element: <ResetPassword />,
             },
           ],
         },
         {
-          path: "/",
           element: (
             <RequireAuth>
               <AfterLoginLayout />
@@ -56,47 +56,72 @@ const browserRouter = createBrowserRouter(
           ),
           children: [
             {
-              path: "/",
               element: <DashboardLayout />,
               children: [
                 {
-                  path: "/users",
-                  element: <Users />,
+                  path: "users",
+                  element: <Outlet />,
+                  children: [
+                    {
+                      element: <Users />,
+                      index: true,
+                    },
+                    {
+                      path: "create",
+                      element: <CreateUser />,
+                    },
+                    {
+                      path: ":id",
+                      element: <EditUser />,
+                    },
+                  ],
                 },
                 {
-                  path: "/roles",
-                  element: <ListRoles />,
-                },
-                {
-                  path: "/roles/create",
-                  element: <CreateRole />,
-                },
-                {
-                  path: "/roles/:id",
-                  element: <EditRole />,
+                  path: "roles",
+                  element: <Outlet />,
+                  children: [
+                    {
+                      index: true,
+                      element: <ListRoles />,
+                    },
+                    {
+                      path: "create",
+                      element: <CreateRole />,
+                    },
+                    {
+                      path: ":id",
+                      element: <EditRole />,
+                    },
+                  ],
                 },
                 {
                   path: "/permission",
-                  element: <ListPermission />,
-                },
-                {
-                  path: "/permission/create",
-                  element: <CreatePermission />,
-                },
-                {
-                  path: "/permission/:id",
-                  element: <EditPermission />,
+                  element: <Outlet />,
+                  children: [
+                    {
+                      index: true,
+                      element: <ListPermission />,
+                    },
+                    {
+                      path: "/permission/create",
+                      element: <CreatePermission />,
+                    },
+                    {
+                      path: ":id",
+                      element: <EditPermission />,
+                    },
+                  ],
                 },
               ],
             },
             {
-              path: "/settings",
+              path: "settings",
               element: <Settings />,
             },
           ],
         },
         {
-          path: "/logout",
+          path: "logout",
           element: <Logout />,
         },
       ],

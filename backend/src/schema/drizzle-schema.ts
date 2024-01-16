@@ -30,8 +30,8 @@ export const ForgotPasswordSchema = sqliteTable("forgot_password", {
   userUuid: text("user_uuid")
     .notNull()
     .references(() => UserSchema.uuid, {
-      onDelete: "no action",
-      onUpdate: "no action",
+      onDelete: "cascade",
+      onUpdate: "cascade",
     }),
   token: text("token").notNull(),
   expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
@@ -90,13 +90,13 @@ export const SecurityQuestionSchema = sqliteTable("securityQuestion", {
   updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
 });
 
-export const ResetPasswordToken = sqliteTable("resetPasswordToken", {
+export const ResetPasswordTokenSchema = sqliteTable("resetPasswordToken", {
   uuid: text("uuid").primaryKey(),
   userUuid: text("user_uuid")
     .notNull()
     .references(() => UserSchema.uuid, {
-      onDelete: "no action",
-      onUpdate: "no action",
+      onDelete: "cascade",
+      onUpdate: "cascade",
     }),
   token: text("token").notNull(),
   expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),

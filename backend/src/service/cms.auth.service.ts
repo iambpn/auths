@@ -3,20 +3,20 @@ import { and, desc, eq, gte } from "drizzle-orm";
 import jwt from "jsonwebtoken";
 import * as uuid from "uuid";
 import { db } from "../schema/drizzle-migrate";
-import { ResetPasswordToken, RolesPermissionsSchema, RolesSchema, SecurityQuestionSchema, UserSchema } from "../schema/drizzle-schema";
+import { ResetPasswordTokenSchema, SecurityQuestionSchema, UserSchema } from "../schema/drizzle-schema";
 import { config } from "../utils/config/app-config";
+import { QuestionsType1, QuestionsType2 } from "../utils/config/securityQuestion.config";
 import { getRandomKey } from "../utils/helper/getRandomKey";
 import { HttpError } from "../utils/helper/httpError";
+import { CmsRequestUser } from "../utils/types/req.user.type";
 import { ForgotPasswordType } from "../utils/validation_schema/cms/forgotPassword.validation.schema";
 import { ResetPasswordValidationType } from "../utils/validation_schema/cms/resetPassword.validation.schema";
-import { ENV_VARS } from "./env.service";
 import { SetSecurityQnAType } from "../utils/validation_schema/cms/setSecurityQnA.validation.schema";
-import { CmsRequestUser } from "../utils/types/req.user.type";
-import { getRoleById, getSuperAdminRole } from "./roles.service";
-import { ValidateEmailType } from "../utils/validation_schema/cms/verifyEmail.validation.schema";
-import { QuestionsType1, QuestionsType2 } from "../utils/config/securityQuestion.config";
 import { UpdatePasswordValidationType } from "../utils/validation_schema/cms/updatePassword.validation.schema";
 import { UpdateSecurityQnAType } from "../utils/validation_schema/cms/updateSecurityQnA.validation.schema";
+import { ValidateEmailType } from "../utils/validation_schema/cms/verifyEmail.validation.schema";
+import { ENV_VARS } from "./env.service";
+import { getRoleById, getSuperAdminRole } from "./roles.service";
 
 export async function loginService(email: string, password: string) {
   const [user] = await db
@@ -37,7 +37,7 @@ export async function loginService(email: string, password: string) {
   const superAdminRole = await getSuperAdminRole();
 
   if (user.role !== superAdminRole.uuid) {
-    throw new HttpError("Unauthorized", 401);
+    throw new HttpError("Unauthorized - Insufficient role", 401);
   }
 
   if (!(await bcrypt.compare(password, user.password))) {
@@ -56,7 +56,8 @@ export async function loginService(email: string, password: string) {
   };
 }
 
-export async function validateEmail(data: ValidateEmailType) {
+// verify email form forger password
+export async function validateSuperadminEmail(data: ValidateEmailType) {
   const [user] = await db
     .select({
       email: UserSchema.email,
@@ -115,31 +116,35 @@ export async function forgotPasswordService(data: ForgotPasswordType) {
 
   const [securityQuestion] = await db.select().from(SecurityQuestionSchema).where(eq(SecurityQuestionSchema.userUuid, user.uuid)).limit(1);
 
-  if (!(await bcrypt.compare(data.answer1, securityQuestion.answer1)) || !(await bcrypt.compare(data.answer2, securityQuestion.answer2))) {
-    throw new HttpError("Invalid Security Question or Answer", 404);
+  if (
+    !securityQuestion ||
+    !(await bcrypt.compare(data.answer1, securityQuestion.answer1)) ||
+    !(await bcrypt.compare(data.answer2, securityQuestion.answer2))
+  ) {
+    throw new HttpError("Invalid Security Question or Answer", 400);
   }
 
-  // disable previous toke
+  // disable previous token
   const [prevToken] = await db
     .select()
-    .from(ResetPasswordToken)
-    .where(eq(ResetPasswordToken.userUuid, user.uuid))
-    .orderBy(desc(ResetPasswordToken.createdAt))
+    .from(ResetPasswordTokenSchema)
+    .where(eq(ResetPasswordTokenSchema.userUuid, user.uuid))
+    .orderBy(desc(ResetPasswordTokenSchema.createdAt))
     .limit(1);
 
   if (prevToken) {
     await db
-      .update(ResetPasswordToken)
+      .update(ResetPasswordTokenSchema)
       .set({
         expiresAt: new Date(),
       })
-      .where(eq(ResetPasswordToken.uuid, prevToken.uuid));
+      .where(eq(ResetPasswordTokenSchema.uuid, prevToken.uuid));
   }
 
   // add new token
   const token = getRandomKey(16);
   const [resetToken] = await db
-    .insert(ResetPasswordToken)
+    .insert(ResetPasswordTokenSchema)
     .values({
       uuid: uuid.v4(),
       createdAt: new Date(),
@@ -159,13 +164,13 @@ export async function forgotPasswordService(data: ForgotPasswordType) {
 export async function resetPassword(data: ResetPasswordValidationType) {
   const [token] = await db
     .select()
-    .from(ResetPasswordToken)
-    .where(and(eq(ResetPasswordToken.token, data.token), gte(ResetPasswordToken.expiresAt, new Date())))
-    .orderBy(desc(ResetPasswordToken.createdAt))
+    .from(ResetPasswordTokenSchema)
+    .where(and(eq(ResetPasswordTokenSchema.token, data.token), gte(ResetPasswordTokenSchema.expiresAt, new Date())))
+    .orderBy(desc(ResetPasswordTokenSchema.createdAt))
     .limit(1);
 
   if (!token) {
-    throw new HttpError("Invalid Reset Token", 404);
+    throw new HttpError("Invalid Reset Token", 400);
   }
 
   const [user] = await db.select().from(UserSchema).where(eq(UserSchema.uuid, token.userUuid)).limit(1);
@@ -176,11 +181,11 @@ export async function resetPassword(data: ResetPasswordValidationType) {
 
   // disable used token
   await db
-    .update(ResetPasswordToken)
+    .update(ResetPasswordTokenSchema)
     .set({
       expiresAt: new Date(),
     })
-    .where(eq(ResetPasswordToken.uuid, token.uuid));
+    .where(eq(ResetPasswordTokenSchema.uuid, token.uuid));
 
   // update password
   const newPasswordHash = await bcrypt.hash(data.newPassword, config.hashRounds());
@@ -254,25 +259,34 @@ export async function updateSecurityQuestion(data: UpdateSecurityQnAType, curren
   const encryptAnswer1 = await bcrypt.hash(data.answer1, config.hashRounds());
   const encryptAnswer2 = await bcrypt.hash(data.answer2, config.hashRounds());
 
-  await db.insert(SecurityQuestionSchema).values({
-    answer1: encryptAnswer1,
-    answer2: encryptAnswer2,
-    question1: data.question1,
-    question2: data.question2,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    userUuid: user.uuid,
-    uuid: uuid.v4(),
-  });
-
   if (!user.isRecoverable) {
+    await db.insert(SecurityQuestionSchema).values({
+      answer1: encryptAnswer1,
+      answer2: encryptAnswer2,
+      question1: data.question1,
+      question2: data.question2,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      userUuid: user.uuid,
+      uuid: uuid.v4(),
+    });
+
     await db
       .update(UserSchema)
       .set({
         isRecoverable: true,
       })
       .where(eq(UserSchema.uuid, user.uuid));
+
+    return {
+      message: "Security QnA added successfully",
+    };
   }
+
+  await db
+    .update(SecurityQuestionSchema)
+    .set({ answer1: encryptAnswer1, answer2: encryptAnswer2, question1: data.question1, question2: data.question2, updatedAt: new Date() })
+    .where(eq(SecurityQuestionSchema.userUuid, user.uuid));
 
   return {
     message: "Security QnA updated successfully",

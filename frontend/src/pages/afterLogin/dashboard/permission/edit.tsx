@@ -1,4 +1,4 @@
-import { UpdatePermissionForm, UpdatePermissionType } from "@/components/permission/updatePermission.form";
+import { PermissionForm, PermissionType } from "@/components/permission/permission.form";
 import { axiosInstance } from "@/lib/axiosInstance";
 import { PAGE_LIMIT } from "@/lib/config";
 import { handleError } from "@/lib/handleError";
@@ -54,7 +54,7 @@ export function EditPermission() {
     }
   }, [RolesByPermissionInfiniteQuery.error, RolesByPermissionInfiniteQuery.isError]);
 
-  const permissionMutationQuery = useMutation<APIResponse.Permission["PUT-id"], unknown, UpdatePermissionType>({
+  const permissionMutationQuery = useMutation<APIResponse.Permission["PUT-id"], unknown, PermissionType>({
     mutationFn: async (values) => {
       const res = await axiosInstance.put(`/permission/${params.id}`, {
         name: values.name,
@@ -71,7 +71,7 @@ export function EditPermission() {
     },
   });
 
-  const assignRolesMutationQuery = useMutation<APIResponse.Permission["POST-assignRoles/id"], unknown, UpdatePermissionType>({
+  const assignRolesMutationQuery = useMutation<APIResponse.Permission["POST-assignRoles/id"], unknown, PermissionType>({
     mutationFn: async (values) => {
       const res = await axiosInstance.post(`/permission/assignRoles/${params.id}`, {
         roles: JSON.parse(values.selectedRoles ?? "[]"),
@@ -87,7 +87,7 @@ export function EditPermission() {
     },
   });
 
-  const onFormSubmit: SubmitHandler<UpdatePermissionType> = async (data) => {
+  const onFormSubmit: SubmitHandler<PermissionType> = async (data) => {
     await permissionMutationQuery.mutateAsync(data);
     await assignRolesMutationQuery.mutateAsync(data);
     navigate("/permission");
@@ -99,7 +99,7 @@ export function EditPermission() {
         <h1 className='text-3xl font-bold tracking-tight'>Edit Permission</h1>
       </div>
       {PermissionByIdQuery.data && (
-        <UpdatePermissionForm
+        <PermissionForm
           onSubmit={onFormSubmit}
           defaultValue={{ name: PermissionByIdQuery.data.name, slug: PermissionByIdQuery.data.slug }}
           roles={RolesByPermissionInfiniteQuery?.data?.pages.flatMap((x) => x.roles) ?? []}

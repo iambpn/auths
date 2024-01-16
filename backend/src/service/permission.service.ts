@@ -68,6 +68,13 @@ export async function getPermissionById(id: string) {
 }
 
 export async function createPermission(permissionData: CreatePermissionType) {
+  // Check if permission with the same slug exists
+  const [existingPermission] = await db.select().from(PermissionSchema).where(eq(PermissionSchema.slug, permissionData.slug)).limit(1);
+
+  if (existingPermission) {
+    throw new HttpError("Permission with the same slug already exists.", 409);
+  }
+
   const [permission] = await db
     .insert(PermissionSchema)
     .values({
@@ -84,6 +91,13 @@ export async function createPermission(permissionData: CreatePermissionType) {
 
 export async function updatePermission(id: string, permissionData: CreatePermissionType) {
   const permissionById = await getPermissionById(id);
+
+  // permission by slug
+  const [permissionBySlug] = await db.select().from(PermissionSchema).where(eq(PermissionSchema.slug, permissionData.slug)).limit(1);
+
+  if (permissionBySlug && permissionBySlug.uuid !== permissionById.uuid) {
+    throw new HttpError("Permission with the same slug already exists.", 409);
+  }
 
   const [permission] = await db
     .update(PermissionSchema)

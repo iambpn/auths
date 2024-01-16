@@ -2,7 +2,6 @@ import SQLite, { type Database } from "better-sqlite3";
 import { BetterSQLite3Database, drizzle } from "drizzle-orm/better-sqlite3";
 import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import * as schema from "../schema/drizzle-schema";
-import { validate } from "../utils/helper/validate";
 import { validateEnv } from "../service/env.service";
 
 export let db: BetterSQLite3Database<typeof schema>;
@@ -19,6 +18,7 @@ beforeAll(() => {
 beforeEach(() => {
   // create in memory sql instance before each test
   let inMemSqLite = new SQLite(":memory:");
+  inMemSqLite.pragma("foreign_keys = ON");
   db = drizzle(inMemSqLite, { schema: schema });
   migrate(db, { migrationsFolder: "drizzle" });
 });

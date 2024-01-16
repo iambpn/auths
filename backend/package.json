@@ -7,7 +7,6 @@
     "dev": "tsnd --rs example/app.ts",
     "prebuild": "shx rm -r ./dist || true",
     "build": "tsc",
-    "serve": "node .",
     "drizzle:generate": "drizzle-kit generate:sqlite --config=./drizzle.config.js",
     "drizzle:push": "AUTHS_DB_URI=./example/dev.sqlite drizzle-kit push:sqlite --config=./drizzle.config.js",
     "drizzle:drop": "drizzle-kit drop --config=./drizzle.config.js",
@@ -70,6 +69,6 @@
     "iambpn"
   ],
   "volta": {
-    "node": "16.20.2"
+    "node": "20.10.0"
   }
 }

@@ -1,4 +1,4 @@
-import { UpdateRoleForm, UpdateRoleType } from "@/components/role/updateRole.form";
+import { RoleForm, RoleType } from "@/components/role/role.form";
 import { axiosInstance } from "@/lib/axiosInstance";
 import { handleError } from "@/lib/handleError";
 import { NavName } from "@/lib/navName";
@@ -34,7 +34,7 @@ export function EditRole() {
     }
   }, [RoleByIdQuery.error, RoleByIdQuery.isError]);
 
-  const rolesMutationQuery = useMutation<APIResponse.Roles["PUT-id"], unknown, UpdateRoleType>({
+  const rolesMutationQuery = useMutation<APIResponse.Roles["PUT-id"], unknown, RoleType>({
     mutationFn: async (values) => {
       const res = await axiosInstance.put(`/roles/${params.id}`, {
         name: values.name,
@@ -52,7 +52,7 @@ export function EditRole() {
     },
   });
 
-  const assignPermissionMutationQuery = useMutation<APIResponse.Roles["POST-assignPermission/id"], unknown, UpdateRoleType>({
+  const assignPermissionMutationQuery = useMutation<APIResponse.Roles["POST-assignPermission/id"], unknown, RoleType>({
     mutationFn: async (values) => {
       const res = await axiosInstance.post(`/roles/assignPermission/${params.id}`, {
         permissions: JSON.parse(values.selectedPermissions ?? "[]"),
@@ -68,7 +68,7 @@ export function EditRole() {
     },
   });
 
-  const onFormSubmit: SubmitHandler<UpdateRoleType> = async (data) => {
+  const onFormSubmit: SubmitHandler<RoleType> = async (data) => {
     await rolesMutationQuery.mutateAsync(data);
     await assignPermissionMutationQuery.mutateAsync(data);
     navigate("/roles");
@@ -79,7 +79,13 @@ export function EditRole() {
       <div className='mb-3'>
         <h1 className='text-3xl font-bold tracking-tight'>Edit Roles</h1>
       </div>
-      {RoleByIdQuery.data && <UpdateRoleForm onSubmit={onFormSubmit} defaultValue={{ name: RoleByIdQuery.data.name, slug: RoleByIdQuery.data.slug }} permissions={RoleByIdQuery.data.permissions} />}
+      {RoleByIdQuery.data && (
+        <RoleForm
+          onSubmit={onFormSubmit}
+          defaultValue={{ name: RoleByIdQuery.data.name, slug: RoleByIdQuery.data.slug }}
+          permissions={RoleByIdQuery.data.permissions}
+        />
+      )}
     </div>
   );
 }

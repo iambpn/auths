@@ -1,20 +1,28 @@
 import { NextFunction, Request, Response, Router } from "express";
-import { isAuthenticated, isDefaultSuperAdmin } from "../middleware/auth.middleware";
+import { isAuthenticated, isAdmin } from "../middleware/auth.middleware";
 import { validate } from "../utils/helper/validate";
 import { GetByIdType, getByIdValidationSchema } from "../utils/validation_schema/cms/getById.validation.schema";
 import { CreateRoleType, createRoleValidationSchema } from "../utils/validation_schema/cms/createRole.validation.schema";
 import { PaginationType, paginationValidationSchema } from "../utils/validation_schema/cms/pagination.validation.schema";
 import { assignPermissionsToRole, createRole, deleteRole, getAllRoles, getRoleById, updateRole } from "../service/roles.service";
 import { PaginationQuery } from "../utils/helper/parsePagination";
-import { AssignPermissionToRoleType, assignPermissionToRoleValidationSchema } from "../utils/validation_schema/cms/assignPermissionToRole.validation.schema";
-import { SearchQueryType, SearchQueryValidationSchema, WithPermissionType, WithPermissionValidationSchema } from "../utils/validation_schema/cms/queryParams.validation.schema";
+import {
+  AssignPermissionToRoleType,
+  assignPermissionToRoleValidationSchema,
+} from "../utils/validation_schema/cms/assignPermissionToRole.validation.schema";
+import {
+  SearchQueryType,
+  SearchQueryValidationSchema,
+  WithPermissionType,
+  WithPermissionValidationSchema,
+} from "../utils/validation_schema/cms/queryParams.validation.schema";
 
 export const RolesRouter = Router();
 
 RolesRouter.get(
   "/",
   isAuthenticated,
-  isDefaultSuperAdmin,
+  isAdmin,
   validate(paginationValidationSchema, "query"),
   validate(SearchQueryValidationSchema, "query"),
   validate(WithPermissionValidationSchema, "query"),
@@ -29,30 +37,42 @@ RolesRouter.get(
   }
 );
 
-RolesRouter.get("/:id", isAuthenticated, isDefaultSuperAdmin, validate(getByIdValidationSchema, "params"), async (req: Request<GetByIdType>, res: Response, next: NextFunction) => {
-  try {
-    const params = req.params;
-    const result = await getRoleById(params.id);
-    return res.status(200).json(result);
-  } catch (error: unknown) {
-    next(error);
+RolesRouter.get(
+  "/:id",
+  isAuthenticated,
+  isAdmin,
+  validate(getByIdValidationSchema, "params"),
+  async (req: Request<GetByIdType>, res: Response, next: NextFunction) => {
+    try {
+      const params = req.params;
+      const result = await getRoleById(params.id);
+      return res.status(200).json(result);
+    } catch (error: unknown) {
+      next(error);
+    }
   }
-});
+);
 
-RolesRouter.post("/", isAuthenticated, isDefaultSuperAdmin, validate(createRoleValidationSchema), async (req: Request<any, any, CreateRoleType>, res: Response, next: NextFunction) => {
-  try {
-    const body = req.body;
-    const result = await createRole(body);
-    return res.status(201).json(result);
-  } catch (error: unknown) {
-    next(error);
+RolesRouter.post(
+  "/",
+  isAuthenticated,
+  isAdmin,
+  validate(createRoleValidationSchema),
+  async (req: Request<any, any, CreateRoleType>, res: Response, next: NextFunction) => {
+    try {
+      const body = req.body;
+      const result = await createRole(body);
+      return res.status(201).json(result);
+    } catch (error: unknown) {
+      next(error);
+    }
   }
-});
+);
 
 RolesRouter.put(
   "/:id",
   isAuthenticated,
-  isDefaultSuperAdmin,
+  isAdmin,
   validate(createRoleValidationSchema),
   validate(getByIdValidationSchema, "params"),
   async (req: Request<GetByIdType, any, CreateRoleType>, res: Response, next: NextFunction) => {
@@ -68,21 +88,27 @@ RolesRouter.put(
   }
 );
 
-RolesRouter.delete("/:id", isAuthenticated, isDefaultSuperAdmin, validate(getByIdValidationSchema), async (req: Request<GetByIdType>, res: Response, next: NextFunction) => {
-  try {
-    const params = req.params;
+RolesRouter.delete(
+  "/:id",
+  isAuthenticated,
+  isAdmin,
+  validate(getByIdValidationSchema, "params"),
+  async (req: Request<GetByIdType>, res: Response, next: NextFunction) => {
+    try {
+      const params = req.params;
 
-    const result = await deleteRole(params.id);
-    return res.status(200).json(result);
-  } catch (error) {
-    next(error);
+      const result = await deleteRole(params.id);
+      return res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 RolesRouter.post(
   "/assignPermission/:id",
   isAuthenticated,
-  isDefaultSuperAdmin,
+  isAdmin,
   validate(getByIdValidationSchema, "params"),
   validate(assignPermissionToRoleValidationSchema),
   async (req: Request<GetByIdType, any, AssignPermissionToRoleType>, res: Response, next: NextFunction) => {

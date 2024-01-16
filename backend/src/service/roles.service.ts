@@ -94,6 +94,13 @@ export async function getRoleBySlug(slug: string) {
 }
 
 export async function createRole(roleData: CreateRoleType) {
+  // Check if role with the same slug exists
+  const [existingRole] = await db.select().from(RolesSchema).where(eq(RolesSchema.slug, roleData.slug)).limit(1);
+
+  if (existingRole) {
+    throw new HttpError("Role with the same slug already exists.", 409);
+  }
+
   const [role] = await db
     .insert(RolesSchema)
     .values({
@@ -111,6 +118,13 @@ export async function createRole(roleData: CreateRoleType) {
 export async function updateRole(id: string, roleData: CreateRoleType) {
   const roleById = await getRoleById(id);
 
+  // role by slug
+  const [roleBySlug] = await db.select().from(RolesSchema).where(eq(RolesSchema.slug, roleData.slug)).limit(1);
+
+  if (roleBySlug && roleBySlug.uuid !== roleById.uuid) {
+    throw new HttpError("Role with the same slug already exists.", 409);
+  }
+
   const [role] = await db
     .update(RolesSchema)
     .set({
@@ -126,6 +140,10 @@ export async function updateRole(id: string, roleData: CreateRoleType) {
 
 export async function deleteRole(id: string) {
   const roleById = await getRoleById(id);
+
+  if (roleById.slug === config.superAdminSlug) {
+    throw new HttpError("Cannot delete super admin role.", 400);
+  }
 
   const usersByRoles = await db.select().from(UserSchema).where(eq(UserSchema.role, roleById.uuid));
 
@@ -187,5 +205,10 @@ export async function assignPermissionsToRole(id: string, data: AssignPermission
 
 export async function getSuperAdminRole() {
   const [superAdminRole] = await db.select().from(RolesSchema).where(eq(RolesSchema.slug, config.superAdminSlug)).limit(1);
+
+  if (!superAdminRole) {
+    throw new HttpError("Role not found", 400);
+  }
+
   return superAdminRole;
 }
