@@ -1,6 +1,12 @@
 # Auths
 
-Authentication System similar to Auth0
+Authentication System inspired by Auth0. It is a plug and play authentication and authorization system with in `express` application. Auths has support for 3 different type of database `mysql2`, `sqlite` and `postgres` to store user credentials.
+
+**Setup auths with 3 simple steps:**
+
+- Install auths in to your existing express application
+- Setup required environment variable
+- Link your express app to auths
 
 ## Documentation:
 
@@ -259,7 +265,7 @@ type AuthsRequestUser<T = Record<string, any>>
 
 ## Limitation:
 
-- Currently only `better-sqlite3`, `node-postgres` and `mysql2` db are only supported.
+- Currently only `better-sqlite3`, `node-postgres` and `mysql2` db drivers are only supported.
 
 ## Examples
 
