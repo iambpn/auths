@@ -1,6 +1,6 @@
-import { eq, sql } from "drizzle-orm";
-import { db } from "../schema/drizzle-migrate";
-import { RolesSchema, UserSchema } from "../schema/drizzle-schema";
+import { asc, eq, sql } from "drizzle-orm";
+import { db } from "../dbSchema/drizzle-migrate";
+import { schema } from "../dbSchema/drizzle-schema";
 import { HttpError } from "../utils/helper/httpError";
 import { PaginatedResponse, PaginationQuery } from "../utils/helper/parsePagination";
 import { UpdateUserType } from "../utils/validation_schema/cms/updateUser.validation.schema";
@@ -8,20 +8,21 @@ import { UpdateUserType } from "../utils/validation_schema/cms/updateUser.valida
 export async function getAllUsers(paginationQuery: ReturnType<typeof PaginationQuery>) {
   const users = await db
     .select({
-      uuid: UserSchema.uuid,
-      email: UserSchema.email,
-      others: UserSchema.others,
-      role: UserSchema.role,
-      createdAt: UserSchema.createdAt,
-      updatedAt: UserSchema.updatedAt,
+      uuid: schema.UserSchema.uuid,
+      email: schema.UserSchema.email,
+      others: schema.UserSchema.others,
+      role: schema.UserSchema.role,
+      createdAt: schema.UserSchema.createdAt,
+      updatedAt: schema.UserSchema.updatedAt,
     })
-    .from(UserSchema)
+    .from(schema.UserSchema)
+    .orderBy(asc(schema.UserSchema.updatedAt))
     .limit(paginationQuery.limit)
     .offset(paginationQuery.skip);
 
   const usersResponse = await Promise.all(
     users.map(async (user) => {
-      const [role] = await db.select().from(RolesSchema).where(eq(RolesSchema.uuid, user.role)).limit(1);
+      const [role] = await db.select().from(schema.RolesSchema).where(eq(schema.RolesSchema.uuid, user.role)).limit(1);
       return { ...user, role: role };
     })
   );
@@ -30,7 +31,7 @@ export async function getAllUsers(paginationQuery: ReturnType<typeof PaginationQ
     .select({
       count: sql<number>`count(*)`,
     })
-    .from(UserSchema);
+    .from(schema.UserSchema);
 
   return { users: usersResponse, ...PaginatedResponse(count.count, paginationQuery) };
 }
@@ -38,33 +39,37 @@ export async function getAllUsers(paginationQuery: ReturnType<typeof PaginationQ
 export async function getUserById(id: string) {
   const [user] = await db
     .select({
-      uuid: UserSchema.uuid,
-      email: UserSchema.email,
-      others: UserSchema.others,
-      role: UserSchema.role,
-      createdAt: UserSchema.createdAt,
-      updatedAt: UserSchema.updatedAt,
+      uuid: schema.UserSchema.uuid,
+      email: schema.UserSchema.email,
+      others: schema.UserSchema.others,
+      role: schema.UserSchema.role,
+      createdAt: schema.UserSchema.createdAt,
+      updatedAt: schema.UserSchema.updatedAt,
     })
-    .from(UserSchema)
-    .where(eq(UserSchema.uuid, id))
+    .from(schema.UserSchema)
+    .where(eq(schema.UserSchema.uuid, id))
     .limit(1);
 
   if (!user) {
     throw new HttpError("User Not found", 404);
   }
 
-  const [role] = await db.select().from(RolesSchema).where(eq(RolesSchema.uuid, user.role)).limit(1);
+  const [role] = await db.select().from(schema.RolesSchema).where(eq(schema.RolesSchema.uuid, user.role)).limit(1);
   return { ...user, role: role };
 }
 
 export async function updateUser(userData: UpdateUserType, id: string) {
-  const [user] = await db.select().from(UserSchema).where(eq(UserSchema.uuid, id)).limit(1);
+  const [user] = await db.select().from(schema.UserSchema).where(eq(schema.UserSchema.uuid, id)).limit(1);
 
   if (!user) {
     throw new HttpError("User Not found", 404);
   }
 
-  const [existingUser] = await db.select({ uuid: UserSchema.uuid }).from(UserSchema).where(eq(UserSchema.email, userData.email)).limit(1);
+  const [existingUser] = await db
+    .select({ uuid: schema.UserSchema.uuid })
+    .from(schema.UserSchema)
+    .where(eq(schema.UserSchema.email, userData.email))
+    .limit(1);
 
   if (existingUser && existingUser.uuid !== id) {
     throw new HttpError("User with this email already exists", 400);
@@ -75,7 +80,7 @@ export async function updateUser(userData: UpdateUserType, id: string) {
     updatedAt: new Date(),
   };
 
-  await db.update(UserSchema).set(updateData).where(eq(UserSchema.uuid, id));
+  await db.update(schema.UserSchema).set(updateData).where(eq(schema.UserSchema.uuid, id));
 
   const updatedUser = await getUserById(user.uuid);
   return updatedUser;
@@ -84,18 +89,18 @@ export async function updateUser(userData: UpdateUserType, id: string) {
 export async function deleteUser(id: string) {
   const [user] = await db
     .select({
-      email: UserSchema.email,
-      uuid: UserSchema.uuid,
+      email: schema.UserSchema.email,
+      uuid: schema.UserSchema.uuid,
     })
-    .from(UserSchema)
-    .where(eq(UserSchema.uuid, id))
+    .from(schema.UserSchema)
+    .where(eq(schema.UserSchema.uuid, id))
     .limit(1);
 
   if (!user) {
     throw new HttpError("User Not found", 404);
   }
 
-  await db.delete(UserSchema).where(eq(UserSchema.uuid, id));
+  await db.delete(schema.UserSchema).where(eq(schema.UserSchema.uuid, id));
 
   return user;
 }

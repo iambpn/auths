@@ -9,7 +9,7 @@ import {
   updatePassword,
   updateSecurityQuestion,
   validateSuperadminEmail,
-} from "../service/cms.auth.service";
+} from "../service/auth.cms.service";
 import { validate } from "../utils/helper/validate";
 import { LoginValidationSchema, LoginValidationType } from "../utils/validation_schema/auths/login.validation.schema";
 import { ForgotPasswordType, ForgotPasswordValidationSchema } from "../utils/validation_schema/cms/forgotPassword.validation.schema";

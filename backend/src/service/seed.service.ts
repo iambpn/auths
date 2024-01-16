@@ -1,10 +1,10 @@
 import { createHash } from "crypto";
-import { desc, sql } from "drizzle-orm";
+import { asc, desc, sql } from "drizzle-orm";
 import * as fs from "fs";
 import * as path from "path";
 import * as UUID from "uuid";
-import { db } from "../schema/drizzle-migrate";
-import { PermissionSchema, PermissionSeedSchema, RolesPermissionsSchema, RolesSchema } from "../schema/drizzle-schema";
+import { db } from "../dbSchema/drizzle-migrate";
+import { schema } from "../dbSchema/drizzle-schema";
 import { config } from "../utils/config/app-config";
 import { permissionValidationSchema } from "../utils/validation_schema/auths/permission.validation.schema";
 import { signUpFn } from "./auth.service";
@@ -21,8 +21,8 @@ export async function seedSuperAdminUser() {
 
   const [existingPermission] = await db
     .select()
-    .from(PermissionSeedSchema)
-    .where(sql`${PermissionSeedSchema.hash} = ${hash}`)
+    .from(schema.PermissionSeedSchema)
+    .where(sql`${schema.PermissionSeedSchema.hash} = ${hash}`)
     .limit(1);
 
   if (existingPermission && existingPermission.hash === hash) {
@@ -32,7 +32,7 @@ export async function seedSuperAdminUser() {
   // insert super admin
   await signUpFn("admin@admin.com", "admin123", config.superAdminSlug);
 
-  await db.insert(PermissionSeedSchema).values({
+  await db.insert(schema.PermissionSeedSchema).values({
     hash: hash,
     createdAt: new Date(),
   });
@@ -46,15 +46,15 @@ export async function seedSuperAdminRole() {
 
   const [existingPermission] = await db
     .select()
-    .from(PermissionSeedSchema)
-    .where(sql`${PermissionSeedSchema.hash} = ${hash}`)
+    .from(schema.PermissionSeedSchema)
+    .where(sql`${schema.PermissionSeedSchema.hash} = ${hash}`)
     .limit(1);
 
   if (existingPermission && existingPermission.hash === hash) {
     return false;
   }
 
-  await db.insert(RolesSchema).values({
+  await db.insert(schema.RolesSchema).values({
     createdAt: new Date(),
     updatedAt: new Date(),
     name: "SuperAdmin_Admin",
@@ -62,7 +62,7 @@ export async function seedSuperAdminRole() {
     uuid: UUID.v4(),
   });
 
-  await db.insert(PermissionSeedSchema).values({
+  await db.insert(schema.PermissionSeedSchema).values({
     hash: hash,
     createdAt: new Date(),
   });
@@ -113,7 +113,7 @@ export async function seedFilePermissionCallback(err: unknown, data: string) {
     const hash = createHash("sha256").update(data).digest("hex");
 
     // get last seed permission hash
-    const [existingPermission] = await db.select().from(PermissionSeedSchema).orderBy(desc(PermissionSeedSchema.createdAt)).limit(1);
+    const [existingPermission] = await db.select().from(schema.PermissionSeedSchema).orderBy(desc(schema.PermissionSeedSchema.createdAt)).limit(1);
 
     if (existingPermission && existingPermission.hash === hash) {
       return false;
@@ -130,7 +130,7 @@ export async function seedFilePermissionCallback(err: unknown, data: string) {
       updatedAt: new Date(),
     }));
 
-    const previousPermissions = await db.select().from(PermissionSchema);
+    const previousPermissions = await db.select().from(schema.PermissionSchema).orderBy(asc(schema.PermissionSchema.updatedAt));
 
     // delete previous permission
     const deletePermissions = previousPermissions.filter(
@@ -138,7 +138,7 @@ export async function seedFilePermissionCallback(err: unknown, data: string) {
     );
 
     if (deletePermissions.length > 0) {
-      await db.delete(PermissionSchema).where(sql`${PermissionSchema.slug} IN ${deletePermissions.map((x) => x.slug)}`);
+      await db.delete(schema.PermissionSchema).where(sql`${schema.PermissionSchema.slug} IN ${deletePermissions.map((x) => x.slug)}`);
     }
 
     // insert permission to db
@@ -147,7 +147,7 @@ export async function seedFilePermissionCallback(err: unknown, data: string) {
     );
 
     if (insertPermissions.length > 0) {
-      await db.insert(PermissionSchema).values(insertPermissions);
+      await db.insert(schema.PermissionSchema).values(insertPermissions);
     }
 
     // update permission
@@ -158,13 +158,13 @@ export async function seedFilePermissionCallback(err: unknown, data: string) {
     updatePermissions.map(async (permission) => {
       const { createdAt, uuid, ...updateData } = permission;
       await db
-        .update(PermissionSchema)
+        .update(schema.PermissionSchema)
         .set(updateData)
-        .where(sql`${PermissionSchema.slug} = ${permission.slug}`);
+        .where(sql`${schema.PermissionSchema.slug} = ${permission.slug}`);
     });
 
     //  insert into permission seed scheme
-    await db.insert(PermissionSeedSchema).values({
+    await db.insert(schema.PermissionSeedSchema).values({
       hash: hash,
       createdAt: new Date(),
     });

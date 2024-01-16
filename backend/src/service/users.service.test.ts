@@ -1,14 +1,14 @@
 import * as bcrypt from "bcrypt";
-import * as uuid from "uuid";
-import { db } from "../schema/__mocks__/drizzle-migrate";
-import { config } from "../utils/config/app-config";
-import { RolesSchema, UserSchema } from "../schema/drizzle-schema";
 import { eq } from "drizzle-orm";
-import { deleteUser, getAllUsers, getUserById, updateUser } from "./users.service";
+import * as uuid from "uuid";
+import { db } from "../dbSchema/__mocks__/drizzle-migrate";
+import { schema } from "../dbSchema/drizzle-schema";
+import { config } from "../utils/config/app-config";
 import { HttpError } from "../utils/helper/httpError";
+import { deleteUser, getAllUsers, getUserById, updateUser } from "./users.service";
 
 //  mocking drizzle instance using manual mocking
-jest.mock("../schema/drizzle-migrate");
+jest.mock("../dbSchema/drizzle-migrate");
 
 const UserRole = { uuid: uuid.v4(), slug: "test_role" };
 const Email = "abc@gmail.com";
@@ -19,7 +19,7 @@ async function hashPassword(password: string) {
 }
 
 async function insertUser(email: string, password: string, roleId?: string) {
-  await db.insert(UserSchema).values({
+  await db.insert(schema.UserSchema).values({
     email,
     role: roleId ?? uuid.v4(),
     password: await hashPassword(password),
@@ -28,13 +28,13 @@ async function insertUser(email: string, password: string, roleId?: string) {
     updatedAt: new Date(),
   });
 
-  const user = await db.select().from(UserSchema).where(eq(UserSchema.email, email)).limit(1);
+  const [user] = await db.select().from(schema.UserSchema).where(eq(schema.UserSchema.email, email)).limit(1);
 
-  return user[0];
+  return user;
 }
 
 async function insertRole(role: typeof UserRole) {
-  await db.insert(RolesSchema).values({
+  await db.insert(schema.RolesSchema).values({
     name: role.slug,
     slug: role.slug,
     uuid: role.uuid,
@@ -146,7 +146,7 @@ describe("Users Service Testing", () => {
 
       await deleteUser(user.uuid);
 
-      const [emptyUser] = await db.select().from(UserSchema).where(eq(UserSchema.email, user.email));
+      const [emptyUser] = await db.select().from(schema.UserSchema).where(eq(schema.UserSchema.email, user.email)).limit(1);
 
       expect(emptyUser).toBeUndefined();
     });

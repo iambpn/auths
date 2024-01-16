@@ -102,3 +102,15 @@ export const ResetPasswordTokenSchema = sqliteTable("resetPasswordToken", {
   expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
 });
+
+export const sqLiteDBSchema = {
+  UserSchema,
+  LoginTokenSchema,
+  ForgotPasswordSchema,
+  RolesSchema,
+  PermissionSchema,
+  RolesPermissionsSchema,
+  PermissionSeedSchema,
+  SecurityQuestionSchema,
+  ResetPasswordTokenSchema,
+};
