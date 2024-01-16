@@ -267,6 +267,19 @@ type AuthsRequestUser<T = Record<string, any>>
 
 - Currently only `better-sqlite3`, `node-postgres` and `mysql2` db drivers are only supported.
 
+## Changelog
+
+- 1.0.0
+  - Auths Released
+  - Added `Sqlite` database is supported
+  - Added `Authentication` and `Authorization` support
+- 2.0.0:
+  - Adding support for ` mysql2` and `postgres` database
+  - Added User management system
+  - Added more env variables
+  - **Breaking**: `Auths` function is now async
+  - **Breaking**: `AUTHS_DB_DRIVER` env variable is now required.
+
 ## Examples
 
 - [Project Setup Example](/backend/example/)
