@@ -1,7 +1,7 @@
 {
   "name": "@iambpn/auths-meta",
-  "version": "0.0.0",
-  "description": "Authentication System similar to Auth0",
+  "version": "1.0.0",
+  "description": "Authentication System inspired by Auth0",
   "main": "./backend/dist/main.js",
   "scripts": {
     "dev": "npm run dev -w frontend & npm run dev -w backend",
