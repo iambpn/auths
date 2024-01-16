@@ -9,6 +9,11 @@ Authentication System Inspired by Auth0
 - `npm init -w <work-space-name>`: Create workspace folder
 - `npm run <script name> <npm-options> -w <workspace-name> -- <script options>` : Run script
 
+# Commands to test packed content
+
+- `npm run pack`: Packs `auths` into a tarball
+- `npm run publish:dry`: Runs `npm publish` command without publishing it to npm registry
+
 also read [contrib.md](/backend/contrib.md)
 
 # References
