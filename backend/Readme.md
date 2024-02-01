@@ -151,12 +151,14 @@ AUTHS_DB_NAME?: string;
 
 ## API References
 
+Two system i.e (Auths and your Backend System) should uniquely identify the user using either their email or auths returned uuid.
+
 ### Consumable REST APIs
 
 Here are the list of exposed apis users can consume.
 
 ```
-### User Login
+### Get User Login Token API
 GET {URL}/auths/login HTTP/1.1
 Content-Type: application/json
 
@@ -167,13 +169,13 @@ Content-Type: application/json
 ```
 
 ```
-### User Reset Password
+### User Reset Password API
 GET {URL}/auths/resetPassword HTTP/1.1
 Content-Type: application/json
 
 {
   email: string;
-  token: string;
+  token: string; // Token returned from InitiateForgotPassword function
   newPassword: string;
 }
 ```
@@ -205,8 +207,8 @@ function signup(
 ```
 
 ```ts
-function loginFn(
-  token: string,
+function login(
+  token: string, // Token returned from /auths/login API endpoint
   email: string,
   additionalPayload?: Record<string, any> // additional payload to store in jwt
 ): Promise<{
@@ -234,6 +236,23 @@ function initiateForgotPasswordFn(
   email: string;
   token: string;
   expires_at: Date;
+}>;
+```
+
+```ts
+function getUserById(id: string): Promise<{
+  role: {
+    uuid: string;
+    name: string;
+    createdAt: Date;
+    updatedAt: Date;
+    slug: string;
+  };
+  uuid: string;
+  email: string;
+  others: string | null;
+  createdAt: Date;
+  updatedAt: Date;
 }>;
 ```
 
@@ -266,6 +285,12 @@ type AuthsRequestUser<T = Record<string, any>>
 ## Limitation:
 
 - Currently only `better-sqlite3`, `node-postgres` and `mysql2` db drivers are only supported.
+
+## Challenges
+
+- Due to the use of drizzle orm supporting multiple databases was a difficult task. To support multiple databases it required me to do some TS type fiddling and type error suppression and also required different migrations for each database. I think, this could have been prevented if i had used different orm like sequelize or typeorm (which out of the box supported different sql databases) with the tradeoff of losing drizzles end to end TS type safety.
+
+- Since the drizzle is new for me i felt particularly difficult in reusing the same conditional logic with different select parameters (columns). Either, i had to rewrite the same query condition with different select parameters (columns) or i have to settle for fetching all the columns and manually discarding the unwanted columns.
 
 ## Changelog
 
