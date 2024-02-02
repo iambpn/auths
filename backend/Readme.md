@@ -304,7 +304,10 @@ type AuthsRequestUser<T = Record<string, any>>
   - Added more env variables
   - **Breaking**: `Auths` function is now async
   - **Breaking**: `AUTHS_DB_DRIVER` env variable is now required.
+- 2.0.1 (Pending Release)
+  - Exposed `getUserById` function for backend system interactions
 
 ## Examples
 
-- [Project Setup Example](/backend/example/)
+- [Project Setup Example (TS)](/backend/example/)
+- [Ready to go example (JS)](https://github.com/iambpn/auths_example)
