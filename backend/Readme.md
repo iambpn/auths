@@ -1,8 +1,8 @@
 # Auths
 
-Authentication System inspired by Auth0. It is a plug and play authentication and authorization system with in `express` application. Auths has support for 3 different type of database `mysql2`, `sqlite` and `postgres` to store user credentials.
+Authentication System inspired by Auth0. It is a plug and play authentication and authorization system with in `express` application. Auths provides different kinds of APIs and functions along with Auths [Dashboard](#app_preview) out of the box, allowing you to manage your users and their access. Currently, Auths has support for three different types of databases: mysql2, sqlite, and postgres, to store user data and credentials.
 
-**Setup auths with 3 simple steps:**
+**Setup auths with 3 simple steps: [Go to Getting Started](#getting-started-setting-up-your-project-with-sqlite-db)**
 
 - Install auths in to your existing express application
 - Setup required environment variable
@@ -12,53 +12,81 @@ Authentication System inspired by Auth0. It is a plug and play authentication an
 
 ### Getting Started: **setting up your project with sqlite db**
 
-```sh
-# File: .env
-AUTHS_DB_DRIVER=sqlite
-AUTHS_DB_URI=""; # sqlite uri is only supported
-AUTHS_SECRET=""; # secret to use while issuing jwt token / other token
-AUTHS_JWT_EXPIRATION_TIME=string; # JWT token expiration time
-AUTHS_LOGIN_TOKEN_EXPIRATION_TIME=string; # Login token expiration time
-AUTHS_HASH_SALT_ROUNDS=string; # number of rounds to use while hashing password
-```
+- Install Auths
 
-```ts
-// File: main.ts
+  ```shell
+  npm i @iambpn/auths
+  ```
 
-// Load Env
-dotenv.config();
+- Setup Env Variables
 
-// initiate express server
-const app = express();
+  ```sh
+  # File: .env
 
-// configure global middlewares
-app.use(express.json());
-...
+  AUTHS_DB_DRIVER=sqlite
+  AUTHS_DB_URI=""; # sqlite uri is only supported
+  AUTHS_SECRET=""; # secret to use while issuing jwt token / other token
+  AUTHS_JWT_EXPIRATION_TIME=string; # JWT token expiration time
+  AUTHS_LOGIN_TOKEN_EXPIRATION_TIME=string; # Login token expiration time
+  AUTHS_HASH_SALT_ROUNDS=string; # number of rounds to use while hashing password
+  ```
 
-// Initiate auth package
-authsInit(app, path.join(__dirname, "permission.json"));
-```
+- Inside of main.ts file
 
-Since seeding permission can be tedious, you can create a `permission.json` file in your project root and seed it automatically
+  ```ts
+  // File: main.ts
 
-```ts
-// File: permission.json
-{
-  "isSeeded": false, // boolean: "false" if you want to run the seed. This value will be automatically set to "true" after the first seed
+  // Load Env
+  dotenv.config();
 
-  // default permissions
-  "permission": [
-    { "name": "create", "slug": "create" },
+  // initiate express server
+  const app = express();
+
+  // configure global middlewares
+  app.use(express.json());
+  ...
+
+  // Initiate auth package
+  authsInit(app, path.join(__dirname, "permission.json")).then(()=>{
+    // Other Routes (Your backend APIs)
     ...
-  ]
-}
-```
 
-- Accessing auths dashboard:
+    // start your express server
+    app.listen(8080, () => {
+      console.log("listening on port 8080");
+    });
+  });
+  ```
+
+- Seeding Permission (Optional)
+
+  Since seeding permission can be tedious, you can create a `permission.json` file in your project root and seed it automatically
+
+  ```ts
+  // File: permission.json
+  {
+    "isSeeded": false, // boolean: "false" if you want to run the seed. This value will be automatically set to "true" after the first seed
+
+    // default permissions
+    "permission": [
+      { "name": "create", "slug": "create" },
+      ...
+    ]
+  }
+  ```
+
+- Accessing `auths` `dashboard`:
 
   `<url>/auths` & default username and password: `admin@admin.com` and `admin123`
 
-  Example: `http://localhost:8008/auths`
+  **_Example:_** `http://localhost:8008/auths`
+
+  **_Preview:_**
+  <a id="app_preview"></a>
+
+  ![Login Page](/app_preview/login.png)
+
+  ![Dashboard Page](/app_preview/dashboard.png)
 
 - **_Auths Seeds:_**
 
@@ -85,7 +113,7 @@ Since seeding permission can be tedious, you can create a `permission.json` file
 
   ![Forgot Password](/workflow/Auths%20Forgot%20password%20and%20Reset%20Password.png)
 
-## List of ENV Variables
+### List of ENV Variables
 
 ```ts
 /*
