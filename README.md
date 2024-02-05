@@ -4,6 +4,8 @@ Authentication System Inspired by Auth0
 
 **Links to Documentation: [Docs.md](/backend/Readme.md)**
 
+**Links to NPM Package: [Npm](https://www.npmjs.com/package/@iambpn/auths)**
+
 # Commands to setup the project for development.
 
 - `npm init -w <work-space-name>`: Create workspace folder
