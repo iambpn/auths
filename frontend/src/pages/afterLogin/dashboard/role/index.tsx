@@ -1,3 +1,4 @@
+import { AddPagination } from "@/components/addPagination";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,7 +18,7 @@ import { handleError } from "@/lib/handleError";
 import { NavName } from "@/lib/navName";
 import { useAppStore } from "@/store/useAppStore";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { BiEditAlt } from "react-icons/bi";
 import { IoMdAdd } from "react-icons/io";
 import { MdDeleteOutline } from "react-icons/md";
@@ -29,14 +30,16 @@ export function ListRoles() {
   const updateActiveNavLink = useAppStore((state) => state.setActiveNav);
   const queryClient = useQueryClient();
 
+  const [page, setPage] = useState(0);
+
   useEffect(() => {
     updateActiveNavLink(NavName.roles);
   }, []);
 
   const rolesQuery = useQuery<APIResponse.Roles["GET-/"]>({
-    queryKey: ["roles"],
+    queryKey: ["roles", { page }],
     queryFn: async () => {
-      const res = await axiosInstance.get("/roles?page=0&limit=10");
+      const res = await axiosInstance.get(`/roles?page=${page}&limit=10`);
       return res.data;
     },
   });
@@ -130,7 +133,9 @@ export function ListRoles() {
                                 <AlertDialogTitle>
                                   Are you sure, You want to delete <span className='capitalize'>`{role.name}`</span> role?
                                 </AlertDialogTitle>
-                                <AlertDialogDescription>This action cannot be undone. This will permanently delete selected role from our database.</AlertDialogDescription>
+                                <AlertDialogDescription>
+                                  This action cannot be undone. This will permanently delete selected role from our database.
+                                </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -149,6 +154,9 @@ export function ListRoles() {
               ))}
           </TableBody>
         </Table>
+        {rolesQuery.data && rolesQuery.data.roles.length > 0 && (
+          <AddPagination currentPage={rolesQuery.data.currentPage} totalPage={rolesQuery.data.totalPage} setPage={setPage} />
+        )}
       </div>
     </div>
   );

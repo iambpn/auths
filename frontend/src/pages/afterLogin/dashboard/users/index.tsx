@@ -1,3 +1,4 @@
+import { AddPagination } from "@/components/addPagination";
 import { AvatarComponent } from "@/components/avatar/avatar.component";
 import {
   AlertDialog,
@@ -18,7 +19,7 @@ import { handleError } from "@/lib/handleError";
 import { NavName } from "@/lib/navName";
 import { useAppStore } from "@/store/useAppStore";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { BiEditAlt } from "react-icons/bi";
 import { IoMdAdd } from "react-icons/io";
 import { MdDeleteOutline } from "react-icons/md";
@@ -29,6 +30,8 @@ export function Users() {
   // update Permission Nav Selection
   const updateActiveNavLink = useAppStore((state) => state.setActiveNav);
 
+  const [page, setPage] = useState(0);
+
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -36,9 +39,9 @@ export function Users() {
   }, []);
 
   const UsersQuery = useQuery<APIResponse.Users["GET-/"]>({
-    queryKey: ["users"],
+    queryKey: ["users", { page }],
     queryFn: async () => {
-      const res = await axiosInstance.get("/users?page=0&limit=10");
+      const res = await axiosInstance.get(`/users?page=${page}&limit=10`);
       return res.data;
     },
   });
@@ -157,6 +160,9 @@ export function Users() {
               ))}
           </TableBody>
         </Table>
+        {UsersQuery.data && UsersQuery.data.users.length > 0 && (
+          <AddPagination currentPage={UsersQuery.data.currentPage} totalPage={UsersQuery.data.totalPage} setPage={setPage} />
+        )}
       </div>
     </div>
   );
