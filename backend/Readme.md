@@ -334,6 +334,7 @@ type AuthsRequestUser<T = Record<string, any>>
   - **Breaking**: `AUTHS_DB_DRIVER` env variable is now required.
 - 2.0.1 (Pending Release)
   - Exposed `getUserById` function for backend system interactions
+  - [Bug Fix] - Adding missing pagination in frontend
 
 ## Examples
 
