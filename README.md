@@ -20,12 +20,16 @@ Authentication System Inspired by Auth0
 - `Publish: npm run publish:dry`: Dry run `npm run publish` to check its contents
 - `Publish: npm run publish`: Publish the package to the npm registry
 
-# Commands to test packed content
+# Steps to test package
 
 - `npm run pack`: Packs `auths` into a tarball
-- `npm run publish:dry`: Runs `npm publish` command without publishing it to npm registry
+- Extract tarball and setup test project.
+- Run Project
+- `npm run publish:dry`: Runs `npm publish` command without publishing it to npm registry and check publish log.
 
-also read [contrib.md](/backend/contrib.md)
+# Contribution Docs
+
+- [contrib.md](/backend/contrib.md)
 
 # References
 

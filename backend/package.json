@@ -77,6 +77,6 @@
     "iambpn"
   ],
   "volta": {
-    "node": "20.10.0"
+    "extends": "../package.json"
   }
 }
