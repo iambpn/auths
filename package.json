@@ -7,6 +7,7 @@
     "dev": "npm run dev -w frontend & npm run dev -w backend",
     "build": "npm run build --workspaces",
     "test": "echo \"Error: no test specified ofr auths\" && exit 1",
+    "version": "npm version -w backend -- ",
     "pack": "npm pack -w backend",
     "publish": "npm run build && npm publish --access=public -w backend",
     "publish:dry": "npm publish --dry-run -w backend"
