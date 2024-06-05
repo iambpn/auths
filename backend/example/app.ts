@@ -1,7 +1,7 @@
+import dotEnv from "dotenv";
 import express, { type NextFunction, type Request, type Response } from "express";
 import * as path from "path";
 import { authsInit, initiateForgotPassword, isAuthenticated, login, requiredPermissions, signup } from "../src/main";
-import dotEnv from "dotenv";
 
 dotEnv.config({ path: path.join(__dirname, "../.env") });
 
