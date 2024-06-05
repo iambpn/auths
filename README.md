@@ -33,5 +33,6 @@ Authentication System Inspired by Auth0
 
 # References
 
+- [NPM Commands](https://docs.npmjs.com/cli/v7/commands/npm)
 - [NPM Workspace](https://docs.npmjs.com/cli/v7/using-npm/workspaces)
 - [ts-node-dev](https://www.npmjs.com/package/ts-node-dev)
